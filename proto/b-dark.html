@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>动词 · 暗场聚光</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Sans+SC:wght@200;300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root {
+    --bg: #0a0908; --case: #0f0e0c; --ink: #ece4d8; --dim: #6b645b; --faint: #2a2622; --line: rgba(255,240,220,.08);
+    --amber: #ffb46a; --xray: #ffb46a;
+    --track-on: var(--amber); --track-off: #2c2824; --thumb: var(--ink);
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --serif: 'Instrument Serif', serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-weight: 300; -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--amber); color: #000; }
+
+  .top { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; padding: 26px 44px; font-size: 12px; letter-spacing: .14em; color: var(--dim); mix-blend-mode: difference; }
+  .top b { color: var(--ink); font-weight: 500; letter-spacing: .4em; }
+
+  /* ---------- Hero：鼠标就是手电筒 ---------- */
+  .hero { position: relative; height: 100vh; min-height: 640px; overflow: hidden; cursor: none; }
+  .layer { position: absolute; inset: 0; display: grid; place-items: center; }
+  .layer h1 { margin: 0; font-weight: 200; font-size: clamp(140px, 26vw, 400px); letter-spacing: .04em; line-height: 1; }
+  .dark h1 { color: #15130f; }
+  .lit {
+    --x: 50%; --y: 50%; --r: 240px;
+    -webkit-mask-image: radial-gradient(circle var(--r) at var(--x) var(--y), #000 0%, rgba(0,0,0,.55) 45%, transparent 100%);
+            mask-image: radial-gradient(circle var(--r) at var(--x) var(--y), #000 0%, rgba(0,0,0,.55) 45%, transparent 100%);
+    background: radial-gradient(circle var(--r) at var(--x) var(--y), rgba(255,180,106,.10), transparent 70%);
+  }
+  .lit h1 { color: var(--ink); text-shadow: 0 0 80px rgba(255,180,106,.25); }
+  /* 只有被照到才看得见的展签 */
+  .tag { position: absolute; font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--amber); white-space: nowrap; }
+  .tag small { display: block; font-family: var(--mono); font-style: normal; font-size: 10px; letter-spacing: .14em; color: var(--dim); margin-top: 2px; }
+  .dark .tag { visibility: hidden; }
+  .hero-foot { position: absolute; left: 44px; right: 44px; bottom: 36px; display: flex; justify-content: space-between; font-size: 12px; letter-spacing: .14em; color: var(--dim); z-index: 5; }
+  .hero-foot em { font-family: var(--serif); font-size: 18px; letter-spacing: 0; color: #8b8378; }
+
+  /* ---------- 展柜 ---------- */
+  .hall-h { padding: 22vh 44px 8vh; display: flex; align-items: baseline; gap: 22px; }
+  .hall-h .n { font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: .14em; }
+  .hall-h h2 { margin: 0; font-weight: 200; font-size: clamp(40px, 5vw, 72px); }
+  .hall-h h2 em { font-family: var(--serif); font-weight: 400; color: var(--dim); font-size: .55em; margin-left: 12px; }
+
+  .exhibit { margin: 0 44px 16vh; border: 1px solid var(--line); background: var(--case); }
+  .ex-stage { height: 70vh; min-height: 460px; background:
+      radial-gradient(ellipse 55% 70% at 50% -12%, rgba(255,190,120,.17), rgba(255,190,120,.04) 55%, transparent 75%), #0b0a09; }
+  .is-xray .ex-stage { background-image: radial-gradient(circle, #2b2620 1px, transparent 1.4px); background-size: 22px 22px; background-color: #0b0a09; }
+  .stage-cap { position: absolute; left: 22px; bottom: 18px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--dim); z-index: 6; pointer-events: none; }
+
+  .ex-target { width: 156px; height: 156px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,180,106,.55); color: var(--ink); font-family: var(--serif); font-style: italic; font-size: 24px;
+    box-shadow: 0 0 0 0 rgba(255,180,106,0), inset 0 0 30px rgba(255,180,106,.06); transition: box-shadow .6s, border-color .6s, background .6s; }
+  .ex-target.is-pulled { border-color: var(--amber); background: rgba(255,180,106,.08); box-shadow: 0 0 80px 4px rgba(255,180,106,.28), inset 0 0 30px rgba(255,180,106,.18); }
+
+  .ex-trail-item { filter: saturate(.9) contrast(1.05); box-shadow: 0 30px 60px -20px #000; }
+  .hint { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 26px; color: #3a352f; pointer-events: none; }
+
+  .info { display: grid; grid-template-columns: 1.1fr 1fr 1fr; border-top: 1px solid var(--line); }
+  .info > div { padding: 30px 30px 34px; }
+  .info > div + div { border-left: 1px solid var(--line); }
+  .ex-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--dim); display: flex; gap: 14px; }
+  .ex-meta .ex-no::before { content: 'Nº '; }
+  .info h3 { margin: 12px 0 4px; font-weight: 300; font-size: 34px; }
+  .info h3 .ex-en { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 22px; color: var(--amber); margin-left: 12px; }
+  .seen { font-size: 12.5px; color: var(--dim); margin: 6px 0 22px; }
+  .ex-principle li { display: grid; grid-template-columns: 22px 1fr; font-size: 13.5px; line-height: 1.85; color: #cfc6b9; padding: 7px 0; }
+  .ex-principle li span { font-family: var(--mono); font-size: 10.5px; color: var(--amber); padding-top: 4px; }
+
+  .col-h { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--dim); margin-bottom: 22px; }
+  .ex-controls { display: grid; gap: 22px; }
+  .ex-ctl { font-size: 13px; color: #cfc6b9; }
+  .ex-ctl-val { font-family: var(--mono); font-size: 11px; color: var(--amber); }
+  .ex-xray { background: none; border: 1px solid #3a342d; color: var(--dim); border-radius: 99px; padding: 5px 14px; font-size: 11.5px; letter-spacing: .12em; cursor: pointer; transition: .3s; }
+  .ex-xray:hover { color: var(--ink); border-color: var(--dim); }
+  .ex-xray[aria-pressed=true] { color: #120f0b; background: var(--amber); border-color: var(--amber); }
+
+  .ex-phrase { flex-direction: column; align-items: stretch; }
+  .ex-phrase-text { font-size: 13.5px; line-height: 1.8; color: var(--ink); padding: 14px 16px; border: 1px dashed #3a342d; flex: none; }
+  .ex-copy { align-self: flex-start; background: var(--amber); color: #120f0b; border: 0; border-radius: 99px; padding: 9px 18px; font-size: 12px; letter-spacing: .08em; cursor: pointer; transition: box-shadow .3s; }
+  .ex-copy:hover { box-shadow: 0 0 30px rgba(255,180,106,.4); }
+  details { margin-top: 24px; }
+  summary { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--dim); cursor: pointer; }
+  .ex-code { font-family: var(--mono); font-size: 11.5px; line-height: 1.75; color: #a79e91; margin-top: 12px; }
+
+  footer { padding: 8vh 44px 10vh; font-size: 12px; color: var(--dim); letter-spacing: .1em; }
+
+  @media (max-width: 960px) {
+    .top { padding: 18px 16px; } .hero-foot { left: 16px; right: 16px; }
+    .hall-h { padding-left: 16px; padding-right: 16px; }
+    .exhibit { margin: 0 16px 12vh; }
+    .info { grid-template-columns: 1fr; } .info > div + div { border-left: 0; border-top: 1px solid var(--line); }
+    .info > div { padding: 24px 18px; }
+    .hero { cursor: auto; }
+  }
+</style>
+</head>
+<body>
+  <header class="top"><b>动词</b><span>原型 B｜暗场聚光</span></header>
+
+  <section class="hero" id="hero">
+    <div class="layer dark"><h1>动词</h1></div>
+    <div class="layer lit" id="lit">
+      <h1>动词</h1>
+      <span class="tag" style="left:12%;top:20%">Parallax<small>视差 · 滚动展厅</small></span>
+      <span class="tag" style="left:72%;top:16%">Magnetic<small>磁吸 · 光标展厅</small></span>
+      <span class="tag" style="left:8%;top:74%">Scramble<small>乱码解码 · 文字展厅</small></span>
+      <span class="tag" style="left:64%;top:78%">Image Trail<small>图片拖尾 · 光标展厅</small></span>
+      <span class="tag" style="left:42%;top:9%">FLIP<small>布局动画 · 转场展厅</small></span>
+      <span class="tag" style="left:84%;top:52%">Distortion<small>扭曲 · 着色器展厅</small></span>
+      <span class="tag" style="left:3%;top:46%">Pinned<small>钉住滚动 · 滚动展厅</small></span>
+    </div>
+    <div class="hero-foot"><span>展厅里没有开灯 · 用你的光去找</span><em>A Lexicon of Motion</em></div>
+  </section>
+
+  <div class="hall-h"><span class="n">HALL II</span><h2>光标展厅<em>Cursor</em></h2></div>
+
+  <section class="exhibit" data-exhibit="magnetic">
+    <div class="ex-stage">
+      <span class="stage-cap">把鼠标靠近那个圆</span>
+      <canvas class="ex-xray-canvas"></canvas>
+      <button class="ex-target"><span class="ex-target-inner">Touch</span></button>
+    </div>
+    <div class="info">
+      <div>
+        <div class="ex-meta"><span class="ex-no"></span><span class="ex-hall"></span></div>
+        <h3><span class="ex-name"></span><span class="ex-en"></span></h3>
+        <p class="seen">常见于：<span class="ex-seen"></span></p>
+        <ol class="ex-principle"></ol>
+      </div>
+      <div>
+        <div class="col-h"><span>调一调</span><button class="ex-xray" aria-pressed="false">透视</button></div>
+        <div class="ex-controls"></div>
+      </div>
+      <div>
+        <div class="col-h"><span>口令</span></div>
+        <div class="ex-phrase"><span class="ex-phrase-text"></span><button class="ex-copy">复制口令</button></div>
+        <details><summary>核心代码</summary><pre class="ex-code"></pre></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="exhibit" data-exhibit="trail">
+    <div class="ex-stage">
+      <span class="stage-cap">在展柜里划过</span>
+      <div class="hint">move slowly</div>
+      <div class="ex-trail-layer"></div>
+      <canvas class="ex-xray-canvas"></canvas>
+    </div>
+    <div class="info">
+      <div>
+        <div class="ex-meta"><span class="ex-no"></span><span class="ex-hall"></span></div>
+        <h3><span class="ex-name"></span><span class="ex-en"></span></h3>
+        <p class="seen">常见于：<span class="ex-seen"></span></p>
+        <ol class="ex-principle"></ol>
+      </div>
+      <div>
+        <div class="col-h"><span>调一调</span><button class="ex-xray" aria-pressed="false">透视</button></div>
+        <div class="ex-controls"></div>
+      </div>
+      <div>
+        <div class="col-h"><span>口令</span></div>
+        <div class="ex-phrase"><span class="ex-phrase-text"></span><button class="ex-copy">复制口令</button></div>
+        <details><summary>核心代码</summary><pre class="ex-code"></pre></details>
+      </div>
+    </div>
+  </section>
+
+  <footer>动词 · 原型 B · 2026</footer>
+
+  <script src="shared.js"></script>
+  <script>
+    // 手电筒：光圈用插值追鼠标，所以有一点“拖着走”的重量感
+    const hero = document.getElementById('hero'), lit = document.getElementById('lit');
+    const m = { x: innerWidth * .5, y: innerHeight * .45 }, c = { ...m };
+    let r = 0, rT = 240;
+    hero.addEventListener('pointermove', e => { const b = hero.getBoundingClientRect(); m.x = e.clientX - b.left; m.y = e.clientY - b.top; rT = 240; });
+    hero.addEventListener('pointerleave', () => (rT = 90));
+    hero.addEventListener('pointerdown', () => (rT = 420));
+    hero.addEventListener('pointerup', () => (rT = 240));
+    (function loop() {
+      c.x += (m.x - c.x) * .09; c.y += (m.y - c.y) * .09; r += (rT - r) * .06;
+      lit.style.setProperty('--x', c.x + 'px'); lit.style.setProperty('--y', c.y + 'px'); lit.style.setProperty('--r', r + 'px');
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

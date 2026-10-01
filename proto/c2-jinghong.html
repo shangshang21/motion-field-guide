@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>惊鸿 · A Lexicon of Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Serif+SC:wght@500;900&family=Noto+Sans+SC:wght@400;500;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  /* 毛笔字体本地托管：只截取页面用到的字，4MB → 8KB */
+  @font-face { font-family: 'Zhi Mang Xing'; src: url('../assets/fonts/ZhiMangXing-sub.woff2') format('woff2'); font-display: block; }
+  :root {
+    --or: #ff5a14; --blk: #0d0d0c; --paper: #f2ede4; --grey: #8a857c;
+    --xray: #ff5a14;
+    --track-on: var(--or); --track-off: #3a3836; --thumb: var(--paper);
+    --disp: 'Anton', 'Noto Sans SC', sans-serif;
+    --brush: 'Zhi Mang Xing', 'Noto Serif SC', serif;
+    --serif: 'Noto Serif SC', serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  body { background: var(--blk); color: var(--paper); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  body.is-loading { overflow: hidden; }
+  ::selection { background: var(--or); color: var(--blk); }
+
+  /* 胶片颗粒：整页叠一层噪点，让平涂的橙色有“纸”的质感 */
+  body::after { content: ''; position: fixed; inset: -50%; z-index: 900; pointer-events: none; opacity: .14;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain .9s steps(6) infinite; }
+  @keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-4%)} 60%{transform:translate(-4%,-1%)} 80%{transform:translate(3%,3%)} 100%{transform:translate(0,0)} }
+
+  /* ---------- 预加载：数字跑到 100，幕布上下裂开 ---------- */
+  .loader { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
+  .loader .half { position: absolute; left: 0; right: 0; height: 50.5%; background: var(--blk); transition: transform 1.1s cubic-bezier(.8,0,.15,1); }
+  .loader .top { top: 0; } .loader .bot { bottom: 0; }
+  .loader .count { position: absolute; right: 32px; bottom: 24px; font-family: var(--disp); font-size: clamp(80px, 14vw, 220px); line-height: .8; color: var(--or); transition: opacity .4s; }
+  .loader .word { position: absolute; left: 32px; top: 28px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--grey); transition: opacity .4s; }
+  body.is-ready .loader .top { transform: translateY(-101%); }
+  body.is-ready .loader .bot { transform: translateY(101%); transition-delay: .06s; }
+  body.is-ready .loader .count, body.is-ready .loader .word { opacity: 0; }
+
+  /* ---------- 首屏：钉住 + 分层视差 ---------- */
+  .pin { height: 230vh; position: relative; }
+  .scene { position: sticky; top: 0; height: 100vh; overflow: hidden; background: var(--or); color: var(--blk); }
+  .layer { position: absolute; will-change: transform; }
+  .layer img { width: 100%; height: auto; display: block; }
+  /* 水墨图是白底黑墨：整层用正片叠底压在橙色上，白色就“消失”了。
+     必须加在 .layer 上而不是 img 上——.layer 有 transform，自成一组，组内的混合碰不到橙色背景 */
+  .layer.ink { mix-blend-mode: multiply; }
+
+  .l-mount { left: -12vw; bottom: -6vh; width: 124vw; opacity: .55; }
+  .l-ghost { left: 0; right: 0; top: 50%; text-align: center; font-family: var(--disp); font-size: 30vw; line-height: .8; color: rgba(13,13,12,.07); margin-top: -12vw; white-space: nowrap; text-transform: uppercase; }
+  .l-stroke { left: 1vw; top: 22vh; width: 60vw; }
+  .l-stroke img { clip-path: inset(0 100% 0 0); transition: clip-path 1.3s cubic-bezier(.7,0,.2,1) .35s; opacity: .9; }
+  body.is-ready .l-stroke img { clip-path: inset(0 0 0 0); }
+
+  .l-title { margin: 0; left: 7vw; top: 10vh; display: flex; gap: .02em; font-family: var(--brush); font-size: clamp(150px, 27vw, 460px); line-height: 1; color: var(--blk); }
+  .l-title .ch { display: inline-block; will-change: transform; }
+  .l-title .ch span { display: inline-block; opacity: 0; transform: translateY(30%) scale(1.25) rotate(-6deg); filter: blur(14px);
+    transition: opacity .9s, transform 1.2s cubic-bezier(.16,1,.3,1), filter 1.1s; }
+  body.is-ready .l-title .ch span { opacity: 1; transform: none; filter: none; }
+  body.is-ready .l-title .ch:nth-child(1) span { transition-delay: .55s; }
+  body.is-ready .l-title .ch:nth-child(2) span { transition-delay: .75s; }
+
+  .l-goose { right: -5vw; top: 2vh; width: 72vw; }
+  .l-goose .bob { animation: bob 6s ease-in-out infinite; }
+  .l-goose img { opacity: 0; transform: scale(1.12); filter: blur(10px); transition: opacity 1.4s .9s, transform 2s cubic-bezier(.16,1,.3,1) .9s, filter 1.4s .9s; }
+  body.is-ready .l-goose img { opacity: 1; transform: none; filter: none; }
+  @keyframes bob { 50% { transform: translateY(-14px) rotate(-.8deg); } }
+
+  .l-splash { left: -6vw; top: -6vh; width: 112vw; filter: blur(1.2px); opacity: .6; }
+
+  .vert { position: absolute; left: 30px; top: 96px; writing-mode: vertical-rl; font-family: var(--serif); font-weight: 900; font-size: 15px; letter-spacing: .5em; line-height: 2; z-index: 20; }
+  .vert small { font-weight: 500; letter-spacing: .3em; opacity: .55; }
+
+  .bar { position: absolute; left: 0; right: 0; top: 0; z-index: 30; display: flex; justify-content: space-between; padding: 22px 32px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .bar a { color: inherit; text-decoration: none; }
+
+  .tagline { position: absolute; left: 6vw; bottom: 12vh; z-index: 20; max-width: 420px; text-shadow: 0 0 14px var(--or), 0 0 4px var(--or); }
+  .tagline .quote { display: block; font-family: var(--serif); font-weight: 500; font-size: 13px; letter-spacing: .2em; margin-bottom: 14px; opacity: .7; }
+  .tagline p { margin: 0 0 18px; font-family: var(--serif); font-weight: 900; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.5; }
+  .enter { display: inline-flex; align-items: center; gap: 14px; background: var(--blk); color: var(--or); padding: 14px 22px; font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .1em; text-decoration: none; transition: gap .4s cubic-bezier(.16,1,.3,1); }
+  .enter:hover { gap: 26px; }
+
+  /* 正在播放：首屏自己用到的动效，实时亮灯 */
+  .hud { position: absolute; right: 32px; bottom: 26px; z-index: 30; font-family: var(--mono); font-size: 11px; line-height: 1.9; text-align: right; background: var(--blk); color: var(--or); padding: 12px 16px; }
+  .hud b { display: block; letter-spacing: .14em; margin-bottom: 4px; }
+  .hud div { opacity: .3; transition: opacity .3s; }
+  .hud div::after { content: ' ○'; }
+  .hud div.on { opacity: 1; }
+  .hud div.on::after { content: ' ●'; }
+
+  .curtain { position: absolute; inset: 0; background: var(--blk); opacity: 0; z-index: 40; pointer-events: none; }
+
+  /* ---------- 墨点光标 ---------- */
+  @media (pointer: fine) {
+    body, body * { cursor: none !important; }
+    .cursor { position: fixed; left: 0; top: 0; z-index: 950; pointer-events: none; }
+    .cursor .dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--blk); box-shadow: 0 0 0 1.5px var(--paper);
+      display: grid; place-items: center; transition: width .35s cubic-bezier(.16,1,.3,1), height .35s cubic-bezier(.16,1,.3,1), margin .35s cubic-bezier(.16,1,.3,1), background .3s; }
+    .cursor .dot span { font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--or); opacity: 0; transition: opacity .2s; letter-spacing: .08em; }
+    .cursor.is-big .dot { width: 76px; height: 76px; margin: -38px 0 0 -38px; }
+    .cursor.is-big .dot span { opacity: 1; }
+  }
+  @media (pointer: coarse) { .cursor { display: none; } }
+
+  /* ---------- 跑马灯 ---------- */
+  .marquee { background: var(--blk); color: var(--or); overflow: hidden; }
+  .marquee.alt { background: var(--paper); color: var(--blk); }
+  .track { display: flex; width: max-content; font-family: var(--disp); font-size: clamp(40px, 6vw, 96px); text-transform: uppercase; line-height: 1.15; will-change: transform; }
+  .track span { padding: 0 .4em; display: flex; align-items: center; gap: .4em; }
+  .track span::after { content: '✳'; font-size: .5em; }
+
+  /* ---------- 展厅标题 ---------- */
+  .hall-h { position: relative; padding: 18vh 32px 10vh; overflow: hidden; }
+  .hall-h .num { font-family: var(--disp); font-size: 30vw; line-height: .75; color: #171615; position: absolute; right: -2vw; top: 4vh; pointer-events: none; }
+  /* 黑墨白底的笔触 → 反相成白墨黑底 → 正片叠底到橙色上 = 黑底橙墨 */
+  .hall-h .brush { position: absolute; left: 0; top: 16vh; width: 70vw; background: var(--or); isolation: isolate; mix-blend-mode: lighten; clip-path: inset(0 100% 0 0); transition: clip-path 1.4s cubic-bezier(.7,0,.2,1); }
+  .hall-h .brush img { width: 100%; display: block; filter: invert(1); mix-blend-mode: multiply; }
+  .hall-h.in .brush { clip-path: inset(0 0 0 0); }
+  .hall-h h2 { position: relative; margin: 0; font-family: var(--brush); font-weight: 400; font-size: clamp(90px, 13vw, 200px); line-height: 1; color: var(--paper); }
+  .hall-h p { position: relative; margin: 18px 0 0; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--or); text-transform: uppercase; }
+
+  /* ---------- 展品（沿用 C） ---------- */
+  .exhibit { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr); border-top: 2px solid #222; }
+  .ex-stage { min-height: 82vh; background: var(--paper); }
+  .exhibit.trail .ex-stage { background: var(--blk); background-image: linear-gradient(#1c1b19 1px, transparent 1px), linear-gradient(90deg, #1c1b19 1px, transparent 1px); background-size: 80px 80px; }
+  .is-xray .ex-stage { outline: 4px solid var(--or); outline-offset: -4px; }
+  .ex-target { width: 200px; height: 200px; border-radius: 50%; border: 0; background: var(--or); color: var(--blk); font-family: var(--disp); font-size: 34px; text-transform: uppercase; transition: border-radius .4s cubic-bezier(.7,0,.2,1), background .3s; }
+  .ex-target.is-pulled { background: var(--blk); color: var(--or); border-radius: 28px; }
+  .hint { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--disp); font-size: clamp(60px, 9vw, 150px); color: #1f1e1c; text-transform: uppercase; pointer-events: none; }
+  .info { padding: 34px 32px 40px; border-left: 2px solid #222; display: flex; flex-direction: column; gap: 26px; }
+  .head { display: flex; align-items: flex-start; gap: 18px; }
+  .ex-no { font-family: var(--disp); font-size: 120px; line-height: .8; color: var(--or); }
+  .ex-meta { font-family: var(--mono); font-size: 11px; color: var(--grey); text-transform: uppercase; }
+  .info h3 { margin: 6px 0 0; font-weight: 900; font-size: 42px; line-height: 1; }
+  .info h3 .ex-en { display: block; font-family: var(--disp); font-weight: 400; font-size: 26px; color: var(--or); text-transform: uppercase; margin-top: 8px; }
+  .seen { font-size: 12.5px; color: var(--grey); margin: 0; }
+  .ex-principle li { display: grid; grid-template-columns: 34px 1fr; font-size: 14px; line-height: 1.75; padding: 10px 0; border-top: 1px solid #2a2927; }
+  .ex-principle li span { font-family: var(--mono); font-weight: 700; color: var(--or); }
+  .panel { background: #171615; padding: 20px; }
+  .panel-h { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 18px; }
+  .ex-controls { display: grid; gap: 18px; }
+  .ex-ctl { font-size: 13px; font-weight: 500; }
+  .ex-ctl input[type=range] { height: 4px; }
+  .ex-ctl input[type=range]::-webkit-slider-thumb { border-radius: 0; width: 12px; height: 22px; }
+  .ex-ctl-val { font-family: var(--mono); font-size: 11.5px; color: var(--or); }
+  .ex-xray { background: transparent; border: 2px solid var(--paper); padding: 4px 12px; font-family: var(--mono); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+  .ex-xray[aria-pressed=true] { background: var(--or); border-color: var(--or); color: var(--blk); }
+  .ex-phrase { background: var(--or); color: var(--blk); padding: 16px 18px; font-weight: 500; font-size: 13.5px; line-height: 1.7; }
+  .ex-copy { background: var(--blk); color: var(--or); border: 0; padding: 9px 16px; font-family: var(--mono); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+  summary { font-family: var(--mono); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--grey); }
+  .ex-code { font-family: var(--mono); font-size: 11.5px; line-height: 1.7; color: #b8b2a8; margin-top: 12px; }
+
+  footer { background: var(--or); color: var(--blk); padding: 6vw 32px 2vw; position: relative; overflow: hidden; }
+  footer .big { font-family: var(--brush); font-size: 22vw; line-height: .9; }
+  footer .small { font-family: var(--mono); font-size: 12px; font-weight: 700; display: flex; justify-content: space-between; margin-top: 2vw; }
+
+  @media (max-width: 900px) {
+    .bar, .info { padding-left: 16px; padding-right: 16px; }
+    .l-title { top: 16vh; } .l-goose { width: 110vw; right: -30vw; top: 30vh; }
+    .l-stroke { width: 90vw; top: 40vh; }
+    .vert { display: none; } .hud { display: none; }
+    .tagline { left: 16px; right: 16px; bottom: 6vh; }
+    .exhibit { grid-template-columns: 1fr; } .info { border-left: 0; } .ex-stage { min-height: 64vh; }
+    .ex-no { font-size: 80px; } .hall-h { padding-left: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { body::after { animation: none; } .l-goose .bob { animation: none; } }
+  /* 白底水墨变体（?white）：他说"白色配水墨反而惊艳" */
+  body.white { --or: #f3efe7; }
+  body.white .hud, body.white .enter { background: var(--blk); color: #f3efe7; }
+  body.white .loader .count { color: var(--blk); } body.white .loader .half { background: #f3efe7; }
+</style>
+</head>
+<body class="is-loading">
+  <div class="loader"><div class="half top"></div><div class="half bot"></div><span class="word">惊鸿 · Loading motion</span><span class="count" id="count">000</span></div>
+  <div class="cursor" id="cursor"><div class="dot"><span id="cursorText">ENTER</span></div></div>
+
+  <section class="pin" id="pin">
+    <div class="scene" id="scene">
+      <div class="layer ink l-mount" data-depth=".12" data-sy="12"><img src="../assets/ink-web/mountains.jpg" alt=""></div>
+      <div class="layer l-ghost" data-depth=".25" data-sy="-6">Jing Hong</div>
+      <div class="layer ink l-stroke" data-depth=".4" data-sy="-10"><img src="../assets/ink-web/stroke.jpg" alt=""></div>
+      <h1 class="layer l-title" data-depth=".5" data-sy="-4"><span class="ch" data-split="-1"><span>惊</span></span><span class="ch" data-split="1"><span>鸿</span></span></h1>
+      <div class="layer ink l-goose" data-depth=".85" data-sy="-48" data-zoom=".35"><div class="bob"><img src="../assets/ink-web/goose.jpg" alt="一只振翅而起的鸿雁，水墨"></div></div>
+      <div class="layer ink l-splash" data-depth="1.6" data-sy="-30" data-zoom=".25"><img src="../assets/ink-web/splash.jpg" alt=""></div>
+
+      <div class="bar"><span>惊鸿 / A Lexicon of Motion</span><span>12 Exhibits · 5 Halls</span><a href="#halls" data-cursor="GO">展厅 →</a></div>
+      <div class="tagline">
+        <span class="quote">翩若惊鸿，婉若游龙 —— 曹植《洛神赋》</span>
+        <p>网页上每一个让你惊住的瞬间，<br>都有名字。</p>
+        <a class="enter" href="#halls" data-cursor="ENTER">进入展厅 ENTER <span>→</span></a>
+      </div>
+      <div class="hud" id="hud">
+        <b>NOW PLAYING · 此刻正在用</b>
+        <div data-fx="loader">预加载幕布 Preloader</div>
+        <div data-fx="parallax">鼠标视差 Mouse Parallax</div>
+        <div data-fx="pin">钉住滚动 Pinned Scroll</div>
+        <div data-fx="cursor">墨点光标 Custom Cursor</div>
+        <div data-fx="wipe">遮罩擦除 Mask Wipe</div>
+      </div>
+      <div class="curtain" id="curtain"></div>
+    </div>
+  </section>
+
+  <div class="marquee"><div class="track" data-dir="-1"></div></div>
+  <div class="marquee alt"><div class="track" data-dir="1"></div></div>
+
+  <header class="hall-h" id="halls">
+    <span class="num">02</span>
+    <div class="brush"><img src="../assets/ink-web/stroke.jpg" alt=""></div>
+    <h2>光标</h2>
+    <p>Hall II · Cursor · 3 Exhibits</p>
+  </header>
+
+  <section class="exhibit" data-exhibit="magnetic">
+    <div class="ex-stage">
+      <canvas class="ex-xray-canvas"></canvas>
+      <button class="ex-target" data-cursor=" "><span class="ex-target-inner">Grab</span></button>
+    </div>
+    <div class="info">
+      <div class="head"><span class="ex-no"></span><div><div class="ex-meta"><span class="ex-hall"></span></div><h3><span class="ex-name"></span><span class="ex-en"></span></h3></div></div>
+      <p class="seen">常见于：<span class="ex-seen"></span></p>
+      <ol class="ex-principle"></ol>
+      <div class="panel">
+        <div class="panel-h"><span>调参</span><button class="ex-xray" aria-pressed="false">透视 X-RAY</button></div>
+        <div class="ex-controls"></div>
+      </div>
+      <div class="ex-phrase"><span class="ex-phrase-text"></span><button class="ex-copy">复制口令</button></div>
+      <details><summary>核心代码 →</summary><pre class="ex-code"></pre></details>
+    </div>
+  </section>
+
+  <section class="exhibit trail" data-exhibit="trail">
+    <div class="ex-stage">
+      <div class="hint">Move</div>
+      <div class="ex-trail-layer"></div>
+      <canvas class="ex-xray-canvas"></canvas>
+    </div>
+    <div class="info">
+      <div class="head"><span class="ex-no"></span><div><div class="ex-meta"><span class="ex-hall"></span></div><h3><span class="ex-name"></span><span class="ex-en"></span></h3></div></div>
+      <p class="seen">常见于：<span class="ex-seen"></span></p>
+      <ol class="ex-principle"></ol>
+      <div class="panel">
+        <div class="panel-h"><span>调参</span><button class="ex-xray" aria-pressed="false">透视 X-RAY</button></div>
+        <div class="ex-controls"></div>
+      </div>
+      <div class="ex-phrase"><span class="ex-phrase-text"></span><button class="ex-copy">复制口令</button></div>
+      <details><summary>核心代码 →</summary><pre class="ex-code"></pre></details>
+    </div>
+  </section>
+
+  <footer><div class="big">惊鸿一瞥</div><div class="small"><span>A Lexicon of Motion</span><span>原型 C2 · 2026</span></div></footer>
+
+  <script src="shared.js"></script>
+  <script>
+    if (location.search.includes('white')) document.body.classList.add('white');
+    // ?shot：给文档截图用，跳过开场动画、直接呈现最终画面
+    if (location.search.includes('shot')) {
+      const st = document.createElement('style'); st.textContent = '*,*::before,*::after{transition:none!important}'; document.head.appendChild(st);
+      document.body.classList.add('is-ready'); document.body.classList.remove('is-loading');
+    }
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const fx = {}; // 每个动效最近一次“在工作”的时间，HUD 用
+    const ping = k => (fx[k] = performance.now());
+
+    // ---------- 预加载：按图片真实加载进度跑数字 ----------
+    const imgs = $$('.scene img');
+    let loaded = 0, shown = 0;
+    const total = imgs.length + 1; // +1：毛笔字体
+    const done = () => loaded++;
+    imgs.forEach(im => (im.complete ? done() : (im.onload = im.onerror = done)));
+    document.fonts.load('100px "Zhi Mang Xing"', '惊鸿').then(done, done);
+    const t0 = performance.now();
+    (function count() {
+      const target = Math.min(100, (loaded / total) * 100);
+      // 按时间走（不按帧），至少演 1.4 秒，太快反而看不到；ease-out 让数字先快后慢
+      const t = Math.min(1, (performance.now() - t0) / 1400);
+      shown = Math.min(target, (1 - Math.pow(1 - t, 3)) * 100);
+      $('#count').textContent = String(Math.round(shown)).padStart(3, '0');
+      ping('loader');
+      if (shown > 99.4 || performance.now() - t0 > 6000) {
+        $('#count').textContent = '100';
+        setTimeout(() => { document.body.classList.add('is-ready'); document.body.classList.remove('is-loading'); fx.wipeUntil = performance.now() + 2600; }, 200);
+      } else requestAnimationFrame(count);
+    })();
+
+    // ---------- 墨点光标：跟手有延迟，速度越快拉得越长 ----------
+    const cur = $('#cursor'), m = { x: innerWidth / 2, y: innerHeight / 2 }, c = { ...m };
+    let mouseN = { x: 0, y: 0 }, mouseS = { x: 0, y: 0 };
+    addEventListener('pointermove', e => {
+      m.x = e.clientX; m.y = e.clientY;
+      mouseN = { x: e.clientX / innerWidth - .5, y: e.clientY / innerHeight - .5 };
+      ping('cursor');
+    });
+    // 每次移动、滚动都按“鼠标下面现在是什么”重新判断。
+    // 只靠 pointerover 的话，点锚点跳走后鼠标没换元素，光标会一直卡在放大状态。
+    function syncCursor(el) {
+      const t = el && el.closest && el.closest('a, [data-cursor]');
+      cur.classList.toggle('is-big', !!t);
+      if (t) $('#cursorText').textContent = t.dataset.cursor || 'GO';
+    }
+    addEventListener('pointermove', e => syncCursor(e.target));
+    addEventListener('scroll', () => syncCursor(document.elementFromPoint(m.x, m.y)), { passive: true });
+    addEventListener('click', () => requestAnimationFrame(() => syncCursor(document.elementFromPoint(m.x, m.y))));
+
+    // ---------- 首屏：视差 + 钉住滚动 ----------
+    const pin = $('#pin'), layers = $$('[data-depth]'), splits = $$('[data-split]');
+    const hud = Object.fromEntries($$('#hud [data-fx]').map(d => [d.dataset.fx, d]));
+    let lastP = 0;
+    const tag = $('.tagline');
+
+    (function frame() {
+      const now = performance.now();
+      // 光标
+      const vx = m.x - c.x, vy = m.y - c.y;
+      c.x = lerp(c.x, m.x, .22); c.y = lerp(c.y, m.y, .22);
+      const speed = Math.min(Math.hypot(vx, vy), 160), ang = Math.atan2(vy, vx);
+      const stretch = cur.classList.contains('is-big') ? 1 : 1 + speed / 110;
+      cur.style.transform = `translate(${c.x}px, ${c.y}px) rotate(${ang}rad) scale(${stretch}, ${1 / Math.sqrt(stretch)})`;
+
+      // 视差：每层按自己的“深度”反向移动，越近动得越多
+      const dx = mouseS.x, dy = mouseS.y;
+      mouseS.x = lerp(mouseS.x, mouseN.x, .06); mouseS.y = lerp(mouseS.y, mouseN.y, .06);
+      if (Math.abs(mouseS.x - dx) + Math.abs(mouseS.y - dy) > .0004) ping('parallax');
+
+      const r = pin.getBoundingClientRect();
+      const p = clamp(-r.top / (r.height - innerHeight), 0, 1);
+      if (Math.abs(p - lastP) > .0005 && p > 0 && p < 1) ping('pin');
+      lastP = p;
+
+      layers.forEach(l => {
+        const d = +l.dataset.depth, sy = +(l.dataset.sy || 0), z = +(l.dataset.zoom || 0);
+        l.style.transform = `translate3d(${-mouseS.x * d * 70}px, ${-mouseS.y * d * 46 + p * sy * innerHeight / 100}px, 0) scale(${1 + p * z})`;
+      });
+      // 滚下去时“惊”“鸿”两个字往两边裂开
+      splits.forEach(s => (s.style.transform = `translateX(${s.dataset.split * p * 22}vw) rotate(${s.dataset.split * p * 8}deg)`));
+      $('#curtain').style.opacity = clamp((p - .72) / .28, 0, 1);
+      // 标语和按钮在滚动开头就让位，把舞台留给裂开的标题和起飞的鸿雁
+      tag.style.opacity = 1 - clamp(p / .25, 0, 1); tag.style.transform = `translateY(${-p * 80}px)`;
+
+      if (fx.wipeUntil && now < fx.wipeUntil) ping('wipe');
+      for (const k in hud) hud[k].classList.toggle('on', now - (fx[k] || -1e9) < 500);
+      requestAnimationFrame(frame);
+    })();
+
+    // ---------- 跑马灯（随滚动速度加速、倾斜） ----------
+    const words = ['Parallax', 'Magnetic', 'Image Trail', 'Scramble', 'Pinned', 'FLIP', 'Distortion', 'Stagger', 'Spotlight', 'Page Transition'];
+    const tracks = $$('.track').map(t => { const h = words.map(w => `<span>${w}</span>`).join(''); t.innerHTML = h + h + h; return { el: t, dir: +t.dataset.dir, x: 0 }; });
+    let lastY = scrollY, vel = 0;
+    (function loop() {
+      const dy = scrollY - lastY; lastY = scrollY; vel = lerp(vel, dy, .12);
+      tracks.forEach(t => {
+        const w = t.el.scrollWidth / 3;
+        t.x += t.dir * (1.2 + Math.abs(vel) * .9);
+        if (t.x < -w) t.x += w; if (t.x > 0) t.x -= w;
+        t.el.style.transform = `translateX(${t.x}px) skewX(${-clamp(vel * .6, -14, 14) * t.dir}deg)`;
+      });
+      requestAnimationFrame(loop);
+    })();
+
+    // ---------- 展厅标题：进入视口时笔触刷出来 ----------
+    new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .35 })
+      .observe($('.hall-h'));
+  </script>
+</body>
+</html>

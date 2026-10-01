@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>动词 · 海报冲击</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+SC:wght@400;500;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root {
+    --or: #ff4f00; --blk: #0d0d0c; --paper: #f2ede4; --grey: #8a857c;
+    --xray: #ff4f00;
+    --track-on: var(--or); --track-off: #3a3836; --thumb: var(--paper);
+    --disp: 'Anton', 'Noto Sans SC', sans-serif;
+    --sans: 'Noto Sans SC', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  body { background: var(--blk); color: var(--paper); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  ::selection { background: var(--or); color: var(--blk); }
+
+  /* ---------- Hero ---------- */
+  .hero { background: var(--or); color: var(--blk); min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; position: relative; overflow: hidden; }
+  .bar { display: flex; justify-content: space-between; padding: 22px 32px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .stack { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 3vw; padding: 0 32px; }
+  .big { font-family: var(--sans); font-weight: 900; font-size: clamp(150px, 30vw, 520px); line-height: .82; letter-spacing: -.06em; margin: 0; }
+  .big span { display: inline-block; transform: translateY(110%) rotate(6deg); animation: slam .9s cubic-bezier(.7,0,.2,1) forwards; }
+  .big span:nth-child(2) { animation-delay: .09s; }
+  @keyframes slam { to { transform: none; } }
+  .en { font-family: var(--disp); font-size: clamp(54px, 9.5vw, 170px); line-height: .86; text-transform: uppercase; padding-bottom: 2vw; }
+  .en .scr { display: block; }
+  .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 26px 32px 30px; font-size: 13px; font-weight: 500; line-height: 1.6; border-top: 2px solid var(--blk); margin-top: 2vw; }
+  .meta b { display: block; font-family: var(--mono); font-size: 11px; margin-bottom: 6px; }
+
+  /* 滚动速度跑马灯 */
+  .marquee { background: var(--blk); color: var(--or); overflow: hidden; border-block: 2px solid var(--blk); }
+  .marquee.alt { background: var(--paper); color: var(--blk); }
+  .track { display: flex; width: max-content; font-family: var(--disp); font-size: clamp(40px, 6vw, 96px); text-transform: uppercase; line-height: 1.15; will-change: transform; }
+  .track span { padding: 0 .4em; display: flex; align-items: center; gap: .4em; }
+  .track span::after { content: '✳'; font-size: .5em; }
+
+  /* ---------- 展品 ---------- */
+  .exhibit { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr); border-bottom: 2px solid #222; }
+  .ex-stage { min-height: 82vh; background: var(--paper); }
+  .exhibit.trail .ex-stage { background: var(--blk); background-image: linear-gradient(#1c1b19 1px, transparent 1px), linear-gradient(90deg, #1c1b19 1px, transparent 1px); background-size: 80px 80px; }
+  .is-xray .ex-stage { outline: 4px solid var(--or); outline-offset: -4px; }
+
+  .ex-target { width: 200px; height: 200px; border-radius: 50%; border: 0; background: var(--or); color: var(--blk); font-family: var(--disp); font-size: 34px; text-transform: uppercase; transition: border-radius .4s cubic-bezier(.7,0,.2,1), background .3s; }
+  .ex-target.is-pulled { background: var(--blk); color: var(--or); border-radius: 28px; }
+
+  .hint { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--disp); font-size: clamp(60px, 9vw, 150px); color: #1f1e1c; text-transform: uppercase; pointer-events: none; }
+
+  .info { padding: 34px 32px 40px; border-left: 2px solid #222; display: flex; flex-direction: column; gap: 26px; }
+  .head { display: flex; align-items: flex-start; gap: 18px; }
+  .ex-no { font-family: var(--disp); font-size: 120px; line-height: .8; color: var(--or); }
+  .ex-meta { font-family: var(--mono); font-size: 11px; color: var(--grey); text-transform: uppercase; }
+  .info h3 { margin: 6px 0 0; font-weight: 900; font-size: 42px; line-height: 1; }
+  .info h3 .ex-en { display: block; font-family: var(--disp); font-weight: 400; font-size: 26px; color: var(--or); text-transform: uppercase; margin-top: 8px; }
+  .seen { font-size: 12.5px; color: var(--grey); margin: 0; }
+  .ex-principle { counter-reset: p; }
+  .ex-principle li { display: grid; grid-template-columns: 34px 1fr; font-size: 14px; line-height: 1.75; padding: 10px 0; border-top: 1px solid #2a2927; }
+  .ex-principle li span { font-family: var(--mono); font-weight: 700; color: var(--or); }
+
+  .panel { background: #171615; padding: 20px; }
+  .panel-h { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 18px; }
+  .ex-controls { display: grid; gap: 18px; }
+  .ex-ctl { font-size: 13px; font-weight: 500; }
+  .ex-ctl input[type=range] { height: 4px; }
+  .ex-ctl input[type=range]::-webkit-slider-thumb { border-radius: 0; width: 12px; height: 22px; }
+  .ex-ctl-val { font-family: var(--mono); font-size: 11.5px; color: var(--or); }
+  .ex-xray { background: transparent; border: 2px solid var(--paper); padding: 4px 12px; font-family: var(--mono); font-weight: 700; font-size: 11px; text-transform: uppercase; cursor: pointer; }
+  .ex-xray[aria-pressed=true] { background: var(--or); border-color: var(--or); color: var(--blk); }
+
+  .ex-phrase { background: var(--or); color: var(--blk); padding: 16px 18px; font-weight: 500; font-size: 13.5px; line-height: 1.7; }
+  .ex-copy { background: var(--blk); color: var(--or); border: 0; padding: 9px 16px; font-family: var(--mono); font-weight: 700; font-size: 11px; text-transform: uppercase; cursor: pointer; }
+  summary { font-family: var(--mono); font-weight: 700; font-size: 11px; text-transform: uppercase; color: var(--grey); cursor: pointer; }
+  .ex-code { font-family: var(--mono); font-size: 11.5px; line-height: 1.7; color: #b8b2a8; margin-top: 12px; }
+
+  footer { background: var(--or); color: var(--blk); font-family: var(--disp); font-size: 13vw; line-height: .85; padding: 4vw 32px 2vw; text-transform: uppercase; }
+
+  @media (max-width: 900px) {
+    .bar, .stack, .meta, .info { padding-left: 16px; padding-right: 16px; }
+    .stack { grid-template-columns: 1fr; } .meta { grid-template-columns: 1fr; }
+    .exhibit { grid-template-columns: 1fr; } .info { border-left: 0; } .ex-stage { min-height: 64vh; }
+    .ex-no { font-size: 80px; }
+  }
+</style>
+</head>
+<body>
+  <section class="hero">
+    <div class="bar"><span>动词 / Motion Lexicon</span><span>原型 C · 海报冲击</span><span>12 Exhibits · 5 Halls</span></div>
+    <div class="stack">
+      <h1 class="big"><span>动</span><span>词</span></h1>
+      <div class="en"><span class="scr" data-text="Motion">Motion</span><span class="scr" data-text="Lexicon">Lexicon</span></div>
+    </div>
+    <div class="meta">
+      <div><b>01 / 摸</b>每件展品都能亲手玩</div>
+      <div><b>02 / 拆</b>打开透视，看它怎么动</div>
+      <div><b>03 / 说</b>调好参数，复制成一句口令</div>
+    </div>
+  </section>
+
+  <div class="marquee"><div class="track" data-dir="-1"></div></div>
+  <div class="marquee alt"><div class="track" data-dir="1"></div></div>
+
+  <section class="exhibit" data-exhibit="magnetic">
+    <div class="ex-stage">
+      <canvas class="ex-xray-canvas"></canvas>
+      <button class="ex-target"><span class="ex-target-inner">Grab</span></button>
+    </div>
+    <div class="info">
+      <div class="head"><span class="ex-no"></span><div><div class="ex-meta"><span class="ex-hall"></span></div><h3><span class="ex-name"></span><span class="ex-en"></span></h3></div></div>
+      <p class="seen">常见于：<span class="ex-seen"></span></p>
+      <ol class="ex-principle"></ol>
+      <div class="panel">
+        <div class="panel-h"><span>调参</span><button class="ex-xray" aria-pressed="false">透视 X-RAY</button></div>
+        <div class="ex-controls"></div>
+      </div>
+      <div class="ex-phrase"><span class="ex-phrase-text"></span><button class="ex-copy">复制口令</button></div>
+      <details><summary>核心代码 →</summary><pre class="ex-code"></pre></details>
+    </div>
+  </section>
+
+  <section class="exhibit trail" data-exhibit="trail">
+    <div class="ex-stage">
+      <div class="hint">Move</div>
+      <div class="ex-trail-layer"></div>
+      <canvas class="ex-xray-canvas"></canvas>
+    </div>
+    <div class="info">
+      <div class="head"><span class="ex-no"></span><div><div class="ex-meta"><span class="ex-hall"></span></div><h3><span class="ex-name"></span><span class="ex-en"></span></h3></div></div>
+      <p class="seen">常见于：<span class="ex-seen"></span></p>
+      <ol class="ex-principle"></ol>
+      <div class="panel">
+        <div class="panel-h"><span>调参</span><button class="ex-xray" aria-pressed="false">透视 X-RAY</button></div>
+        <div class="ex-controls"></div>
+      </div>
+      <div class="ex-phrase"><span class="ex-phrase-text"></span><button class="ex-copy">复制口令</button></div>
+      <details><summary>核心代码 →</summary><pre class="ex-code"></pre></details>
+    </div>
+  </section>
+
+  <footer>Make it move.</footer>
+
+  <script src="shared.js"></script>
+  <script>
+    // 跑马灯：平时匀速走，滚动越快它越快、越斜（Scroll Velocity）
+    const words = ['Parallax', 'Magnetic', 'Image Trail', 'Scramble', 'Pinned', 'FLIP', 'Distortion', 'Stagger'];
+    const tracks = [...document.querySelectorAll('.track')].map(t => {
+      const html = words.map(w => `<span>${w}</span>`).join('');
+      t.innerHTML = html + html + html;
+      return { el: t, dir: +t.dataset.dir, x: 0 };
+    });
+    let lastY = scrollY, vel = 0;
+    (function loop() {
+      const dy = scrollY - lastY; lastY = scrollY;
+      vel += (dy - vel) * .12;
+      tracks.forEach(t => {
+        const w = t.el.scrollWidth / 3;
+        t.x += t.dir * (1.2 + Math.abs(vel) * .9);
+        if (t.x < -w) t.x += w; if (t.x > 0) t.x -= w;
+        const skew = Math.max(-14, Math.min(14, vel * .6));
+        t.el.style.transform = `translateX(${t.x}px) skewX(${-skew * t.dir}deg)`;
+      });
+      requestAnimationFrame(loop);
+    })();
+
+    // 乱码解码：字母先乱跳，再从左到右一个个“锁定”
+    const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+=<>/';
+    function scramble(el) {
+      const target = el.dataset.text; let frame = 0;
+      const total = 28 + target.length * 4;
+      (function step() {
+        const lock = Math.floor((frame / total) * (target.length + 1));
+        el.textContent = [...target].map((ch, i) => i < lock ? ch : glyphs[(Math.random() * glyphs.length) | 0]).join('');
+        if (frame++ < total) requestAnimationFrame(step); else el.textContent = target;
+      })();
+    }
+    document.querySelectorAll('.scr').forEach((el, i) => {
+      setTimeout(() => scramble(el), 500 + i * 180);
+      el.addEventListener('pointerenter', () => scramble(el));
+    });
+  </script>
+</body>
+</html>

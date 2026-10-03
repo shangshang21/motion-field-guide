@@ -7,6 +7,7 @@ const running = new WeakMap();
 const random = (min, max) => min + Math.random() * (max - min);
 
 export async function impact(button, { motion, sound, charged = false }) {
+  dispatchEvent(new CustomEvent('motion-impact'));
   const previousImpact = running.get(button);
   if (previousImpact?.locked) return;
   previousImpact?.cancel();

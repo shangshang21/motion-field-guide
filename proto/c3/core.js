@@ -1,3 +1,4 @@
+import { SFX } from './sound.js';
 
 import { impact } from './impact.js';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -33,71 +34,6 @@ function refreshCollection(key) {
   });
 }
 refreshCollection();
-
-/* ================= 音效：全部用 Web Audio 现场合成，不需要音频文件 ================= */
-const SFX = (() => {
-  let ctx = null, on = true;
-  const ac = () => {
-    ctx ||= new (window.AudioContext || window.webkitAudioContext)();
-    if (ctx.state === 'suspended') ctx.resume();
-    return ctx;
-  };
-  function tone({ f = 440, f2 = 0, type = 'square', dur = .08, vol = .06, at = 0 }) {
-    if (!on) return;
-    dur /= SPD; at /= SPD;
-    const a = ac(), t = a.currentTime + at, o = a.createOscillator(), g = a.createGain();
-    o.type = type; o.frequency.setValueAtTime(f, t);
-    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .03);
-  }
-  function noise({ dur = .08, vol = .05, freq = 2000, at = 0 }) {
-    if (!on) return;
-    dur /= SPD; at /= SPD;
-    const a = ac(), t = a.currentTime + at, len = Math.ceil(a.sampleRate * dur);
-    const buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
-    f.type = 'bandpass'; f.frequency.value = freq; s.buffer = buf;
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    s.connect(f).connect(g).connect(a.destination); s.start(t);
-  }
-  // 长按充能：一个持续的振荡器，音高随进度升高
-  let hold = null;
-  function holdStart() {
-    if (!on) return;
-    holdStop();
-    const a = ac(), o = a.createOscillator(), g = a.createGain();
-    o.type = 'sawtooth'; o.frequency.value = 160; g.gain.value = .035;
-    const lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400;
-    o.connect(lp).connect(g).connect(a.destination); o.start(); hold = { o, g, a };
-  }
-  function holdSet(p) { if (hold) hold.o.frequency.setTargetAtTime(160 + p * 760, hold.a.currentTime, .02); }
-  function holdStop() { if (!hold) return; const { o, g, a } = hold; g.gain.setTargetAtTime(.0001, a.currentTime, .03); o.stop(a.currentTime + .15); hold = null; }
-
-  const lib = {
-    tick: () => tone({ f: 1900, dur: .012, vol: .018 }),
-    start: () => { [523, 659, 784, 1046].forEach((f, i) => tone({ f, dur: .12, vol: .05, at: i * .06 })); noise({ dur: .35, vol: .05, freq: 900, at: .05 }); },
-    push: () => { tone({ f: 150, f2: 60, type: 'sine', dur: .14, vol: .3 }); noise({ dur: .03, vol: .06, freq: 3000 }); },
-    up: () => tone({ f: 420, f2: 620, type: 'triangle', dur: .05, vol: .04 }),
-    ripple: () => tone({ f: 520, f2: 1040, type: 'sine', dur: .16, vol: .09 }),
-    wipe: () => noise({ dur: .14, vol: .05, freq: 2600 }),
-    roll: () => { tone({ f: 900, dur: .03, vol: .03 }); tone({ f: 1300, dur: .03, vol: .03, at: .05 }); },
-    done: () => [784, 988, 1175, 1568].forEach((f, i) => tone({ f, dur: .1, vol: .05, at: i * .05 })),
-    burst: () => {
-      tone({ f: 145, f2: 42, type: 'sine', dur: .27, vol: .35 });
-      noise({ dur: .065, vol: .16, freq: 5400 });
-      noise({ dur: .11, vol: .075, freq: 7600, at: .032 });
-      tone({ f: 1800, f2: 330, type: 'triangle', dur: .12, vol: .045, at: .012 });
-      noise({ dur: .45, vol: .055, freq: 680, at: .06 });
-      tone({ f: 68, f2: 32, type: 'sine', dur: .45, vol: .11, at: .045 });
-    },
-    glitch: () => { for (let i = 0; i < 3; i++) { noise({ dur: .03, vol: .06, freq: 4000 + i * 900, at: i * .045 }); tone({ f: 70 + i * 30, dur: .03, vol: .05, at: i * .045 }); } },
-    jelly: () => { tone({ f: 260, f2: 110, type: 'triangle', dur: .12, vol: .12 }); tone({ f: 110, f2: 300, type: 'triangle', dur: .18, vol: .1, at: .1 }); },
-    error: () => { tone({ f: 155, dur: .09, vol: .07 }); tone({ f: 155, dur: .12, vol: .07, at: .13 }); },
-  };
-  return { play: k => lib[k] && lib[k](), holdStart, holdSet, holdStop, toggle() { on = !on; if (!on) holdStop(); return on; } };
-})();
 
 $('#sfx').addEventListener('click', () => {
   const on = SFX.toggle();

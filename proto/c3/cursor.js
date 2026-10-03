@@ -54,7 +54,7 @@ function mountLab(key, replay) {
   root.querySelector('.xray-toggle').addEventListener('click', e => {
     const on = root.classList.toggle('is-xray'); e.currentTarget.setAttribute('aria-pressed', String(on)); SFX.play('tick');
   });
-  stage.addEventListener('pointerdown', () => say(key));
+  stage.addEventListener('pointerdown', () => { say(key); SFX.play(key); });
   stage.addEventListener('keydown', e => { if (e.target === stage && ['Enter', ' '].includes(e.key)) { e.preventDefault(); say(key); replay(); } });
   new ResizeObserver(() => {
     box.width = stage.clientWidth; box.height = stage.clientHeight;

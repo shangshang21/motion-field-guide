@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>动效图鉴</title>
 <link rel="stylesheet" href="c3/core.css">
+<link rel="stylesheet" href="c3/halls.css">
 </head>
 <body>
   <div class="flash" id="flash"></div>
@@ -62,6 +63,57 @@
     <div class="cards" id="cards"></div>
   </section>
 
+  <div class="district-entry" aria-hidden="true"><span class="mono">Route 01 → 02</span><b>Follow the cursor</b><span class="entry-arrow">↘</span></div>
+
+  <section class="hall cursor-hall" id="hall-cursor" aria-labelledby="cursor-title">
+    <div class="hall-head">
+      <span class="no">02</span>
+      <h2 id="cursor-title">光标展厅<small>Hall 02 · Cursor · 3 Exhibits</small></h2>
+      <p class="hall-note">把鼠标变成力、轨迹和光。<br><span class="mono">X-RAY ON → 看见原理</span></p>
+    </div>
+    <div class="cursor-grid">
+      <article class="card lab-card" data-k="magnetic">
+        <header class="mono"><span class="n">Nº10</span><span class="sp">FIELD / 01</span><button class="xray-toggle" aria-pressed="false">透视 X-RAY</button></header>
+        <div class="lab-stage magnetic-stage" tabindex="0" aria-label="磁吸演示，移动鼠标或点击空白区域">
+          <span class="stage-label mono">Attraction field</span><span class="stage-corner mono">＋</span>
+          <span class="magnetic-origin" aria-hidden="true"></span>
+          <button class="magnetic-target" aria-label="试玩磁吸"><span>Come closer<i>↗</i></span></button>
+          <canvas class="xray-canvas" aria-hidden="true"></canvas>
+          <span class="stage-instruction">靠近一点，让按钮追过来。<small>手机轻点空白处</small></span>
+        </div>
+        <div class="lab-controls" data-controls="magnetic"></div>
+        <footer><b>磁吸</b><em>Magnetic</em><button class="q mono" aria-label="了解磁吸">?</button></footer>
+      </article>
+
+      <article class="card lab-card" data-k="trail">
+        <header class="mono"><span class="n">Nº11</span><span class="sp">TRACE / 02</span><button class="xray-toggle" aria-pressed="false">透视 X-RAY</button></header>
+        <div class="lab-stage trail-stage" tabindex="0" aria-label="图片拖尾演示，划过鼠标或点击">
+          <span class="stage-label mono">Distance → image</span><span class="stage-corner mono">＋</span>
+          <div class="trail-title" aria-hidden="true">Leave<br>a trace.</div>
+          <div class="trail-preview" aria-hidden="true"><img src="../assets/web/motion-01.jpg" alt=""><img src="../assets/web/motion-03.jpg" alt=""><img src="../assets/web/motion-05.jpg" alt=""></div>
+          <div class="trail-layer"></div><canvas class="xray-canvas" aria-hidden="true"></canvas>
+          <span class="stage-instruction">划过展柜，留下一串瞬间。<small>手机轻点，展开图片</small></span>
+        </div>
+        <div class="lab-controls" data-controls="trail"></div>
+        <footer><b>图片拖尾</b><em>Image Trail</em><button class="q mono" aria-label="了解图片拖尾">?</button></footer>
+      </article>
+
+      <article class="card lab-card spotlight-card" data-k="spotlight">
+        <header class="mono"><span class="n">Nº12</span><span class="sp">SEARCH / 03</span><button class="xray-toggle" aria-pressed="false">透视 X-RAY</button></header>
+        <div class="spotlight-layout">
+          <div class="lab-stage spotlight-stage" tabindex="0" aria-label="聚光灯演示，移动鼠标或点击寻找隐藏内容">
+            <div class="spot-dark" aria-hidden="true"><span class="mono">Signal concealed / 03</span><b>Search<br>the signal.</b><span class="spot-scanline"></span></div>
+            <div class="spot-lit"><span class="mono">Signal found / 03</span><div class="hidden-poster"><i aria-hidden="true">✳</i><b>Hidden in<br>plain sight.</b></div><div class="hidden-labels mono"><span>01 / 遮罩</span><span>02 / 插值</span><span>03 / 光的范围</span></div></div>
+            <canvas class="xray-canvas" aria-hidden="true"></canvas>
+            <span class="stage-instruction">用光，找出暗处的内容。<small>手机轻点，让光移动</small></span>
+          </div>
+          <div class="spotlight-console"><div class="console-title mono"><i>●</i> Light control</div><p>内容一直都在。<br>只让光照到的部分显现。</p><div class="lab-controls" data-controls="spotlight"></div><button class="lab-replay mono" data-replay="spotlight">移动光源 ↗</button></div>
+        </div>
+        <footer><b>聚光灯遮罩</b><em>Spotlight Reveal</em><button class="q mono" aria-label="了解聚光灯遮罩">?</button></footer>
+      </article>
+    </div>
+  </section>
+
   <section class="collect">
     <h3>Collection<small>收藏进度 3 / 12</small></h3>
     <div class="slots">
@@ -92,5 +144,6 @@
   </div>
 
 <script type="module" src="c3/core.js"></script>
+<script type="module" src="c3/cursor.js"></script>
 </body>
 </html>

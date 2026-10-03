@@ -233,7 +233,7 @@ function fxShake(b) {
   });
 }
 
-$$('.card').forEach(c => {
+$$('#cards > .card').forEach(c => {
   const k = c.dataset.k, b = c.querySelector('.b');
   ({ push: fxPush, ripple: fxRipple, hold: fxHold, burst: fxBurst, jelly: fxJelly, shake: fxShake })[k]?.(b);
   if (['wipe', 'roll', 'glitch'].includes(k)) fxHover(b, k);
@@ -281,5 +281,5 @@ $('#dAgain').addEventListener('click', () => {
 
 // 第一次滚到按钮展厅，导览员自己打招呼
 let greeted = false;
-new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !greeted) { greeted = true; setTimeout(() => say('welcome'), 400); } }), { threshold: .25 }).observe($('#hall'));
+new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !greeted) { greeted = true; setTimeout(() => { if (!curKey) say('welcome'); }, 400); } }), { threshold: .25 }).observe($('#hall'));
 export { say, SFX, phrase };

@@ -212,9 +212,9 @@
   .dlg .txt { font-size: 15px; line-height: 1.75; flex: 1; min-height: 3.5em; }
   .dlg .txt .cur { display: inline-block; width: 9px; height: 15px; background: var(--or); vertical-align: -2px; margin-left: 2px; animation: blink .7s steps(2) infinite; }
   .dlg .act { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
-  .dlg .act button { background: var(--paper); color: var(--ink); border: 0; padding: 7px 12px; }
+  .dlg .act button { background: var(--paper); color: var(--ink); border: 0; padding: 7px 12px; flex-shrink: 0; }
   .dlg .act button.pri { background: var(--or); }
-  .dlg .act .code { color: var(--grey); margin-left: auto; text-transform: none; }
+  .dlg .act .code { color: var(--grey); margin-left: auto; text-transform: none; flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: right; font-size: 10px; line-height: 1.6; }
 
   @media (max-width: 960px) {
     .hud { padding: 10px 16px; gap: 12px; } .hud .mid, .hud .clock { display: none; }

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-03T17:35:26.371Z",
+  "date": "2026-10-03T18:03:48.585Z",
   "results": [
     {
       "name": "Catalog: 39 exhibits, unique numbers and existing cards",
@@ -15,6 +15,10 @@
     },
     {
       "name": "Custom text survives separators and is restored with timing",
+      "passed": true
+    },
+    {
+      "name": "Copied custom text escapes quotes and round-trips exactly",
       "passed": true
     },
     {
@@ -62,6 +66,10 @@
       "passed": true
     },
     {
+      "name": "Actual mouse drag changes the bezier control point",
+      "passed": true
+    },
+    {
       "name": "No horizontal overflow at 390px",
       "passed": true
     },
@@ -79,6 +87,26 @@
     },
     {
       "name": "Reduced motion settles timing immediately",
+      "passed": true
+    },
+    {
+      "name": "Reduced-motion submit returns to an enabled button",
+      "passed": true
+    },
+    {
+      "name": "DPR 3: WebGL canvases are capped at 1.5x and render",
+      "passed": true
+    },
+    {
+      "name": "Leaving Shader stops all WebGL drawing",
+      "passed": true
+    },
+    {
+      "name": "WebGL-unavailable fallback is explicit and stays playable",
+      "passed": true
+    },
+    {
+      "name": "Phone shader fallback uses static previews",
       "passed": true
     },
     {

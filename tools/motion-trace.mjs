@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import {gzipSync} from 'node:zlib';
 import {spawn} from 'node:child_process';
-const label=process.argv[2]||'after',port=19435;
+const label=process.argv[2]||'after',port=19435,dpr=Number(process.env.TRACE_DPR||1);
 const chrome=spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',[
  '--headless=new',`--remote-debugging-port=${port}`,`--user-data-dir=/tmp/motion-lexicon-perf-${process.pid}`,
  '--window-size=1440,900','--use-angle=metal','--enable-gpu-rasterization','--ignore-gpu-blocklist','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows','--no-first-run','--no-default-browser-check','about:blank'
@@ -18,10 +18,10 @@ try{
  ws=new WebSocket(targets.find(t=>t.type==='page').webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));
  ws.addEventListener('message',e=>{const data=JSON.parse(e.data);if(data.id){const p=pending.get(data.id);pending.delete(data.id);data.error?p.reject(Error(JSON.stringify(data.error))):p.resolve(data.result);}else events.get(data.method)?.(data.params);});
  await call('Page.enable');await call('Runtime.enable');
- await call('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+ await call('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:dpr,mobile:false});
  await call('Page.navigate',{url:'http://localhost:3300/proto/c3-city.html'});await sleep(1800);await evaluate('document.fonts.ready.then(()=>true)');
  const metadata=await evaluate('({ua:navigator.userAgent,dpr:devicePixelRatio,viewport:[innerWidth,innerHeight],height:document.documentElement.scrollHeight})');
- const scenarios=[['scroll',null,30000],['hero-pointer','#top',6000],['cursor-pointer','#hall-cursor',6000],['shader-pointer','#hall-shader',6000],['impact-hold','[data-k="burst"]',8000]];
+ const scenarios=[['scroll',null,30000],['hero-pointer','#top',6000],['cursor-pointer','#hall-cursor',6000],['shader-pointer','#hall-shader',6000],['impact-hold','[data-k="burst"]',8000],['timing-play','#hall-timing',6000]];
  const results=[];
  for(const [name,selector,duration] of scenarios){
   await evaluate(`document.querySelector('#dX').click();document.documentElement.style.scrollBehavior='auto';${selector?`document.querySelector('${selector}').scrollIntoView({block:'center',behavior:'instant'})`:'scrollTo(0,0)'}`);await sleep(1400);
@@ -34,13 +34,14 @@ try{
    const name=${JSON.stringify(name)},duration=${duration},frames=[],long=[];let last=0,start=0,trigger=-1;
    const obs=new PerformanceObserver(list=>list.getEntries().forEach(e=>long.push({start:e.startTime,duration:e.duration})));obs.observe({type:'longtask',buffered:false});
    const stage=document.querySelector(name==='cursor-pointer'?'.magnetic-stage':name==='shader-pointer'?'.distortion-stage':'.hero');
-   const r=stage?.getBoundingClientRect(),max=document.documentElement.scrollHeight-innerHeight;
+   const r=stage?.getBoundingClientRect();let max=document.documentElement.scrollHeight-innerHeight;const pixelsPerMs=max/duration;const sizeObserver=new ResizeObserver(()=>max=document.documentElement.scrollHeight-innerHeight);if(name==='scroll')sizeObserver.observe(document.body);
    await new Promise(resolve=>{function frame(t){if(!start)start=t;const elapsed=t-start;if(last)frames.push(t-last);last=t;
-    if(name==='scroll')scrollTo(0,max*Math.min(1,elapsed/duration));
+    if(name==='scroll')scrollTo(0,Math.min(max,elapsed*pixelsPerMs));
     else if(name.endsWith('pointer')){const angle=elapsed/330;const x=r.left+r.width*(.5+.38*Math.sin(angle)),y=r.top+r.height*(.5+.3*Math.cos(angle*1.3));stage.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerType:'mouse',clientX:x,clientY:y}));}
+    else if(name==='timing-play'){const index=Math.floor(elapsed/1800);if(index!==trigger){trigger=index;document.querySelectorAll('.timing-card [data-play]').forEach(b=>b.click());}}
     else {const index=Math.floor(elapsed/1800);if(index!==trigger){trigger=index;document.querySelector('[data-k="burst"] .b').click();const hold=document.querySelector('[data-k="hold"] .b');hold.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));setTimeout(()=>hold.dispatchEvent(new KeyboardEvent('keyup',{key:'Enter',bubbles:true})),1350);}}
-    if(elapsed<duration)requestAnimationFrame(frame);else resolve();}requestAnimationFrame(frame);});
-   obs.disconnect();const elapsed=frames.reduce((a,b)=>a+b,0),sorted=[...frames].sort((a,b)=>a-b);return {elapsedMs:elapsed,frames:frames.length,fps:frames.length/elapsed*1000,droppedFrames:frames.reduce((n,dt)=>n+Math.max(0,Math.round(dt/(1000/60))-1),0),p95FrameMs:sorted[Math.floor(sorted.length*.95)],maxFrameMs:Math.max(...frames),longTasks:long.length,maxLongTaskMs:Math.max(0,...long.map(e=>e.duration)),over100ms:long.filter(e=>e.duration>100).length};})()`);
+    if(name==='scroll'?elapsed<max/pixelsPerMs:elapsed<duration)requestAnimationFrame(frame);else resolve();}requestAnimationFrame(frame);});
+   obs.disconnect();sizeObserver.disconnect();const elapsed=frames.reduce((a,b)=>a+b,0),sorted=[...frames].sort((a,b)=>a-b);return {scrollEndGapPx:name==='scroll'?Math.max(0,document.documentElement.scrollHeight-innerHeight-scrollY):undefined,endHeight:document.documentElement.scrollHeight,elapsedMs:elapsed,frames:frames.length,fps:frames.length/elapsed*1000,droppedFrames:frames.reduce((n,dt)=>n+Math.max(0,Math.round(dt/(1000/60))-1),0),p95FrameMs:sorted[Math.floor(sorted.length*.95)],maxFrameMs:Math.max(...frames),longTasks:long.length,maxLongTaskMs:Math.max(0,...long.map(e=>e.duration)),over100ms:long.filter(e=>e.duration>100).length};})()`);
   const done=new Promise(r=>events.set('Tracing.tracingComplete',r));await call('Tracing.end');await done;
   const layouts=trace.filter(e=>e.name==='Layout'&&e.ph==='X'),forced=layouts.filter(e=>e.args?.beginData?.stackTrace?.length);
   const paints=trace.filter(e=>e.name==='Paint'&&e.ph==='X');let area=0;

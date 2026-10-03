@@ -1,5 +1,5 @@
 import { loop } from './frame.js';
-import { motion, registerExhibit, say, refreshPhrase, SFX } from './core.js';
+import { motion, registerExhibit, say, refreshPhrase, SFX, quoteText } from './core.js';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const definitions = {
   split: {
@@ -41,7 +41,7 @@ function mountType(key) {
     root.querySelector('.lab-controls').append(label);
   });
   const wording = () => input.value.trim() || (key === 'split' ? '每个瞬间 都有名字' : 'MOTION LEXICON');
-  data.params = () => `文字「${wording()}」 · ` + Object.entries(data.controls).map(([k, p]) => `${p.label} ${state[k]}${p.unit}`).join(' · ');
+  data.params = () => quoteText(wording()) + ' · ' + Object.entries(data.controls).map(([k, p]) => `${p.label} ${state[k]}${p.unit}`).join(' · ');
   registerExhibit(key, data, replay);
   root.querySelector('.q').addEventListener('click', () => say(key));
   play.addEventListener('click', () => { say(key); replay(); });

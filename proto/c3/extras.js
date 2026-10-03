@@ -26,10 +26,11 @@ const defs={
 {
  let running=false,elapsed=0,previous=0,phase='idle',id=0;
  const lab=mount('submit',defs.submit,()=>submit()),button=lab.stage.querySelector('.submit-object');
+ function resetSubmit(){running=false;phase='idle';button.className='submit-object';button.disabled=false;button.querySelector('span').textContent='提交存档 ↗';lab.root.querySelector('.demo-readout').textContent='Ready / 00';}
  function submit(){if(running)return;running=true;elapsed=0;previous=performance.now();phase='loading';button.className='submit-object loading';button.disabled=true;button.querySelector('span').textContent='正在提交';lab.root.querySelector('.demo-readout').textContent='Loading / 01';wakeSubmit();}
  function frame(t,dt){if(!running)return false;elapsed+=dt*1000*motion.speed;previous=t;
-  if(phase==='loading'&&(elapsed>=1400||motion.reduced)){phase='success';elapsed=0;button.className='submit-object success';button.querySelector('span').textContent='已保存 ✓';lab.root.querySelector('.demo-readout').textContent='Success / 02';SFX.play('done');animate(button,[{scale:'.9'},{scale:'1.05'},{scale:'1'}],300);}
-  else if(phase==='success'&&elapsed>=1600){running=false;phase='idle';button.className='submit-object';button.disabled=false;button.querySelector('span').textContent='提交存档 ↗';lab.root.querySelector('.demo-readout').textContent='Ready / 00';return;}
+  if(phase==='loading'&&(elapsed>=1400||motion.reduced)){phase='success';elapsed=0;button.className='submit-object success';button.querySelector('span').textContent='已保存 ✓';lab.root.querySelector('.demo-readout').textContent='Success / 02';SFX.play('done');animate(button,[{scale:'.9'},{scale:'1.05'},{scale:'1'}],300);if(motion.reduced)setTimeout(resetSubmit,motion.ms(600));}
+  else if(phase==='success'&&elapsed>=1600){resetSubmit();return false;}
  }
  const wakeSubmit=loop(lab.stage,frame);
  button.addEventListener('click',submit);

@@ -306,3 +306,5 @@ export { say, SFX, phrase };
 
 export const getExhibit = key => EX[key];
 export function replayExhibit(key) { say(key); replays.get(key)?.(); refreshPhrase(); }
+
+export const quoteText = value => "文字「" + value.replace(/[\\「」]/g, ch => "\\" + ch) + "」";

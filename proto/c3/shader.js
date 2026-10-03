@@ -51,9 +51,9 @@ for(const key of Object.keys(defs)){
    trigger=key==='particles'?particles(lab,gl,canvas):surface(key,lab,gl,canvas);
   }catch(e){console.warn('着色器已降级',key,e.message);fallback(lab,'实时画面暂不可用 · 已显示静态预览');}
  }
- mobile.addEventListener('change',()=>{if(mobile.matches)fallback(lab,'手机静态预览 · 桌面可体验实时着色器');else{init();if(lab.root.dataset.gpu==='ready')ready(lab);}});
- reduce.addEventListener('change',()=>{if(reduce.matches)fallback(lab,'已减少动态效果 · 当前显示静态预览');else{init();if(lab.root.dataset.gpu==='ready')ready(lab);}});
- const preload=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){preload.disconnect();setTimeout(init,0);}},{rootMargin:'240px'});preload.observe(lab.stage);
+ mobile.addEventListener('change',()=>{if(mobile.matches)fallback(lab,'手机静态预览 · 桌面可体验实时着色器');else{if(lab.root.dataset.gpu==='ready')ready(lab);else preload.observe(lab.stage);}});
+ reduce.addEventListener('change',()=>{if(reduce.matches)fallback(lab,'已减少动态效果 · 当前显示静态预览');else{if(lab.root.dataset.gpu==='ready')ready(lab);else preload.observe(lab.stage);}});
+ const preload=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){preload.disconnect();setTimeout(init,0);}},{rootMargin:'240px'});if(mobile.matches||reduce.matches)init();else preload.observe(lab.stage);
 }
 function resize(lab,gl,canvas){const dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(lab.stage.clientWidth*dpr);canvas.height=Math.round(lab.stage.clientHeight*dpr);gl.viewport(0,0,canvas.width,canvas.height);}
 function surface(key,lab,gl,canvas){

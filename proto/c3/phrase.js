@@ -5,10 +5,10 @@ const normalize=s=>s.normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
 const equivalent=(a,b)=>normalize(a).replace(/\s/g,'')===normalize(b).replace(/\s/g,'');
 export function parseParams(source=''){
  const atoms=[];let start=0,quote=0;
- for(let i=0;i<source.length;i++){if(source[i]==='「')quote++;if(source[i]==='」')quote--;if(quote<0)throw Error('文字引号没有配对。');if(source[i]==='·'&&!quote){atoms.push(source.slice(start,i).trim());start=i+1;}}
+ for(let i=0;i<source.length;i++){if(source[i]==='\\'){i++;continue;}if(source[i]==='「')quote++;if(source[i]==='」')quote--;if(quote<0)throw Error('文字引号没有配对。');if(source[i]==='·'&&!quote){atoms.push(source.slice(start,i).trim());start=i+1;}}
  if(quote)throw Error('文字引号没有配对。');if(source.trim())atoms.push(source.slice(start).trim());
  const result=new Map();
- for(const atom of atoms){let key,value;const text=atom.match(/^文字\s*「([\s\S]*)」$/);if(text){key='文字';value=text[1];}else{const m=atom.match(/^(\S+)\s+([\s\S]+)$/);if(!m)throw Error(`参数“${atom}”缺少数值。`);[,key,value]=m;}if(result.has(key))throw Error(`参数“${key}”重复了。`);result.set(key,value.trim());}
+ for(const atom of atoms){let key,value;const text=atom.match(/^文字\s*「([\s\S]*)」$/);if(text){key='文字';value=text[1].replace(/\\([\\「」])/g,'$1');}else{const m=atom.match(/^(\S+)\s+([\s\S]+)$/);if(!m)throw Error(`参数“${atom}”缺少数值。`);[,key,value]=m;}if(result.has(key))throw Error(`参数“${key}”重复了。`);result.set(key,value.trim());}
  return result;
 }
 export function parsePhrase(value){

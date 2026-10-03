@@ -6,8 +6,8 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 function request(){if(!raf&&!document.hidden)raf=requestAnimationFrame(tick);}
 function tick(t){
  raf=0;const dt=Math.min((t-previous)/1000,.04)||1/60;previous=t;
- frameState.y=scrollY;frameState.x=scrollX;frameState.delta=scrollY-lastScroll;lastScroll=scrollY;
- if(layoutDirty){layoutDirty=false;for(const b of boxes){if(!b.visible&&!b.always)continue;const r=b.el.getBoundingClientRect();b.left=r.left+scrollX;b.top=r.top+scrollY;b.width=r.width;b.height=r.height;}}
+ frameState.delta=frameState.y-lastScroll;lastScroll=frameState.y;
+ if(layoutDirty){layoutDirty=false;for(const b of boxes){if(!b.visible&&!b.always)continue;const r=b.el.getBoundingClientRect();b.left=r.left+frameState.x;b.top=r.top+frameState.y;b.width=r.width;b.height=r.height;}}
  frameState.active=0;frameState.ticks++;
  for(const job of jobs){if(!job.awake||!job.visible)continue;frameState.active++;const keep=job.draw(t,dt);if(keep===false||!job.continuous||reduce.matches)job.awake=false;}
  if([...jobs].some(j=>j.awake&&j.visible))request();
@@ -16,7 +16,7 @@ const resize=new ResizeObserver(()=>{layoutDirty=true;for(const j of jobs)if(j.v
 const intersection=new IntersectionObserver(entries=>{for(const e of entries){
  const set=visibleJobs.get(e.target);if(!set)continue;
  for(const j of set){j.visible=e.isIntersecting;j.awake=e.isIntersecting;}
- const b=[...boxes].find(b=>b.el===e.target);if(b){b.visible=e.isIntersecting;const r=e.boundingClientRect;b.left=r.left+scrollX;b.top=r.top+scrollY;b.width=r.width;b.height=r.height;}
+ const b=[...boxes].find(b=>b.el===e.target);if(b){b.visible=e.isIntersecting;const r=e.boundingClientRect;b.left=r.left+frameState.x;b.top=r.top+frameState.y;b.width=r.width;b.height=r.height;}
  layoutDirty=true;
 }request();},{rootMargin:'40px'});
 export function schedule(draw){
@@ -37,7 +37,7 @@ export function geometry(el,always=false){
 }
 export function invalidateGeometry(){layoutDirty=true;request();}
 addEventListener('resize',invalidateGeometry,{passive:true});
-addEventListener('scroll',()=>{for(const j of jobs)if(j.visible)j.awake=true;request();},{passive:true});
+addEventListener('scroll',()=>{frameState.y=scrollY;frameState.x=scrollX;for(const j of jobs)if(j.visible)j.awake=true;request();},{passive:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else{previous=performance.now();lastScroll=scrollY;for(const j of jobs)if(j.visible)j.awake=true;request();}});
 reduce.addEventListener('change',()=>{for(const j of jobs)if(j.visible)j.awake=true;request();});
 document.fonts.ready.then(invalidateGeometry);

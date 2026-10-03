@@ -24,6 +24,7 @@ export function bezierAt(t,points){let lo=0,hi=1,u=t;for(let i=0;i<16;i++){u=(lo
  const lanes=[...lab.stage.querySelectorAll('.ease-lane')].map(el=>({el,key:el.dataset.curve,runner:el.querySelector('.ease-track>i'),box:geometry(el.querySelector('.ease-track')),circle:el.querySelector('.mini-curve>circle')}));
  const inputs=[];values.forEach((v,i)=>{const label=document.createElement('label');label.textContent=['X1','Y1','X2','Y2'][i];const input=document.createElement('input');Object.assign(input,{type:'number',min:i%2?-.35:0,max:i%2?1.35:1,step:.01,value:v});input.dataset.param=['x1','y1','x2','y2'][i];input.setAttribute('aria-label',`贝塞尔控制点 ${label.textContent}`);input.addEventListener('input',()=>{if(!input.value||!Number.isFinite(input.valueAsNumber))return;values[i]=clamp(input.valueAsNumber,Number(input.min),Number(input.max));update();play();});label.append(input);lab.stage.querySelector('.bezier-values').append(label);inputs.push(input);});
  function update(){
+  values=values.map((v,i)=>Math.round(clamp(v,i%2?-.35:0,i%2?1.35:1)*100)/100);
   values.forEach((v,i)=>inputs[i].value=v.toFixed(2));
   graph.querySelector('.bezier-line').setAttribute('d',`M${svgPoint(0,0)} C${svgPoint(values[0],values[1])} ${svgPoint(values[2],values[3])} ${svgPoint(1,1)}`);
   graph.querySelector('.bezier-guides').setAttribute('d',`M${svgPoint(0,0)}L${svgPoint(values[0],values[1])} M${svgPoint(1,1)}L${svgPoint(values[2],values[3])}`);
@@ -36,8 +37,8 @@ export function bezierAt(t,points){let lo=0,hi=1,u=t;for(let i=0;i<16;i++){u=(lo
  wake=loop(lab.stage,(t,dt)=>{if(motion.reduced){draw(1);running=false;return false;}if(!running){draw(clamp(elapsed/duration));return false;}elapsed+=dt*1000*motion.speed;const p=clamp(elapsed/duration);draw(p);if(p>=1){running=false;return false;}});
  range(lab,'duration','统一时长',300,2000,50,1000,'ms',v=>{duration=v;});
  handles.forEach((handle,i)=>{
-  let dragging=false;handle.addEventListener('pointerdown',e=>{e.preventDefault();dragging=true;handle.setPointerCapture(e.pointerId);});
-  handle.addEventListener('pointermove',e=>{if(!dragging)return;const x=(e.clientX-box.x)/box.width*280,y=(e.clientY-box.y)/box.height*270;values[i*2]=clamp((x-30)/220);values[i*2+1]=clamp((200-y)/130,-.35,1.35);update();play();});
+  let dragging=false;handle.addEventListener('pointerdown',e=>{e.preventDefault();handle.focus();dragging=true;handle.setPointerCapture(e.pointerId);});
+  handle.addEventListener('pointermove',e=>{if(!dragging)return;const scale=Math.min(box.width/280,box.height/270),ox=(box.width-280*scale)/2,oy=(box.height-270*scale)/2;const x=(e.clientX-box.x-ox)/scale,y=(e.clientY-box.y-oy)/scale;values[i*2]=clamp((x-30)/220);values[i*2+1]=clamp((200-y)/130,-.35,1.35);update();play();});
   const end=()=>dragging=false;handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);handle.addEventListener('lostpointercapture',end);
   handle.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const delta=e.shiftKey?.05:.01,index=i*2+(['ArrowUp','ArrowDown'].includes(e.key)?1:0);values[index]=clamp(values[index]+(['ArrowRight','ArrowUp'].includes(e.key)?delta:-delta),index%2?-.35:0,index%2?1.35:1);update();play();});
  });
@@ -75,6 +76,6 @@ export function bezierAt(t,points){let lo=0,hi=1,u=t;for(let i=0;i<16;i++){u=(lo
  wake=loop(lab.stage,(t,dt)=>{if(motion.reduced){draw(duration+gap*7);running=false;return false;}if(!running){draw(elapsed);return false;}elapsed+=dt*1000*motion.speed;draw(elapsed);if(elapsed>=duration+gap*7){running=false;return false;}});
  range(lab,'gap','出发间隔',0,240,5,75,'ms',n=>{gap=n;});range(lab,'duration','单张时长',200,1000,25,500,'ms',n=>{duration=n;});
  const item=document.createElement('label');item.className='lab-ctl';item.innerHTML='<span>出发方向</span><output>↗</output><select class="timing-select" data-param="direction" aria-label="错落出发方向"><option value="left">从左 →</option><option value="center">从中间 ↔</option><option value="random">随机 ↗</option></select>';const select=item.querySelector('select');select.addEventListener('change',()=>{direction=select.value;play();refreshPhrase();});lab.root.querySelector('.timing-controls').append(item);
- const seedLabel=document.createElement('label');seedLabel.className='lab-ctl';seedLabel.innerHTML='<span>随机种子</span><output>固定顺序</output><input class="timing-select" data-param="seed" type="number" min="1" max="9999" step="1" value="7" aria-label="错落随机种子">';seedLabel.querySelector('input').addEventListener('input',e=>{seed=clamp(Number(e.target.value)||7,1,9999);play();refreshPhrase();});lab.root.querySelector('.timing-controls').append(seedLabel);
+ const seedLabel=document.createElement('label');seedLabel.className='lab-ctl';seedLabel.innerHTML='<span>随机种子</span><output>固定顺序</output><input class="timing-select" data-param="seed" type="number" min="1" max="9999" step="1" value="7" aria-label="错落随机种子">';seedLabel.querySelector('input').addEventListener('input',e=>{seed=Math.round(clamp(Number(e.target.value)||7,1,9999));e.target.value=String(seed);play();refreshPhrase();});lab.root.querySelector('.timing-controls').append(seedLabel);
  defs.stagger.params=()=>`间隔 ${gap}ms · 单张 ${duration}ms · 方向 ${{left:'从左',center:'从中间',random:'随机'}[direction]} · 种子 ${seed}`;sequence();draw(1500);enter(lab,play);
 }

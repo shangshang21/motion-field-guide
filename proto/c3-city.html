@@ -7,6 +7,7 @@
 <meta name="description" content="八个展厅，四十三件可玩的网页动效。亲手试、调整速度、认识原理，再复制准确的动效口令。">
 <link rel="preload" href="../assets/fonts/Anton.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/NotoSansSC-Black-sub.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{if(localStorage.getItem('motion-field-guide.welcomed')!=='yes'&&!location.search&&!location.hash)document.documentElement.classList.add('first-visit');}catch{document.documentElement.classList.add('first-visit');}</script>
 <link rel="icon" href="../assets/city-mark.svg" type="image/svg+xml">
 <link rel="stylesheet" href="c3/core.css">
 <link rel="stylesheet" href="c3/halls.css">
@@ -47,6 +48,10 @@
       <p class="lead">网页上那些让你“哇”一声的瞬间，都有名字。<br><em>按一下、拖一下、悬停一下</em>，导览员会告诉你它叫什么、怎么做的。</p>
       <button class="start" id="start"><span class="tri"></span><span class="k">Press Start</span></button>
       <span class="start-hint mono">▸ 按下去试试 · 有音效</span>
+      <aside id="first-visit" class="welcome" aria-label="导览员的初次问候">
+        <img width="56" height="56" src="../assets/city-web/guide-bust.jpg" alt="导览员眨眼打招呼" decoding="async">
+        <div><span class="mono welcome-name">✳ 导览员 / HEY, FIRST TIME?</span><p>嗨，这里是一本能亲手玩的动效词典。<br>按一下、拖一下，先试你喜欢的效果。<br>想看清过程，可以在右上角慢放。<br>调好了就复制口令，把这份手感交给开发者。</p><div class="welcome-actions"><button class="welcome-play">知道了，去试试 ↗</button><button class="welcome-skip">跳过</button></div></div>
+      </aside>
     </div>
 
     <div class="right">
@@ -216,6 +221,7 @@
     </div>
   </div>
 
+<script type="module" src="c3/welcome.js"></script>
 <script type="module" src="c3/core.js"></script>
 <script type="module" src="c3/lazy.js"></script>
 <script type="module" src="c3/phrase.js"></script>

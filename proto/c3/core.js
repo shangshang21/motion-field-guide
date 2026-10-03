@@ -87,7 +87,6 @@ $('#start').addEventListener('click', () => {
     $('#app').animate([0,-6,5,-4,2,0].map(x => ({ transform: `translateX(${x}px)` })), {duration: ms(380)});
   }
   setTimeout(() => $('#hall').scrollIntoView({ behavior: motion.reduced ? 'instant' : 'smooth' }), ms(260));
-  setTimeout(() => say('welcome'), ms(900));
 });
 
 /* ================= 展品数据 ================= */
@@ -298,17 +297,6 @@ $('#dAgain').addEventListener('click', () => {
   replays.get(curKey)?.();
 });
 
-// 第一次滚到按钮展厅，导览员自己打招呼
-let greeted = false;
-new IntersectionObserver(es => es.forEach(e => {
-  if (e.isIntersecting && !greeted) {
-    greeted = true;
-    setTimeout(() => {
-      const r = $('#hall').getBoundingClientRect();
-      if (!curKey && r.bottom > innerHeight * .2 && r.top < innerHeight * .8) say('welcome');
-    }, 500);
-  }
-}), { threshold: .25 }).observe($('#hall'));
 export { say, SFX, phrase };
 
 export const getExhibit = key => EX[key];

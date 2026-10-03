@@ -114,6 +114,43 @@
     </div>
   </section>
 
+  <div class="type-crossing" aria-hidden="true"><div class="crossing-stripes"></div><span class="mono">Next block / Hall 03</span><b>Aa ↗</b><span class="mono">文字也有出场顺序。</span></div>
+
+  <section class="hall text-hall" id="hall-text" aria-labelledby="text-title">
+    <div class="hall-head">
+      <span class="no">03</span>
+      <h2 id="text-title">文字展厅<small>Hall 03 · Type · 2 Exhibits</small></h2>
+      <p class="hall-note">同一句话，换一种出场方式。<br><span class="mono">Edit → Replay → Copy</span></p>
+    </div>
+    <div class="text-grid">
+      <article class="card type-card" data-k="split">
+        <header class="mono"><span class="n">Nº13</span><span class="sp">TYPE / 01</span><span class="how">Replay</span></header>
+        <div class="type-stage split-stage">
+          <span class="stage-label mono">One character at a time</span><div class="split-ghost" aria-hidden="true">Aa</div>
+          <div class="split-lines" aria-label="每个瞬间 都有名字"></div>
+          <div class="type-stage-bottom"><span class="mono type-status">Ready / 08 characters</span><button class="type-play mono" aria-label="播放逐字错落">播放 ↗</button></div>
+        </div>
+        <div class="type-edit"><label for="split-input">试一句话</label><input id="split-input" type="text" value="每个瞬间 都有名字" maxlength="24" spellcheck="false" autocomplete="off" aria-describedby="split-hint"><span class="mono" id="split-hint">空格换行</span></div>
+        <div class="lab-controls type-controls" data-controls="split"></div>
+        <div class="type-timeline"><span class="mono">Stagger</span><div class="progress-bars" aria-hidden="true"></div><output class="mono">00 / 08</output></div>
+        <footer><b>逐字错落</b><em>Split Text Stagger</em><button class="q mono" aria-label="了解逐字错落">?</button></footer>
+      </article>
+
+      <article class="card type-card" data-k="scramble">
+        <header class="mono"><span class="n">Nº14</span><span class="sp">TYPE / 02</span><span class="how">Replay</span></header>
+        <div class="type-stage scramble-stage">
+          <span class="stage-label mono"><i>●</i> Signal locked</span><span class="decode-mark mono" aria-hidden="true">[ A—Z ]</span>
+          <div class="scramble-lines" aria-label="MOTION LEXICON"></div>
+          <div class="type-stage-bottom"><span class="mono type-status">Ready / 13 characters</span><button class="type-play mono" aria-label="播放乱码解码">解码 ↗</button></div>
+        </div>
+        <div class="type-edit"><label for="scramble-input">换个词</label><input id="scramble-input" type="text" value="MOTION LEXICON" maxlength="24" spellcheck="false" autocomplete="off" aria-describedby="scramble-hint"><span class="mono" id="scramble-hint">A—Z / 0—9</span></div>
+        <div class="lab-controls type-controls" data-controls="scramble"></div>
+        <div class="type-timeline"><span class="mono">Locked</span><div class="progress-bars" aria-hidden="true"></div><output class="mono">13 / 13</output></div>
+        <footer><b>乱码解码</b><em>Scramble</em><button class="q mono" aria-label="了解乱码解码">?</button></footer>
+      </article>
+    </div>
+  </section>
+
   <section class="collect">
     <h3>Collection<small>收藏进度 3 / 12</small></h3>
     <div class="slots">
@@ -145,5 +182,6 @@
 
 <script type="module" src="c3/core.js"></script>
 <script type="module" src="c3/cursor.js"></script>
+<script type="module" src="c3/type.js"></script>
 </body>
 </html>

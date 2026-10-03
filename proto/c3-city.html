@@ -27,10 +27,10 @@
     <button class="sfx mono" id="sfx" aria-pressed="true"><span class="bars"><b></b><b></b><b></b></span><span id="sfxLbl">SFX ON</span></button>
   </header>
   <div class="speed-dock speed mono" id="speed-dock" hidden>
-    <div class="speed-top"><span>全局速度 Speed</span><b id="dockSpd">1.00x</b></div>
+    <div class="speed-top"><span>播放控制台 Playback</span><b id="dockSpd">1.00x</b></div>
     <div class="segs" id="dock-segs" role="radiogroup" aria-label="全局动效速度"></div>
-    <div class="speed-scale"><span>0.25x</span><span>1.00x</span><span>2.00x</span></div>
-    <p>所有展厅共用这一档速度，口令会同步更新。</p>
+    <div class="speed-scale"><span>0.10x</span><span>1.00x</span><span>2.00x</span></div>
+    <div class="playback-keys"><button id="play-pause" aria-pressed="false">Ⅱ 暂停</button><button id="play-slow">0.1x 慢放</button><button id="play-step" aria-label="暂停并前进一帧">一步 / 1帧 ↦</button></div><div class="playback-state" id="play-state" role="status">PLAYING / ALL HALLS</div><p>所有动效共用一个时钟。<br>空格暂停 · 暂停时按 . 前进一帧</p>
   </div>
 
   <main id="app">

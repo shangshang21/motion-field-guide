@@ -18,7 +18,7 @@ export function parsePhrase(value){
  if(!m)throw Error('请使用“名字 English｜速度 1.00x｜参数”的口令格式。');
  const head=normalize(m[1]),entry=catalog.find(e=>[`${e.name} ${e.en}`,e.name,e.en,`Nº${e.no} ${e.name} ${e.en}`].some(n=>normalize(n)===head));
  if(!entry)throw Error(`没有找到“${m[1].trim()}”，请检查展品名字。`);
- const speed=Number(m[2]);if(speed<.25||speed>2)throw Error('速度需要在 0.25x 到 2.00x 之间。');
+ const speed=Number(m[2]);if(speed<.1||speed>2)throw Error('速度需要在 0.10x 到 2.00x 之间。');
  if(Math.abs(speed*100-Math.round(speed*100))>1e-6)throw Error('速度最多保留两位小数。');
  return {entry,speed,comparison,params:parseParams(m[3]||'')};
 }

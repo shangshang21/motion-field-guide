@@ -1,3 +1,4 @@
+import {motionTimeout,clearMotionTimeout} from './frame.js';
 import { loop, geometry } from './frame.js';
 import { motion, registerExhibit, say, refreshPhrase, SFX } from './core.js';
 const ORANGE = '#ff5b00';
@@ -79,16 +80,16 @@ function magnetic(override) {
   let demoTimer, pointer = { x: 0, y: 0, inside: false };
   const lab = mountLab('magnetic', () => {
     pointer = { x: lab.box.width / 2 + 90, y: lab.box.height / 2 - 55, inside: true };
-    clearTimeout(demoTimer); demoTimer = setTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
+    clearMotionTimeout(demoTimer); demoTimer = motionTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
   },override);
   const { stage, state, box, ctx, ink, cross, text } = lab, target = lab.root.querySelector('.magnetic-target');
   const current = { x: 0, y: 0 }; let wakeMagnetic = () => {};
-  stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; clearTimeout(demoTimer); pointer = { ...lab.point(e), inside: true }; });
+  stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; clearMotionTimeout(demoTimer); pointer = { ...lab.point(e), inside: true }; });
   stage.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') pointer.inside = false; });
   stage.addEventListener('pointerdown', e => {
     pointer = { ...lab.point(e), inside: true };
     if (Math.hypot(pointer.x - box.width / 2, pointer.y - box.height / 2) < 15) { pointer.x += 80; pointer.y -= 40; }
-    clearTimeout(demoTimer); demoTimer = setTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
+    clearMotionTimeout(demoTimer); demoTimer = motionTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
   });
   wakeMagnetic = loop(stage, (now, dt) => {
     if (box.visible) {
@@ -137,7 +138,7 @@ function trail(override) {
   }
   function replay() {
     demo++; const id = demo;
-    for (let i = 0; i < 5; i++) setTimeout(() => {
+    for (let i = 0; i < 5; i++) motionTimeout(() => {
       if (id !== demo) return;
       const x = box.width * (.22 + i * .14), y = box.height * (.47 + Math.sin(i * 1.4) * .13);
       place(x, y); last = { x, y }; pointer = { x: x + 20, y: y - 10 };

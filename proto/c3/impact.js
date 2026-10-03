@@ -1,3 +1,4 @@
+import {motionTimeout,clearMotionTimeout} from './frame.js';
 import { transient } from './frame.js';
 // 每次起爆都独立积分：速度拉伸火花，阻力削弱碎片速度，重力留下下坠的尾巴。
 const TAU = Math.PI * 2;
@@ -21,7 +22,7 @@ export async function impact(button, { motion, sound, charged = false }) {
   if (motion.reduced) {
     sound();
     pad.classList.add('impact-rest');
-    setTimeout(cleanup, 220);
+    motionTimeout(cleanup, 220);
     return;
   }
 

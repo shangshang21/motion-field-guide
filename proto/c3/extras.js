@@ -1,3 +1,4 @@
+import {motionTimeout,clearMotionTimeout} from './frame.js';
 import {mount,motion,animate,loop,clamp,SFX,geometry} from './lab.js';
 const defs={
  tilt:{no:'15',name:'三维倾斜',en:'3D Tilt',params:()=> '透视 800px · 最大角度 14° · 文字深度 35px',say:'把鼠标离中心的距离换算成卡片的旋转角度，就像拿着它轻轻倾斜。文字再向前抬一点，比卡片更靠近你。透视让近处变大、远处变小，平面就有了厚度。'},
@@ -11,11 +12,11 @@ const defs={
 };
 {
  let aim={x:0,y:0},current={x:0,y:0},timer;
- const lab=mount('tilt',defs.tilt,()=>{aim={x:12,y:-12};clearTimeout(timer);timer=setTimeout(()=>aim={x:0,y:0},motion.ms(1200));});
+ const lab=mount('tilt',defs.tilt,()=>{aim={x:12,y:-12};clearMotionTimeout(timer);timer=motionTimeout(()=>aim={x:0,y:0},motion.ms(1200));});
  const object=lab.stage.querySelector('.tilt-object'),box=geometry(lab.stage);
  lab.stage.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;aim={x:clamp((e.clientY-box.y)/box.height-.5,-.5,.5)*-28,y:clamp((e.clientX-box.x)/box.width-.5,-.5,.5)*28};});
  lab.stage.addEventListener('pointerleave',()=>aim={x:0,y:0});
- object.addEventListener('click',()=>{aim={x:10,y:12};clearTimeout(timer);timer=setTimeout(()=>aim={x:0,y:0},motion.ms(1300));});
+ object.addEventListener('click',()=>{aim={x:10,y:12};clearMotionTimeout(timer);timer=motionTimeout(()=>aim={x:0,y:0},motion.ms(1300));});
  loop(lab.stage,(t,dt)=>{const ease=1-Math.exp(-dt*10*motion.speed);current.x+=(aim.x-current.x)*ease;current.y+=(aim.y-current.y)*ease;object.style.transform=motion.reduced?'none':`rotateX(${current.x}deg) rotateY(${current.y}deg)`;});
 }
 {
@@ -29,7 +30,7 @@ const defs={
  function resetSubmit(){running=false;phase='idle';button.className='submit-object';button.disabled=false;button.querySelector('span').textContent='提交存档 ↗';lab.root.querySelector('.demo-readout').textContent='Ready / 00';}
  function submit(){if(running)return;running=true;elapsed=0;previous=performance.now();phase='loading';button.className='submit-object loading';button.disabled=true;button.querySelector('span').textContent='正在提交';lab.root.querySelector('.demo-readout').textContent='Loading / 01';wakeSubmit();}
  function frame(t,dt){if(!running)return false;elapsed+=dt*1000*motion.speed;previous=t;
-  if(phase==='loading'&&(elapsed>=1400||motion.reduced)){phase='success';elapsed=0;button.className='submit-object success';button.querySelector('span').textContent='已保存 ✓';lab.root.querySelector('.demo-readout').textContent='Success / 02';SFX.play('done');animate(button,[{scale:'.9'},{scale:'1.05'},{scale:'1'}],300);if(motion.reduced)setTimeout(resetSubmit,motion.ms(600));}
+  if(phase==='loading'&&(elapsed>=1400||motion.reduced)){phase='success';elapsed=0;button.className='submit-object success';button.querySelector('span').textContent='已保存 ✓';lab.root.querySelector('.demo-readout').textContent='Success / 02';SFX.play('done');animate(button,[{scale:'.9'},{scale:'1.05'},{scale:'1'}],300);if(motion.reduced)motionTimeout(resetSubmit,motion.ms(600));}
   else if(phase==='success'&&elapsed>=1600){resetSubmit();return false;}
  }
  const wakeSubmit=loop(lab.stage,frame);

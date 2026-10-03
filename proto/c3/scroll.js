@@ -1,3 +1,4 @@
+import {isPlaying} from './frame.js';
 import {mount,motion,animate,clamp,loop,SFX,geometry,frameState} from './lab.js';
 const definitions={
  parallax:{no:'23',name:'视差',en:'Parallax',params:()=> '远层 0.15 · 中层 0.45 · 近层 0.90',say:'把画面拆成远、中、近三层，滚动同一段距离，每层走的路程不同。近处移动得多，远处移动得少，平面就有了纵深。这里的建筑、字和路牌分别是一层。'},
@@ -33,9 +34,9 @@ for(const key of Object.keys(definitions)){
    if(next!==chapter){chapter=next;setChapter(lab,next);}
    text(`Chapter / 0${chapter+1} · ${Math.round(p*100)}%`);
   }else if(key==='horizontal'){
-   const track=lab.stage.querySelector('.horizontal-track');if(!track.getAnimations().some(a=>a.playState==='running')){track.getAnimations().forEach(a=>a.cancel());track.style.transform=`translateX(${-progress*Math.max(0,trackWidth-stageBox.width)}px)`;}
+   const track=lab.stage.querySelector('.horizontal-track');if(!track.getAnimations().some(a=>isPlaying(a))){track.getAnimations().forEach(a=>a.cancel());track.style.transform=`translateX(${-progress*Math.max(0,trackWidth-stageBox.width)}px)`;}
   }else if(key==='reveal'){
-   const poster=lab.stage.querySelector('.reveal-poster');if(!poster.getAnimations().some(a=>a.playState==='running')){poster.getAnimations().forEach(a=>a.cancel());poster.style.clipPath=`inset(${(1-progress)*100}% 0 0 0)`;}
+   const poster=lab.stage.querySelector('.reveal-poster');if(!poster.getAnimations().some(a=>isPlaying(a))){poster.getAnimations().forEach(a=>a.cancel());poster.style.clipPath=`inset(${(1-progress)*100}% 0 0 0)`;}
   }else{
    velocity=clamp(frameState.delta/Math.max(dt*1000,8)*2,-14,14)||velocity;const target=motion.reduced?0:Math.abs(velocity)>.3?velocity:fake;
    fake*=Math.exp(-dt*5*motion.speed);velocity*=Math.exp(-dt*3);

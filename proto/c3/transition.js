@@ -26,7 +26,7 @@ const defs={
   if(busy)return;busy=true;
   const from=(open?large:small).getBoundingClientRect();
   detail.hidden=false;const to=(open?small:large).getBoundingClientRect();
-  const ghost=small.cloneNode();ghost.alt='';ghost.setAttribute('aria-hidden','true');
+  const ghost=small.cloneNode();ghost.alt='';ghost.dataset.motionGhost='true';ghost.setAttribute('aria-hidden','true');
   ghost.style.cssText=`position:fixed;z-index:110;pointer-events:none;object-fit:cover;left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;`;
   document.body.append(ghost);large.style.visibility='hidden';small.style.visibility='hidden';
   if(open)detail.hidden=true;

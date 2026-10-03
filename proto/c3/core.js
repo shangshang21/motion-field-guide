@@ -1,4 +1,4 @@
-import { loop as renderLoop, geometry, schedule, frameState } from './frame.js';
+import { loop as renderLoop, geometry, schedule, frameState, pauseMotion, stepMotion, setClockSpeed, motionTimeout, clearMotionTimeout } from './frame.js';
 import { SFX } from './sound.js';
 
 import { impact } from './impact.js';
@@ -9,7 +9,7 @@ let SPD = 1;
 let curKey = null, typing = 0; // 对话框当前讲的展品、打字机的任务编号
 const ms = v => v / SPD;
 const reduction = matchMedia('(prefers-reduced-motion: reduce)');
-export const motion = { get speed() { return SPD; }, get reduced() { return reduction.matches; }, ms };
+export const motion = { get speed() { return SPD; }, get paused(){return frameState.paused;}, get reduced() { return reduction.matches; }, ms };
 const replays = new Map();
 let phraseExtension=()=>'';
 export function registerPhraseExtension(fn){phraseExtension=fn;}
@@ -125,7 +125,7 @@ const LINES = {
 };
 
 /* ================= 速度档位 ================= */
-const SPEEDS = [.25, .5, .75, 1, 1.25, 1.5, 1.75, 2];
+const SPEEDS = [.1, .25, .5, .75, 1, 1.25, 1.5, 1.75, 2];
 $$('#segs, #dock-segs').forEach(segs => {
   SPEEDS.forEach(v => {
     const b = document.createElement('button'); b.setAttribute('aria-label', v + 'x'); b.setAttribute('role', 'radio');
@@ -139,7 +139,7 @@ $$('#segs, #dock-segs').forEach(segs => {
   });
 });
 export function setSpeed(v, silent = false) {
-  SPD = v; document.documentElement.style.setProperty('--spd', v);
+  SPD = v; setClockSpeed(v); document.documentElement.style.setProperty('--spd', v);
   $('#spdVal').textContent = v.toFixed(2) + 'x';
   $('#hudSpd').textContent = $('#dockSpd').textContent = v.toFixed(2) + 'x';
   $('#speed-toggle').setAttribute('aria-label', `调整全局速度，当前 ${v.toFixed(2)} 倍`);
@@ -158,6 +158,10 @@ speedToggle.addEventListener('click', () => {
 });
 document.addEventListener('click', e => { if (!e.target.closest('#speed-toggle, #speed-dock')) closeSpeed(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !speedDock.hidden) closeSpeed(true); });
+const pauseButton=$('#play-pause'),stepButton=$('#play-step');
+pauseButton.addEventListener('click',()=>pauseMotion());stepButton.addEventListener('click',()=>stepMotion());$('#play-slow').addEventListener('click',()=>setSpeed(.1));
+addEventListener('motion-playback',()=>{pauseButton.textContent=frameState.paused?'▶ 继续':'Ⅱ 暂停';pauseButton.setAttribute('aria-pressed',String(frameState.paused));$('#play-state').textContent=frameState.paused?`PAUSED / FRAME ${String(frameState.steps).padStart(3,'0')}`:'PLAYING / ALL HALLS';$('#speed-toggle').classList.toggle('is-paused',frameState.paused);});
+addEventListener('keydown',e=>{if(e.target.closest('input,textarea,select,button,a,[role=slider]'))return;if(e.code==='Space'){e.preventDefault();pauseMotion();}if(e.key==='.'&&frameState.paused){e.preventDefault();stepMotion();}});
 const navLinks = $$('.hud-nav a').map(a => ({a, box: geometry($(a.hash), true)}));
 function updateHud() {
   $('.hud').classList.toggle('is-scrolled', heroBox.y + heroBox.height < 100);
@@ -166,7 +170,7 @@ function updateHud() {
   navLinks.forEach(({a}) => { if (a === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
   return false;
 }
-const hudJob = schedule(updateHud);
+const hudJob = schedule(updateHud,true);
 addEventListener('scroll', () => hudJob.wake(), { passive: true });
 addEventListener('resize', () => hudJob.wake(), { passive: true });
 
@@ -186,7 +190,7 @@ function fxPush(b) {
   const up = () => { if (b.classList.contains('down')) { b.classList.remove('down'); SFX.play('up'); } };
   b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up);
   b.addEventListener('pointercancel', up);
-  b.addEventListener('click', e => { if (!e.detail) { b.classList.add('down'); SFX.play('push'); setTimeout(up, ms(140)); } });
+  b.addEventListener('click', e => { if (!e.detail) { b.classList.add('down'); SFX.play('push'); motionTimeout(up, ms(140)); } });
 }
 function fxRipple(b) {
   const ripple = (e = null) => {
@@ -212,8 +216,8 @@ function fxHold(b) {
     p = clamp(p + (holding ? dt / TOTAL() : -dt / ms(300)), 0, 1);
     b.style.setProperty('--p', p); SFX.holdSet(p);
     if (holding && p >= 1) { holding = false; SFX.holdStop(); b.classList.add('done'); lbl.textContent = 'CONFIRMED ✓';
-      impact(b, { motion, charged: true, sound: () => { SFX.play('burst'); setTimeout(() => SFX.play('done'), ms(200)); } });
-      reset = setTimeout(() => { b.classList.remove('done'); lbl.textContent = '按住不放'; p = 0; b.style.setProperty('--p', 0); }, ms(1800)); return false; }
+      impact(b, { motion, charged: true, sound: () => { SFX.play('burst'); motionTimeout(() => SFX.play('done'), ms(200)); } });
+      reset = motionTimeout(() => { b.classList.remove('done'); lbl.textContent = '按住不放'; p = 0; b.style.setProperty('--p', 0); }, ms(1800)); return false; }
     if (!holding && p <= 0) return false;
   });
   const start = () => { if (b.classList.contains('done') || holding) return; holding = true; last = performance.now(); SFX.holdStart(); wakeHold(); };
@@ -225,7 +229,7 @@ function fxHold(b) {
   b.addEventListener('blur', rel);
   addEventListener('blur', rel);
   document.addEventListener('visibilitychange', () => { if (document.hidden) rel(); });
-  replays.set('hold', () => { clearTimeout(reset); b.classList.remove('done'); lbl.textContent = '按住不放'; p = 0; b.style.setProperty('--p', 0); b.focus({ preventScroll: true }); });
+  replays.set('hold', () => { clearMotionTimeout(reset); b.classList.remove('done'); lbl.textContent = '按住不放'; p = 0; b.style.setProperty('--p', 0); b.focus({ preventScroll: true }); });
 }
 function fxBurst(b) {
   b.addEventListener('click', () => impact(b, { motion, sound: () => SFX.play('burst') }));
@@ -241,7 +245,7 @@ function fxShake(b) {
   b.addEventListener('click', () => {
     SFX.play('error'); b.classList.add('err');
     b.animate([0, -14, 12, -9, 7, -4, 2, 0].map(x => ({ transform: `translateX(${x}px)` })), { duration: motion.reduced ? 1 : ms(480), easing: 'ease-out' })
-      .onfinish = () => setTimeout(() => b.classList.remove('err'), ms(400));
+      .onfinish = () => motionTimeout(() => b.classList.remove('err'), ms(400));
   });
 }
 

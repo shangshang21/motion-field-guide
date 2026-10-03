@@ -131,18 +131,19 @@ $$('#segs, #dock-segs').forEach(segs => {
   });
   segs.addEventListener('keydown', e => {
     if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
-    e.preventDefault(); let i = SPEEDS.indexOf(SPD);
+    e.preventDefault(); let i = SPEEDS.indexOf(SPEEDS.reduce((a,n) => Math.abs(n-SPD)<Math.abs(a-SPD)?n:a));
     i = e.key === 'Home' ? 0 : e.key === 'End' ? SPEEDS.length - 1 : clamp(i + (e.key === 'ArrowRight' ? 1 : -1), 0, SPEEDS.length - 1);
     setSpeed(SPEEDS[i]); segs.children[i].focus();
   });
 });
-function setSpeed(v, silent = false) {
+export function setSpeed(v, silent = false) {
   SPD = v; document.documentElement.style.setProperty('--spd', v);
   $('#spdVal').textContent = v.toFixed(2) + 'x';
   $('#hudSpd').textContent = $('#dockSpd').textContent = v.toFixed(2) + 'x';
   $('#speed-toggle').setAttribute('aria-label', `调整全局速度，当前 ${v.toFixed(2)} 倍`);
   $$('.segs button').forEach(b => {
-    const selected = Number(b.dataset.speed) === v;
+    const nearest = SPEEDS.reduce((a,n) => Math.abs(n-v)<Math.abs(a-v)?n:a);
+    const selected = Number(b.dataset.speed) === nearest;
     b.classList.toggle('on', Number(b.dataset.speed) <= v); b.setAttribute('aria-checked', String(selected)); b.tabIndex = selected ? 0 : -1;
   });
   if (!silent) SFX.play('tick'); refreshPhrase();
@@ -302,3 +303,6 @@ new IntersectionObserver(es => es.forEach(e => {
   }
 }), { threshold: .25 }).observe($('#hall'));
 export { say, SFX, phrase };
+
+export const getExhibit = key => EX[key];
+export function replayExhibit(key) { say(key); replays.get(key)?.(); refreshPhrase(); }

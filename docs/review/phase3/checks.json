@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-03T17:29:35.133Z",
+  "results": [
+    {
+      "name": "Catalog: 39 exhibits, unique numbers and existing cards",
+      "passed": true
+    },
+    {
+      "name": "Every copied phrase can be read back, including unloaded halls",
+      "passed": true
+    },
+    {
+      "name": "Restore speed and magnetic strength/radius/ease",
+      "passed": true
+    },
+    {
+      "name": "Custom text survives separators and is restored with timing",
+      "passed": true
+    },
+    {
+      "name": "Restore all four bezier control coordinates",
+      "passed": true
+    },
+    {
+      "name": "Restore spring, duration ratio and reproducible stagger seed",
+      "passed": true
+    },
+    {
+      "name": "Invalid parameter is atomic: controls and speed remain unchanged",
+      "passed": true
+    },
+    {
+      "name": "Bad names, duplicates, unsupported values and unknown parameters fail",
+      "passed": true
+    },
+    {
+      "name": "Keyboard curve edit updates the copy phrase",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 768px",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 1024px",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion settles timing immediately",
+      "passed": true
+    },
+    {
+      "name": "No uncaught JavaScript errors",
+      "passed": true
+    }
+  ]
+}

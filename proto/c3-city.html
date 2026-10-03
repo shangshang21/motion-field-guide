@@ -172,6 +172,10 @@
   <section class="collect" id="collection" aria-labelledby="collection-title">
     <div class="collection-head"><h3 id="collection-title">Collection<small>收藏进度 7 / 7</small></h3><div class="collection-discovered"><span class="mono" id="discovered">已认识 0 / 39 件</span><div class="discovery-meter" aria-hidden="true"><i id="discovery-fill"></i></div></div></div>
     <p class="collection-note">七个展厅，三十九件可玩的动效。点选一个街区，接着逛。</p>
+    <section class="phrase-return" id="phrase-return" aria-labelledby="phrase-title">
+      <div class="phrase-intro"><span class="mono">INPUT / RESTORE / REPLAY</span><h4 id="phrase-title">把手感带回来。</h4><p>把复制的口令粘在这里。<br>回到那件展品，接着调。</p><i aria-hidden="true">↵</i></div>
+      <form id="phrase-form" novalidate><label for="phrase-input" class="mono">动效口令 / Motion phrase</label><textarea id="phrase-input" rows="2" maxlength="1024" spellcheck="false" placeholder="弹簧物理 Spring｜速度 0.75x｜刚度 250 · 阻尼 7 · 质量 1" aria-describedby="phrase-status"></textarea><div class="phrase-actions"><button class="phrase-submit mono" type="submit">读回口令 ↗</button><button class="phrase-example mono" type="button">试一条口令</button><span class="mono">ENTER ↵</span></div><p id="phrase-status" class="phrase-status" role="status" aria-live="polite">输入一条口令，就能回到对应展品。</p></form>
+    </section>
     <div class="slots">
       <a class="slot open" href="#hall"><span class="lv mono">Hall 01 <i>↗</i></span><span class="slot-art" aria-hidden="true">↓</span><b>按钮</b><span class="mono">12 件 · 已开放</span><span class="slot-count mono" data-hall="button">已认识 0 / 12</span></a>
       <a class="slot open" href="#hall-cursor"><span class="lv mono">Hall 02 <i>↗</i></span><span class="slot-art" aria-hidden="true">↖</span><b>光标</b><span class="mono">5 件 · 已开放</span><span class="slot-count mono" data-hall="cursor">已认识 0 / 5</span></a>
@@ -202,5 +206,6 @@
 
 <script type="module" src="c3/core.js"></script>
 <script type="module" src="c3/lazy.js"></script>
+<script type="module" src="c3/phrase.js"></script>
 </body>
 </html>

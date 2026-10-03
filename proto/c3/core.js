@@ -266,6 +266,7 @@ function say(k) {
   if (curKey === k && $('#dialog').classList.contains('show')) return;
   curKey = k;
   if (EX[k]) refreshCollection(k);
+  dispatchEvent(new CustomEvent('exhibit-say',{detail:{key:k}}));
   $('#dTtl').innerHTML = EX[k] ? `Nº${d.no} ${d.name}<em>${d.en}</em>` : d.ttl;
   $('#dCode').textContent = EX[k] ? phrase(k) : '';
   $('#dCopy').style.display = $('#dAgain').style.display = EX[k] ? '' : 'none';

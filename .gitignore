@@ -6,3 +6,4 @@ assets/ink/
 assets/city/
 assets/fonts/*.ttf
 docs/.codex-*
+tools/night-shift*.sh

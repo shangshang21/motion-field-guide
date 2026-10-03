@@ -9,5 +9,7 @@ const rows=[
  ['distortion','32','图片扭曲','Hover Distortion','shader'],['dissolve','33','位移溶解','Displacement Transition','shader'],['gradient','34','流动渐变','Noise Gradient','shader'],['particles','35','粒子成形','Particles to Shape','shader'],
  ['easing','36','缓动曲线','Easing','timing'],['spring','37','弹簧物理','Spring','timing'],['duration','38','时长','Duration','timing'],['stagger','39','错落节奏','Stagger','timing'],
 ];
-export const catalog=rows.map(([key,no,name,en,hall,module])=>({key,no,name,en,hall,module:module||halls[hall][2],id:halls[hall][0],hallName:halls[hall][1]}));
+export const feelings=["弹", "顺", "炸", "冷", "酷", "安静", "有重量", "轻飘"];
+const tags={"push":["有重量","冷"],"ripple":["顺","轻飘","安静"],"wipe":["顺","酷"],"roll":["顺","轻飘"],"hold":["炸","有重量","酷"],"burst":["炸","有重量"],"glitch":["冷","酷","炸"],"jelly":["弹","轻飘"],"shake":["冷","有重量"],"magnetic":["顺","有重量"],"trail":["轻飘","酷"],"spotlight":["冷","安静","酷"],"split":["顺","轻飘"],"scramble":["冷","酷"],"tilt":["有重量","酷","顺"],"toggle":["弹","顺"],"submit":["顺","安静"],"custom":["酷","冷"],"ink":["顺","轻飘"],"wave":["顺","安静"],"mask":["顺","安静"],"typewriter":["安静","冷"],"parallax":["有重量","顺","酷"],"pinned":["有重量","安静"],"horizontal":["顺","酷"],"reveal":["安静","顺"],"velocity":["酷","有重量"],"flip":["弹","顺"],"shared":["顺","有重量"],"curtain":["酷","有重量"],"native":["顺","安静"],"distortion":["顺","轻飘"],"dissolve":["酷","轻飘"],"gradient":["安静","顺"],"particles":["炸","酷","弹"],"easing":["顺","弹"],"spring":["弹","有重量"],"duration":["冷","安静"],"stagger":["顺","轻飘"]};
+export const catalog=rows.map(([key,no,name,en,hall,module])=>({key,no,name,en,hall,module:module||halls[hall][2],id:halls[hall][0],hallName:halls[hall][1],tags:tags[key]}));
 export const exhibitByKey=new Map(catalog.map(e=>[e.key,e]));

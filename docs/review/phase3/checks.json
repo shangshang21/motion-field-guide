@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-03T17:29:35.133Z",
+  "date": "2026-10-03T17:35:26.371Z",
   "results": [
     {
       "name": "Catalog: 39 exhibits, unique numbers and existing cards",
@@ -35,6 +35,30 @@
     },
     {
       "name": "Keyboard curve edit updates the copy phrase",
+      "passed": true
+    },
+    {
+      "name": "All 39 exhibits carry 1–3 valid feeling labels",
+      "passed": true
+    },
+    {
+      "name": "Feeling filters intersect: elastic + heavy finds only Spring",
+      "passed": true
+    },
+    {
+      "name": "Empty feeling intersection is explained and can be cleared",
+      "passed": true
+    },
+    {
+      "name": "Feeling directory can show all 39 exhibits",
+      "passed": true
+    },
+    {
+      "name": "Feeling result opens the right demonstration",
+      "passed": true
+    },
+    {
+      "name": "Exhibit label links back to the selected feeling",
       "passed": true
     },
     {

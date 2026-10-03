@@ -13,7 +13,9 @@ export function parseParams(source=''){
  return result;
 }
 export function parsePhrase(value){
- let comparison=null;const marker=value.lastIndexOf('｜A/B {');if(marker>=0){try{comparison=JSON.parse(value.slice(marker+5));}catch{throw Error('A/B 参数格式不完整。');}value=value.slice(0,marker);}
+ let comparison=null,marker=-1,quoted=0;
+ for(let i=0;i<value.length;i++){if(value[i]==='\\'){i++;continue;}if(value[i]==='「')quoted++;else if(value[i]==='」')quoted--;else if(!quoted&&value.startsWith('｜A/B {',i)){marker=i;break;}}
+ if(marker>=0){try{comparison=JSON.parse(value.slice(marker+5));}catch{throw Error('A/B 参数格式不完整。');}value=value.slice(0,marker);}
  const m=value.trim().match(/^([^｜|]+)[｜|]\s*速度\s*(\d+(?:\.\d+)?)\s*[x×](?:\s*[｜|]\s*([\s\S]*))?$/i);
  if(!m)throw Error('请使用“名字 English｜速度 1.00x｜参数”的口令格式。');
  const head=normalize(m[1]),entry=catalog.find(e=>[`${e.name} ${e.en}`,e.name,e.en,`Nº${e.no} ${e.name} ${e.en}`].some(n=>normalize(n)===head));

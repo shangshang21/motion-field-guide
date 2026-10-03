@@ -26,18 +26,18 @@ async function replica(root,key,values,side){
   apply(clone,values);
  }};
 }
-const label=values=>Object.entries(values).map(([k,v])=>`${k} ${typeof v==='number'?Number(v.toFixed(2)):v}`).join(' · ');
+const label=(values,key)=>Object.entries(values).map(([k,v])=>{const input=document.querySelector(`.card[data-k="${key}"] [data-param="${k}"]`),ctl=input?.closest('label'),name=k==='text'?'文字':ctl?.querySelector('span')?.textContent||k,unit=(ctl?.querySelector('output')?.value||'').match(/(?:px\/s|ms|px|×)$/)?.[0]||'';const value=input?.tagName==='SELECT'?[...input.options].find(o=>o.value===v)?.textContent:v;return `${name} ${typeof value==='number'?Number(value.toFixed(2)):value}${unit}`;}).join(' · ');
 async function openComparison(key,A,B=snapshot(key)){
  await loadModule(exhibitByKey.get(key).module);const root=document.querySelector(`[data-k="${key}"]`);let c=comparisons.get(key);
  if(!c){c={A:{...A},B:{...B},root,replicas:[],ready:false};comparisons.set(key,c);
   const panel=document.createElement('section');panel.className='ab-panel';panel.setAttribute('aria-label',`${exhibitByKey.get(key).name}的 A/B 同屏对比`);panel.innerHTML='<div class="ab-heading mono"><b>A / B · 同时出发</b><button type="button" class="ab-close" aria-label="收起 A/B 对比">✕</button></div><p>已存为 A。继续调原来的参数，得到 B，再一起播放。</p><div class="ab-scenes"></div><div class="ab-bottom"><button class="ab-play mono">同时播放 A + B ↗</button><span class="ab-status mono" role="status">A 已保存 / B 跟随当前参数</span></div>';
   root.querySelector('footer').before(panel);c.panel=panel;panel.querySelector('.ab-close').onclick=()=>{panel.hidden=true;root.querySelector('.ab-toggle').setAttribute('aria-expanded','false');};panel.querySelector('.ab-play').onclick=()=>playComparison(key);
-  for(const [side,values] of [['A',A],['B',B]]){const wrap=document.createElement('div');wrap.className='ab-side';wrap.innerHTML=`<div class="ab-side-label mono"><b>${side}</b><span>${side==='A'?'保存的手感':'当前的手感'}</span></div>`;const preview=await replica(root,key,values,side);wrap.append(preview.clone);const caption=document.createElement('p');caption.className='ab-caption mono';caption.textContent=label(values);wrap.append(caption);panel.querySelector('.ab-scenes').append(wrap);await preview.init();c.replicas.push(preview.clone);}
+  for(const [side,values] of [['A',A],['B',B]]){const wrap=document.createElement('div');wrap.className='ab-side';wrap.innerHTML=`<div class="ab-side-label mono"><b>${side}</b><span>${side==='A'?'保存的手感':'当前的手感'}</span></div>`;const preview=await replica(root,key,values,side);wrap.append(preview.clone);const caption=document.createElement('p');caption.className='ab-caption mono';caption.textContent=label(values,key);wrap.append(caption);panel.querySelector('.ab-scenes').append(wrap);await preview.init();c.replicas.push(preview.clone);}
   c.ready=true;
  }else {c.A={...A};c.B={...B};apply(c.replicas[0],A);apply(c.replicas[1],B);}
  c.enabled=true;c.panel.hidden=false;root.querySelector('.ab-toggle').setAttribute('aria-expanded','true');update(key);refreshPhrase();return c;
 }
-function update(key){const c=comparisons.get(key);if(!c?.ready)return;c.B=snapshot(key);c.replicas.forEach((root,i)=>{const v=i?c.B:c.A;if(root._gestureState)Object.assign(root._gestureState,v);else apply(root,v);c.panel.querySelectorAll('.ab-caption')[i].textContent=label(v);});}
+function update(key){const c=comparisons.get(key);if(!c?.ready)return;c.B=snapshot(key);c.replicas.forEach((root,i)=>{const v=i?c.B:c.A;if(root._gestureState)Object.assign(root._gestureState,v);else apply(root,v);c.panel.querySelectorAll('.ab-caption')[i].textContent=label(v,key);});}
 export function playComparison(key){const c=comparisons.get(key);if(!c?.ready)return;update(key);c.replicas.forEach(root=>root._replay?.());c.panel.querySelector('.ab-status').textContent='A + B 同步播放 / 继续调出你的手感';say(key);}
 export function comparisonState(key){const c=comparisons.get(key);return c?.ready&&c.enabled?{A:{...c.A},B:snapshot(key)}:null;}
 export async function restoreComparison(key,values){validateSnapshot(key,values.A);validateSnapshot(key,values.B);apply(document.querySelector(`[data-k="${key}"]`),values.B);await openComparison(key,values.A,values.B);playComparison(key);}

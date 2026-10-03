@@ -1,9 +1,9 @@
 // Native CDP benchmark; no npm install or site build required.
-// Usage: node tools/motion-trace.mjs before|after
+// Usage: TRACE_OUT=docs/review/phase4/performance TRACE_MOBILE=1 node tools/motion-trace.mjs mobile
 import fs from 'node:fs';
 import {gzipSync} from 'node:zlib';
 import {spawn} from 'node:child_process';
-const label=process.argv[2]||'after',port=19435,dpr=Number(process.env.TRACE_DPR||1);
+const label=process.argv[2]||'after',port=Number(process.env.TRACE_PORT||19435),dpr=Number(process.env.TRACE_DPR||1),mobile=process.env.TRACE_MOBILE==='1',width=mobile?390:1440,height=mobile?844:900,out=process.env.TRACE_OUT||'docs/review/phase3/performance';fs.mkdirSync(out,{recursive:true});
 const chrome=spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',[
  '--headless=new',`--remote-debugging-port=${port}`,`--user-data-dir=/tmp/motion-lexicon-perf-${process.pid}`,
  '--window-size=1440,900','--use-angle=metal','--enable-gpu-rasterization','--ignore-gpu-blocklist','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows','--no-first-run','--no-default-browser-check','about:blank'
@@ -18,26 +18,31 @@ try{
  ws=new WebSocket(targets.find(t=>t.type==='page').webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));
  ws.addEventListener('message',e=>{const data=JSON.parse(e.data);if(data.id){const p=pending.get(data.id);pending.delete(data.id);data.error?p.reject(Error(JSON.stringify(data.error))):p.resolve(data.result);}else events.get(data.method)?.(data.params);});
  await call('Page.enable');await call('Runtime.enable');
- await call('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:dpr,mobile:false});
+ await call('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:dpr,mobile});
  await call('Page.navigate',{url:'http://localhost:3300/proto/c3-city.html'});await sleep(1800);await evaluate('document.fonts.ready.then(()=>true)');
  const metadata=await evaluate('({ua:navigator.userAgent,dpr:devicePixelRatio,viewport:[innerWidth,innerHeight],height:document.documentElement.scrollHeight})');
- const scenarios=[['scroll',null,30000],['hero-pointer','#top',6000],['cursor-pointer','#hall-cursor',6000],['shader-pointer','#hall-shader',6000],['impact-hold','[data-k="burst"]',8000],['timing-play','#hall-timing',6000]];
+ const scenarios=[['scroll',null,30000],['hero-pointer','#top',6000],['cursor-pointer','#hall-cursor',6000],['shader-pointer','#hall-shader',6000],['impact-hold','[data-k="burst"]',8000],['timing-play','#hall-timing',6000],['gesture-play','#hall-gesture',6000],['ab-play','[data-k=spring]',6000]];
  const results=[];
  for(const [name,selector,duration] of scenarios){
   await evaluate(`document.querySelector('#dX').click();document.documentElement.style.scrollBehavior='auto';${selector?`document.querySelector('${selector}').scrollIntoView({block:'center',behavior:'instant'})`:'scrollTo(0,0)'}`);await sleep(1400);
   // Warm up lazy shader modules/textures before interactive measurements.
   if(name==='shader-pointer')await evaluate(`document.querySelector('[data-k="distortion"]').scrollIntoView({block:'center',behavior:'instant'})`);
   await sleep(300);
+  if(name==='gesture-play')await evaluate(`document.querySelector('[data-k=inertia]').scrollIntoView({block:'center',behavior:'instant'})`);
+  if(name==='ab-play')await evaluate(`(async()=>{const c=await import('./c3/compare.js');await c.restoreComparison('spring',{A:{stiffness:180,damping:18},B:{stiffness:250,damping:7}});document.querySelector('[data-k=spring] .ab-panel').scrollIntoView({block:'center',behavior:'instant'});})()`);
+  await sleep(300);
   const trace=[];events.set('Tracing.dataCollected',p=>trace.push(...p.value));
   await call('Tracing.start',{categories:'devtools.timeline,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.stack,benchmark,cc',transferMode:'ReportEvents'});
   const metrics=await evaluate(`(async()=>{
-   const name=${JSON.stringify(name)},duration=${duration},frames=[],long=[];let last=0,start=0,trigger=-1;
+   const name=${JSON.stringify(name)},mobile=${mobile},duration=${duration},frames=[],long=[];let last=0,start=0,trigger=-1;
    const obs=new PerformanceObserver(list=>list.getEntries().forEach(e=>long.push({start:e.startTime,duration:e.duration})));obs.observe({type:'longtask',buffered:false});
    const stage=document.querySelector(name==='cursor-pointer'?'.magnetic-stage':name==='shader-pointer'?'.distortion-stage':'.hero');
    const r=stage?.getBoundingClientRect();let max=document.documentElement.scrollHeight-innerHeight;const pixelsPerMs=max/duration;const sizeObserver=new ResizeObserver(()=>max=document.documentElement.scrollHeight-innerHeight);if(name==='scroll')sizeObserver.observe(document.body);
    await new Promise(resolve=>{function frame(t){if(!start)start=t;const elapsed=t-start;if(last)frames.push(t-last);last=t;
     if(name==='scroll')scrollTo(0,Math.min(max,elapsed*pixelsPerMs));
-    else if(name.endsWith('pointer')){const angle=elapsed/330;const x=r.left+r.width*(.5+.38*Math.sin(angle)),y=r.top+r.height*(.5+.3*Math.cos(angle*1.3));stage.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerType:'mouse',clientX:x,clientY:y}));}
+    else if(name.endsWith('pointer')){const angle=elapsed/330;const x=r.left+r.width*(.5+.38*Math.sin(angle)),y=r.top+r.height*(.5+.3*Math.cos(angle*1.3));stage.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerType:mobile?'touch':'mouse',clientX:x,clientY:y}));if(mobile&&Math.floor(elapsed/1000)!==trigger){trigger=Math.floor(elapsed/1000);stage.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerType:'touch',clientX:x,clientY:y}));stage.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerType:'touch',clientX:x,clientY:y}));}}
+    else if(name==='gesture-play'){const index=Math.floor(elapsed/1600);if(index!==trigger){trigger=index;document.querySelectorAll('.gesture-card').forEach(r=>r.gesture?.play());}}
+    else if(name==='ab-play'){const index=Math.floor(elapsed/1600);if(index!==trigger){trigger=index;document.querySelector('[data-k=spring] .ab-play').click();}}
     else if(name==='timing-play'){const index=Math.floor(elapsed/1800);if(index!==trigger){trigger=index;document.querySelectorAll('.timing-card [data-play]').forEach(b=>b.click());}}
     else {const index=Math.floor(elapsed/1800);if(index!==trigger){trigger=index;document.querySelector('[data-k="burst"] .b').click();const hold=document.querySelector('[data-k="hold"] .b');hold.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));setTimeout(()=>hold.dispatchEvent(new KeyboardEvent('keyup',{key:'Enter',bubbles:true})),1350);}}
     if(name==='scroll'?elapsed<max/pixelsPerMs:elapsed<duration)requestAnimationFrame(frame);else resolve();}requestAnimationFrame(frame);});
@@ -45,10 +50,10 @@ try{
   const done=new Promise(r=>events.set('Tracing.tracingComplete',r));await call('Tracing.end');await done;
   const layouts=trace.filter(e=>e.name==='Layout'&&e.ph==='X'),forced=layouts.filter(e=>e.args?.beginData?.stackTrace?.length);
   const paints=trace.filter(e=>e.name==='Paint'&&e.ph==='X');let area=0;
-  for(const e of paints){const c=e.args?.data?.clip;if(Array.isArray(c)&&c.length===8){let s=0;for(let i=0;i<4;i++){const j=(i+1)%4;s+=c[i*2]*c[j*2+1]-c[j*2]*c[i*2+1];}area+=Math.min(Math.abs(s)/2,1440*900);}}
-  const row={scenario:name,...metrics,layoutEvents:layouts.length,forcedLayouts:forced.length,layoutMs:layouts.reduce((n,e)=>n+(e.dur||0)/1000,0),paintEvents:paints.length,paintViewportEquivalents:area/(1440*900)};results.push(row);
-  fs.writeFileSync(`docs/review/phase3/performance/${label}-${name}.trace.json.gz`,gzipSync(JSON.stringify({traceEvents:trace.filter(e=>e.cat?.includes('devtools.timeline')||e.ph==='M')})));
+  for(const e of paints){const c=e.args?.data?.clip;if(Array.isArray(c)&&c.length===8){let s=0;for(let i=0;i<4;i++){const j=(i+1)%4;s+=c[i*2]*c[j*2+1]-c[j*2]*c[i*2+1];}area+=Math.min(Math.abs(s)/2,width*height);}}
+  const row={scenario:name,...metrics,layoutEvents:layouts.length,forcedLayouts:forced.length,layoutMs:layouts.reduce((n,e)=>n+(e.dur||0)/1000,0),paintEvents:paints.length,paintViewportEquivalents:area/(width*height)};results.push(row);
+  fs.writeFileSync(`${out}/${label}-${name}.trace.json.gz`,gzipSync(JSON.stringify({traceEvents:trace.filter(e=>e.cat?.includes('devtools.timeline')||e.ph==='M')})));
   console.log(JSON.stringify(row));
  }
- fs.writeFileSync(`docs/review/phase3/performance/${label}.json`,JSON.stringify({label,date:new Date().toISOString(),metadata,results},null,2));
+ fs.writeFileSync(`${out}/${label}.json`,JSON.stringify({label,date:new Date().toISOString(),metadata,results},null,2));
 }finally{ws?.close();chrome.kill();}

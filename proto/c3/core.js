@@ -279,7 +279,7 @@ function say(k) {
     i = Math.min(full.length, i + 2);
     txt.innerHTML = full.slice(0, i) + '<span class="cur"></span>';
     if (i % 6 === 0) SFX.play('tick');
-    if (i < full.length) setTimeout(type, ms(22));
+    if (i < full.length) motionTimeout(type, ms(22));
   })();
 }
 function closeDialog() { $('#dialog').classList.remove('show'); $('#dialog').inert = true; typing++; curKey = null; SFX.play('up'); }

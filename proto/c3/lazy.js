@@ -1,4 +1,4 @@
-const modules={cursor:()=>import('./cursor.js'),type:()=>import('./type.js'),extras:()=>import('./extras.js'),scroll:()=>import('./scroll.js'),transition:()=>import('./transition.js'),shader:()=>import('./shader.js')};
+const modules={timing:()=>import('./timing.js'),cursor:()=>import('./cursor.js'),type:()=>import('./type.js'),extras:()=>import('./extras.js'),scroll:()=>import('./scroll.js'),transition:()=>import('./transition.js'),shader:()=>import('./shader.js')};
 const pending=new Map();
 const observer=new IntersectionObserver(entries=>entries.forEach(({isIntersecting,target})=>{
  if(!isIntersecting)return;const key=target.dataset.module;

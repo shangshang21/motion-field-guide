@@ -16,7 +16,7 @@ export function refreshPhrase() { if (curKey && EX[curKey]) $('#dCode').textCont
 const hallContents = {
   button: ['push', 'ripple', 'wipe', 'roll', 'hold', 'burst', 'glitch', 'jelly', 'shake', 'tilt', 'toggle', 'submit'],
   cursor: ['magnetic', 'trail', 'spotlight', 'custom', 'ink'], text: ['split', 'scramble', 'wave', 'mask', 'typewriter'],
-  scroll: ['parallax','pinned','horizontal','reveal','velocity'], transition: ['flip','shared','curtain','native'], shader: ['distortion','dissolve','gradient','particles'],
+  scroll: ['parallax','pinned','horizontal','reveal','velocity'], transition: ['flip','shared','curtain','native'], shader: ['distortion','dissolve','gradient','particles'], timing: ['easing','spring','duration','stagger'],
 };
 const collectionKey = 'motion-field-guide.phase1.collection';
 let discovered = new Set();
@@ -29,8 +29,8 @@ function refreshCollection(key) {
     discovered.add(key);
     try { localStorage.setItem(collectionKey, JSON.stringify([...discovered])); } catch { }
   }
-  $('#discovered').textContent = `已认识 ${discovered.size} / 35 件`;
-  $('#discovery-fill').style.width = `${discovered.size / 35 * 100}%`;
+  $('#discovered').textContent = `已认识 ${discovered.size} / 39 件`;
+  $('#discovery-fill').style.width = `${discovered.size / 39 * 100}%`;
   Object.entries(hallContents).forEach(([hall, keys]) => {
     $(`[data-hall="${hall}"]`).textContent = `已认识 ${keys.filter(k => discovered.has(k)).length} / ${keys.length}`;
   });

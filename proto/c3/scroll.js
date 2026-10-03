@@ -1,7 +1,7 @@
 import {mount,motion,animate,clamp,loop,SFX,geometry,frameState} from './lab.js';
 const definitions={
  parallax:{no:'23',name:'视差',en:'Parallax',params:()=> '远层 0.15 · 中层 0.45 · 近层 0.90',say:'把画面拆成远、中、近三层，滚动同一段距离，每层走的路程不同。近处移动得多，远处移动得少，平面就有了纵深。这里的建筑、字和路牌分别是一层。'},
- pinned:{no:'24',name:'钉住滚动',en:'Pinned Scroll',params:()=> '钉住顶部 110px · 章节 3 · 行程 900px',say:'先把画面钉在屏幕里，让下面的滚动距离成为一条时间轴。往下滚，画面留在原地，章节依次变化；走完整段后，画面才继续离开。它适合把一个过程分几幕讲清楚。'},
+ pinned:{no:'24',name:'钉住滚动',en:'Pinned Scroll',params:()=> '钉住顶部 110px · 章节 3 · 行程 660px',say:'先把画面钉在屏幕里，让下面的滚动距离成为一条时间轴。往下滚，画面留在原地，章节依次变化；走完整段后，画面才继续离开。它适合把一个过程分几幕讲清楚。'},
  horizontal:{no:'25',name:'横向滚动',en:'Horizontal Scroll',params:()=> '画面 4 帧 · 驱动 纵向进度',say:'你仍然向下滚，但滚动进度被换算成横向位移。一条比展柜更长的画卷便从右向左经过。手机上也用纵向滚动推进，不必改变手势。'},
  reveal:{no:'26',name:'滚动进度揭示',en:'Scroll Reveal',params:()=> '遮罩 底部向上 · 行程 420px',say:'画面已经放好，只是被遮罩挡住。滚动越往前，遮罩就越小，内容逐渐露出；往回滚，它也会重新藏起来。进度直接控制可见面积。'},
  velocity:{no:'27',name:'滚动速度形变',en:'Scroll Velocity Skew',params:()=> '最大倾斜 14° · 回正阻尼 0.12',say:'比较前后两帧滚了多远，就能知道滚动有多快。速度越大，字越倾斜，像被惯性拽了一下；停止滚动后慢慢回正。这里还限制了最大角度，避免把内容拉坏。'},
@@ -17,7 +17,8 @@ for(const key of Object.keys(definitions)){
   else if(key==='horizontal'){demo=demo?0:1;animate(target,[{transform:getComputedStyle(target).transform},{transform:`translateX(${-demo*(target.scrollWidth-lab.stage.clientWidth)}px)`}],1000);}
   else animate(target,[{clipPath:'inset(100% 0 0 0)'},{clipPath:'inset(0% 0 0 0)'}],1000);
  });labs[key]=lab;
- let progress=0,chapter=-1;const box=geometry(lab.root),stageBox=geometry(lab.stage),readout=lab.root.querySelector('.demo-readout'),track=lab.stage.querySelector('.horizontal-track');let trackWidth=0;if(track)new ResizeObserver(()=>trackWidth=track.scrollWidth).observe(track);
+ let progress=0,chapter=-1;const box=geometry(key==='pinned'?lab.root.querySelector('.pin-route'):lab.root),stageBox=geometry(lab.stage),readout=lab.root.querySelector('.demo-readout'),track=lab.stage.querySelector('.horizontal-track');let trackWidth=0;if(track)new ResizeObserver(()=>trackWidth=track.scrollWidth).observe(track);
+ if(key==='pinned')definitions.pinned.params=()=>`钉住顶部 ${innerWidth<=760?100:110}px · 章节 3 · 行程 ${Math.max(0,Math.round(box.height-stageBox.height))}px`;
  const text=value=>{if(readout.textContent!==value)readout.textContent=value;};
  loop(lab.stage,(t,dt)=>{
   const rect={top:box.y,height:box.height};
@@ -27,7 +28,7 @@ for(const key of Object.keys(definitions)){
   if(key==='parallax'){
    lab.stage.querySelectorAll('.city-layer').forEach((el,i)=>{el.style.translate=`0 ${(progress-.5)*[-35,-110,-200][i]}px`;});
   }else if(key==='pinned'){
-   const p=motion.reduced?1:clamp((110-rect.top)/Math.max(1,rect.height-stageBox.height-220));
+   const p=motion.reduced?1:clamp((110-rect.top)/Math.max(1,rect.height-stageBox.height));
    const next=Math.min(2,Math.floor(p*3));
    if(next!==chapter){chapter=next;setChapter(lab,next);}
    text(`Chapter / 0${chapter+1} · ${Math.round(p*100)}%`);

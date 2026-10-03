@@ -13,8 +13,9 @@ const replays = new Map();
 export function registerExhibit(key, data, replay) { EX[key] = data; replays.set(key, replay); }
 export function refreshPhrase() { if (curKey && EX[curKey]) $('#dCode').textContent = phrase(curKey); }
 const hallContents = {
-  button: ['push', 'ripple', 'wipe', 'roll', 'hold', 'burst', 'glitch', 'jelly', 'shake'],
-  cursor: ['magnetic', 'trail', 'spotlight'], text: ['split', 'scramble'],
+  button: ['push', 'ripple', 'wipe', 'roll', 'hold', 'burst', 'glitch', 'jelly', 'shake', 'tilt', 'toggle', 'submit'],
+  cursor: ['magnetic', 'trail', 'spotlight', 'custom', 'ink'], text: ['split', 'scramble', 'wave', 'mask', 'typewriter'],
+  scroll: ['parallax','pinned','horizontal','reveal','velocity'], transition: ['flip','shared','curtain','native'], shader: ['distortion','dissolve','gradient','particles'],
 };
 const collectionKey = 'motion-field-guide.phase1.collection';
 let discovered = new Set();
@@ -27,8 +28,8 @@ function refreshCollection(key) {
     discovered.add(key);
     try { localStorage.setItem(collectionKey, JSON.stringify([...discovered])); } catch { }
   }
-  $('#discovered').textContent = `已认识 ${discovered.size} / 14 件`;
-  $('#discovery-fill').style.width = `${discovered.size / 14 * 100}%`;
+  $('#discovered').textContent = `已认识 ${discovered.size} / 35 件`;
+  $('#discovery-fill').style.width = `${discovered.size / 35 * 100}%`;
   Object.entries(hallContents).forEach(([hall, keys]) => {
     $(`[data-hall="${hall}"]`).textContent = `已认识 ${keys.filter(k => discovered.has(k)).length} / ${keys.length}`;
   });
@@ -110,7 +111,7 @@ const EX = {
             say: '按钮左右晃几下，幅度越来越小，同时用颜色提示出错。像有人摇头说“不行”，在输错密码或操作被拒绝时，能给出直观的反馈。' },
 };
 const LINES = {
-  welcome: { ttl: '欢迎来到按钮展厅', say: '嗨，我是这里的导览员 ✳。下面九个按钮随便按，按完我就告诉你它叫什么、怎么做出来的。右上角那条可以调整体速度，调到你喜欢的手感，再把口令复制给开发者就行。' },
+  welcome: { ttl: '欢迎来到按钮展厅', say: '嗨，我是这里的导览员 ✳。下面的按钮随便按，按完我就告诉你它叫什么、怎么做出来的。右上角那条可以调整体速度，调到你喜欢的手感，再把口令复制给开发者就行。' },
 };
 
 /* ================= 速度档位 ================= */

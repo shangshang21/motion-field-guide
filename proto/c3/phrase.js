@@ -64,6 +64,7 @@ function restorationPlan({entry,params}){
   }
   // These values are derived from the viewport or sampled font rather than controls.
   if(entry.key==='pinned'&&['行程','钉住顶部'].includes(label)){const n=numeric(value,label,'px');if(n<0||n>10000)throw Error(`“${label}”超出了有效范围。`);continue;}
+  if(entry.key==='particles'&&label==='采样间距'&&/^[58]px$/.test(value))continue;
   if(entry.key==='particles'&&label==='粒子'&&/^(约\s*)?\d+$/.test(value))continue;
   if(!current.has(label))throw Error(`这件展品没有“${label}”参数。`);
   if(!equivalent(value,current.get(label)))throw Error(`“${label}”在这件展品中固定为 ${current.get(label)}。`);
@@ -71,12 +72,23 @@ function restorationPlan({entry,params}){
  return {root,plan};
 }
 const frames=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+let settleTask=0,openedHall=null;
+const stopSettle=()=>{clearTimeout(settleTask);if(openedHall)openedHall.style.contentVisibility='';openedHall=null;};
+addEventListener('wheel',stopSettle,{passive:true});addEventListener('touchstart',stopSettle,{passive:true});
 export async function navigateExhibit(key,{replay=false}={}){
+ stopSettle();
  const entry=exhibitByKey.get(key);if(!entry)throw Error('没有找到这件展品。');await loadModule(entry.module);
- const root=document.querySelector(`[data-k="${key}"]`);
+ const root=document.querySelector(`[data-k="${key}"]`),hall=root.closest('.hall');
+ openedHall=hall;hall.style.contentVisibility='visible';
  // Reveal the containing hall before positioning a child in content-visibility.
- root.closest('.hall').scrollIntoView({behavior:'instant',block:'start'});await frames();
- root.scrollIntoView({behavior:motion.reduced?'instant':'smooth',block:'center'});
+ hall.scrollIntoView({behavior:'instant',block:'start'});await frames();
+ // Give the newly visible neighboring lazy modules one short turn to settle their controls.
+ await new Promise(resolve=>setTimeout(resolve,120));await frames();
+ const target=root.querySelector('.lab-stage,.type-stage,.demo-stage,.pad')||root;
+ const position=behavior=>{const r=target.getBoundingClientRect(),mobile=innerWidth<=760;const top=Math.max(mobile?212:120,(innerHeight-r.height)/2+(mobile?65:0));scrollTo({top:scrollY+r.top-top,behavior});};
+ position(motion.reduced?'instant':'smooth');
+ // content-visibility changes upstream heights while scrolling across several halls.
+ settleTask=setTimeout(()=>{position('instant');hall.style.contentVisibility='';openedHall=null;},650);
  root.tabIndex=-1;root.focus({preventScroll:true});root.classList.add('phrase-arrival');setTimeout(()=>root.classList.remove('phrase-arrival'),2200);
  say(key);if(replay)replayExhibit(key);return entry;
 }

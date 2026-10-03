@@ -33,13 +33,12 @@ void main(){
 }`;
 function compile(gl,type,source){const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const error=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(error);}return shader;}
 function program(gl,vs,fs){const p=gl.createProgram(),v=compile(gl,gl.VERTEX_SHADER,vs),f=compile(gl,gl.FRAGMENT_SHADER,fs);gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);gl.deleteShader(v);gl.deleteShader(f);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));gl.useProgram(p);return p;}
-function ready(lab){lab.root.classList.add('shader-ready');const button=lab.root.querySelector('[data-play]');button.textContent=button.dataset.label;}
+function ready(lab){lab.root.classList.add('shader-ready');lab.root.dataset.quality=mobile.matches?'mobile-dpr1':'desktop';const button=lab.root.querySelector('[data-play]');button.textContent=button.dataset.label;}
 function fallback(lab,label){lab.root.classList.remove('shader-ready');lab.stage.querySelector('.shader-hint').textContent=label;lab.root.querySelector('.demo-readout').textContent='Static preview';lab.root.querySelector('[data-play]').textContent='了解原理 ↗';}
 for(const key of Object.keys(defs)){
  let trigger=()=>{};
  const lab=mount(key,defs[key],()=>trigger());
  function init(){
-  if(mobile.matches){fallback(lab,'手机静态预览 · 桌面可体验实时着色器');return;}
   if(reduce.matches){fallback(lab,'已减少动态效果 · 当前显示静态预览');return;}
   if(lab.root.dataset.gpu)return;
   try{
@@ -51,11 +50,11 @@ for(const key of Object.keys(defs)){
    trigger=key==='particles'?particles(lab,gl,canvas):surface(key,lab,gl,canvas);
   }catch(e){console.warn('着色器已降级',key,e.message);fallback(lab,'实时画面暂不可用 · 已显示静态预览');}
  }
- mobile.addEventListener('change',()=>{if(mobile.matches)fallback(lab,'手机静态预览 · 桌面可体验实时着色器');else{if(lab.root.dataset.gpu==='ready')ready(lab);else preload.observe(lab.stage);}});
+ mobile.addEventListener('change',()=>{if(lab.root.dataset.gpu==='ready')ready(lab);else preload.observe(lab.stage);});
  reduce.addEventListener('change',()=>{if(reduce.matches)fallback(lab,'已减少动态效果 · 当前显示静态预览');else{if(lab.root.dataset.gpu==='ready')ready(lab);else preload.observe(lab.stage);}});
- const preload=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){preload.disconnect();setTimeout(init,0);}},{rootMargin:'240px'});if(mobile.matches||reduce.matches)init();else preload.observe(lab.stage);
+ const preload=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){preload.disconnect();setTimeout(init,0);}},{rootMargin:'240px'});if(reduce.matches)init();else preload.observe(lab.stage);
 }
-function resize(lab,gl,canvas){const dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(lab.stage.clientWidth*dpr);canvas.height=Math.round(lab.stage.clientHeight*dpr);gl.viewport(0,0,canvas.width,canvas.height);}
+function resize(lab,gl,canvas){const dpr=mobile.matches?1:Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(lab.stage.clientWidth*dpr);canvas.height=Math.round(lab.stage.clientHeight*dpr);gl.viewport(0,0,canvas.width,canvas.height);}
 function surface(key,lab,gl,canvas){
  const generation=lab.root.dataset.generation,box=geometry(lab.stage),readout=lab.root.querySelector('.demo-readout');
  const text=value=>{if(readout.textContent!==value)readout.textContent=value;};
@@ -70,15 +69,18 @@ function surface(key,lab,gl,canvas){
  }
  // Complete both texture units even for the gradient: WebGL validates every sampler.
  const textures=key==='gradient'?Promise.all([0,1].map(i=>{gl.activeTexture(gl.TEXTURE0+i);const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([17,17,16,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);})):Promise.all([texture(0,key==='distortion'?1:3),texture(1,key==='distortion'?1:5)]);
- textures.then(()=>{loaded=true;if(lab.root.dataset.generation===generation&&!mobile.matches&&!reduce.matches)ready(lab);}).catch(()=>fallback(lab,'图片加载失败 · 已显示静态预览'));
+ textures.then(()=>{loaded=true;if(lab.root.dataset.generation===generation&&!reduce.matches)ready(lab);}).catch(()=>fallback(lab,'图片加载失败 · 已显示静态预览'));
  const overlay=document.createElement('b');overlay.className='shader-overlay';overlay.innerHTML=key==='distortion'?'LIQUID<br>SIGNAL':key==='dissolve'?'BETWEEN<br>FRAMES':'FLOW<br>STATE';lab.stage.append(overlay);
- const hint=lab.stage.querySelector('.shader-hint');hint.textContent=key==='distortion'?'移动鼠标，让照片泛起波纹':key==='dissolve'?'点击切换 · 噪声把前后两帧接起来':'缓慢流动 · 点击改变流向';
+ let sampleFrames=0,sampleTime=0;
+ const hint=lab.stage.querySelector('.shader-hint');hint.textContent=key==='distortion'?(mobile.matches?'点一下，照片泛起真实水波':'移动鼠标，让照片泛起波纹'):key==='dissolve'?'点击切换 · 噪声把前后两帧接起来':'缓慢流动 · 点击改变流向';
  lab.stage.addEventListener('pointermove',e=>{aim.x=clamp((e.clientX-box.x)/box.width);aim.y=1-clamp((e.clientY-box.y)/box.height);if(key==='distortion')target=1;});
  lab.stage.addEventListener('pointerleave',()=>{target=0;});
+ lab.stage.addEventListener('pointerdown',e=>{aim.x=clamp((e.clientX-box.x)/box.width);aim.y=1-clamp((e.clientY-box.y)/box.height);if(key==='distortion'){target=1.5;pulse=1.5;}else if(key==='dissolve')target=target?0:1;else direction*=-1;});
  const observer=new ResizeObserver(()=>resize(lab,gl,canvas));observer.observe(lab.stage);resize(lab,gl,canvas);
  loop(lab.stage,(t,dt)=>{
-  if(mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
+  if(reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
   if(!loaded)return;
+  if(mobile.matches&&sampleFrames++>45){sampleTime+=dt;if(sampleFrames===135){if(sampleTime/90>1/40){lab.root.dataset.gpu='slow';fallback(lab,'设备帧率较低 · 已切换静态预览');return false;}sampleFrames=45;sampleTime=0;}}
   time+=dt*motion.speed;pointer.x+=(aim.x-pointer.x)*(1-Math.exp(-dt*9*motion.speed));pointer.y+=(aim.y-pointer.y)*(1-Math.exp(-dt*9*motion.speed));
   if(pulse>0){pulse-=dt*motion.speed;if(pulse<=0)target=0;}
   energy+=(target-energy)*(1-Math.exp(-dt*2.8*motion.speed));
@@ -96,20 +98,23 @@ function particles(lab,gl,canvas){
  const p=program(gl,vs,fs),mask=document.createElement('canvas');mask.width=600;mask.height=420;
  const ctx=mask.getContext('2d');ctx.fillStyle='#fff';ctx.font='900 155px Anton, sans-serif';ctx.textAlign='center';ctx.fillText('FORM',300,205);ctx.font='900 95px Anton, sans-serif';ctx.fillText('06',300,315);
  const pixels=ctx.getImageData(0,0,600,420).data,points=[];
- for(let y=45;y<350;y+=5)for(let x=25;x<575;x+=5)if(pixels[(y*600+x)*4+3]>128){const seed=Math.random();points.push({tx:x/600,ty:y/420,x:Math.random()*600,y:Math.random()*420,vx:0,vy:0,seed});}
- defs.particles.params=()=>`采样间距 5px · 粒子 ${points.length} · 排斥半径 85px · 弹簧 8`;
+ const spacing=mobile.matches?8:5;
+ for(let y=45;y<350;y+=spacing)for(let x=25;x<575;x+=spacing)if(pixels[(y*600+x)*4+3]>128){const seed=Math.random();points.push({tx:x/600,ty:y/420,x:Math.random()*600,y:Math.random()*420,vx:0,vy:0,seed});}
+ defs.particles.params=()=>`采样间距 ${spacing}px · 粒子 ${points.length} · 排斥半径 85px · 弹簧 8`;
  const positionBuffer=gl.createBuffer(),seedBuffer=gl.createBuffer(),data=new Float32Array(points.length*2);
  const loc=gl.getAttribLocation(p,'a_position'),seedLoc=gl.getAttribLocation(p,'a_seed');
  gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
  gl.bindBuffer(gl.ARRAY_BUFFER,seedBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(points.map(p=>p.seed)),gl.STATIC_DRAW);gl.enableVertexAttribArray(seedLoc);gl.vertexAttribPointer(seedLoc,1,gl.FLOAT,false,0,0);
  const res=gl.getUniformLocation(p,'u_resolution'),dpr=gl.getUniformLocation(p,'u_dpr');let pointer=null,burst=0;
- lab.stage.querySelector('.shader-hint').textContent='鼠标靠近，粒子散开 · 移开，文字重新聚合';
+ lab.stage.querySelector('.shader-hint').textContent=mobile.matches?'点一下打散 · 松开后重新聚成文字':'鼠标靠近，粒子散开 · 移开，文字重新聚合';
  const move=e=>{pointer={x:e.clientX-box.x,y:e.clientY-box.y};};
- lab.stage.addEventListener('pointermove',move);lab.stage.addEventListener('pointerleave',()=>pointer=null);
+ lab.stage.addEventListener('pointermove',move);lab.stage.addEventListener('pointerleave',()=>pointer=null);lab.stage.addEventListener('pointerdown',()=>{pointer=null;scatter();});lab.stage.addEventListener('pointerup',()=>pointer=null);
  new ResizeObserver(()=>resize(lab,gl,canvas)).observe(lab.stage);resize(lab,gl,canvas);ready(lab);
+ let sampleFrames=0,sampleTime=0;
  const scatter=()=>{burst=.7;points.forEach(p=>{const angle=Math.random()*Math.PI*2,speed=120+Math.random()*260;p.vx+=Math.cos(angle)*speed;p.vy+=Math.sin(angle)*speed;});};
  loop(lab.stage,(t,dt)=>{
-  if(mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
+  if(reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
+  if(mobile.matches&&sampleFrames++>45){sampleTime+=dt;if(sampleFrames===135){if(sampleTime/90>1/40){lab.root.dataset.gpu='slow';fallback(lab,'设备帧率较低 · 已切换静态预览');return false;}sampleFrames=45;sampleTime=0;}}
   dt*=motion.speed;burst=Math.max(0,burst-dt);const w=box.width,h=box.height;
   points.forEach((p,i)=>{const tx=p.tx*w,ty=p.ty*h;let ax=(tx-p.x)*(burst?3:22),ay=(ty-p.y)*(burst?3:22);
    if(pointer){const dx=p.x-pointer.x,dy=p.y-pointer.y,d=Math.hypot(dx,dy);if(d<85){const force=(1-d/85)*1900;ax+=dx/Math.max(d,1)*force;ay+=dy/Math.max(d,1)*force;}}

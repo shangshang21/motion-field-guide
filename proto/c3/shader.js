@@ -5,7 +5,7 @@ const defs={
  gradient:{no:'34',name:'流动渐变',en:'Noise Gradient',params:()=> '米白 / 安全橙 / 黑 · 噪声层数 4 · 流速 0.18',say:'连续噪声像一张缓慢起伏的地形图，决定三种颜色在哪里相遇。再用另一层噪声推着坐标走，边界就会自然地流动。这里一直只混合米白、安全橙和黑。'},
  particles:{no:'35',name:'粒子成形',en:'Particles to Shape',params:()=> '采样间距 5px · 粒子约 1800 · 排斥半径 85px · 弹簧 8',say:'先把文字画成一张隐藏的图片，沿亮的地方采样，让每个粒子认领一个目标点。粒子用弹簧追向目标，慢慢聚成文字；鼠标靠近时施加排斥力，离开后又能归位。'},
 };
-const mobile=matchMedia('(max-width: 760px)'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const mobile=matchMedia('(max-width: 760px), (pointer: coarse)'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const vertex=`attribute vec2 a_position;varying vec2 v_uv;void main(){v_uv=a_position*.5+.5;gl_Position=vec4(a_position,0.,1.);}`;
 const fragment=`precision mediump float;
 varying vec2 v_uv;uniform vec2 u_resolution,u_pointer,u_aspect;uniform float u_time,u_energy,u_progress,u_mode,u_direction;uniform sampler2D u_image0,u_image1;
@@ -33,7 +33,8 @@ void main(){
 }`;
 function compile(gl,type,source){const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const error=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw Error(error);}return shader;}
 function program(gl,vs,fs){const p=gl.createProgram(),v=compile(gl,gl.VERTEX_SHADER,vs),f=compile(gl,gl.FRAGMENT_SHADER,fs);gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);gl.deleteShader(v);gl.deleteShader(f);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));gl.useProgram(p);return p;}
-function fallback(lab,label){lab.root.classList.remove('shader-ready');lab.stage.querySelector('.shader-hint').textContent=label;lab.root.querySelector('.demo-readout').textContent='Static preview';}
+function ready(lab){lab.root.classList.add('shader-ready');const button=lab.root.querySelector('[data-play]');button.textContent=button.dataset.label;}
+function fallback(lab,label){lab.root.classList.remove('shader-ready');lab.stage.querySelector('.shader-hint').textContent=label;lab.root.querySelector('.demo-readout').textContent='Static preview';lab.root.querySelector('[data-play]').textContent='了解原理 ↗';}
 for(const key of Object.keys(defs)){
  let trigger=()=>{};
  const lab=mount(key,defs[key],()=>trigger());
@@ -44,18 +45,19 @@ for(const key of Object.keys(defs)){
   try{
    const canvas=lab.stage.querySelector('canvas'),gl=canvas.getContext('webgl',{alpha:false,antialias:false,powerPreference:'low-power'});
    if(!gl){fallback(lab,'当前浏览器不支持 WebGL · 已显示静态预览');return;}
-   lab.root.dataset.gpu='ready';
+   lab.root.dataset.gpu='ready';lab.root.dataset.generation=String(Number(lab.root.dataset.generation||0)+1);
    canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();lab.root.dataset.gpu='lost';fallback(lab,'图形环境已暂停 · 已显示静态预览');});
    canvas.addEventListener('webglcontextrestored',()=>{delete lab.root.dataset.gpu;init();});
    trigger=key==='particles'?particles(lab,gl,canvas):surface(key,lab,gl,canvas);
   }catch(e){console.warn('着色器已降级',key,e.message);fallback(lab,'实时画面暂不可用 · 已显示静态预览');}
  }
- mobile.addEventListener('change',()=>{if(mobile.matches)fallback(lab,'手机静态预览 · 桌面可体验实时着色器');else{init();if(lab.root.dataset.gpu==='ready')lab.root.classList.add('shader-ready');}});
- reduce.addEventListener('change',()=>{if(reduce.matches)fallback(lab,'已减少动态效果 · 当前显示静态预览');else{init();if(lab.root.dataset.gpu==='ready')lab.root.classList.add('shader-ready');}});
+ mobile.addEventListener('change',()=>{if(mobile.matches)fallback(lab,'手机静态预览 · 桌面可体验实时着色器');else{init();if(lab.root.dataset.gpu==='ready')ready(lab);}});
+ reduce.addEventListener('change',()=>{if(reduce.matches)fallback(lab,'已减少动态效果 · 当前显示静态预览');else{init();if(lab.root.dataset.gpu==='ready')ready(lab);}});
  init();
 }
 function resize(lab,gl,canvas){const dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(lab.stage.clientWidth*dpr);canvas.height=Math.round(lab.stage.clientHeight*dpr);gl.viewport(0,0,canvas.width,canvas.height);}
 function surface(key,lab,gl,canvas){
+ const generation=lab.root.dataset.generation;
  const p=program(gl,vertex,fragment),buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
  const position=gl.getAttribLocation(p,'a_position');gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
  const u=Object.fromEntries(['resolution','pointer','aspect','time','energy','progress','mode','direction','image0','image1'].map(n=>[n,gl.getUniformLocation(p,'u_'+n)]));
@@ -67,14 +69,15 @@ function surface(key,lab,gl,canvas){
  }
  // Complete both texture units even for the gradient: WebGL validates every sampler.
  const textures=key==='gradient'?Promise.all([0,1].map(i=>{gl.activeTexture(gl.TEXTURE0+i);const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([17,17,16,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);})):Promise.all([texture(0,key==='distortion'?1:3),texture(1,key==='distortion'?1:5)]);
- textures.then(()=>{loaded=true;if(!mobile.matches&&!reduce.matches)lab.root.classList.add('shader-ready');}).catch(()=>fallback(lab,'图片加载失败 · 已显示静态预览'));
+ textures.then(()=>{loaded=true;if(lab.root.dataset.generation===generation&&!mobile.matches&&!reduce.matches)ready(lab);}).catch(()=>fallback(lab,'图片加载失败 · 已显示静态预览'));
  const overlay=document.createElement('b');overlay.className='shader-overlay';overlay.innerHTML=key==='distortion'?'LIQUID<br>SIGNAL':key==='dissolve'?'BETWEEN<br>FRAMES':'FLOW<br>STATE';lab.stage.append(overlay);
  const hint=lab.stage.querySelector('.shader-hint');hint.textContent=key==='distortion'?'移动鼠标，让照片泛起波纹':key==='dissolve'?'点击切换 · 噪声把前后两帧接起来':'缓慢流动 · 点击改变流向';
  lab.stage.addEventListener('pointermove',e=>{const r=lab.stage.getBoundingClientRect();aim.x=clamp((e.clientX-r.left)/r.width);aim.y=1-clamp((e.clientY-r.top)/r.height);if(key==='distortion')target=1;});
  lab.stage.addEventListener('pointerleave',()=>{target=0;});
  const observer=new ResizeObserver(()=>resize(lab,gl,canvas));observer.observe(lab.stage);resize(lab,gl,canvas);
  loop(lab.stage,(t,dt)=>{
-  if(!loaded||mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready')return;
+  if(mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
+  if(!loaded)return;
   time+=dt*motion.speed;pointer.x+=(aim.x-pointer.x)*(1-Math.exp(-dt*9*motion.speed));pointer.y+=(aim.y-pointer.y)*(1-Math.exp(-dt*9*motion.speed));
   if(pulse>0){pulse-=dt*motion.speed;if(pulse<=0)target=0;}
   energy+=(target-energy)*(1-Math.exp(-dt*2.8*motion.speed));
@@ -87,6 +90,7 @@ function surface(key,lab,gl,canvas){
 function particles(lab,gl,canvas){
  const vs=`attribute vec2 a_position;attribute float a_seed;uniform vec2 u_resolution;uniform float u_dpr;varying float v_seed;void main(){vec2 pos=a_position/u_resolution*2.-1.;gl_Position=vec4(pos.x,-pos.y,0.,1.);gl_PointSize=(1.5+a_seed*2.)*u_dpr;v_seed=a_seed;}`;
  const fs=`precision mediump float;varying float v_seed;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;vec3 c=mix(vec3(1.,.357,0.),vec3(.949,.941,.922),step(.75,v_seed));gl_FragColor=vec4(c,1.-smoothstep(.2,.5,d));}`;
+ const generation=lab.root.dataset.generation;
  const p=program(gl,vs,fs),mask=document.createElement('canvas');mask.width=600;mask.height=420;
  const ctx=mask.getContext('2d');ctx.fillStyle='#fff';ctx.font='900 155px Anton, sans-serif';ctx.textAlign='center';ctx.fillText('FORM',300,205);ctx.font='900 95px Anton, sans-serif';ctx.fillText('06',300,315);
  const pixels=ctx.getImageData(0,0,600,420).data,points=[];
@@ -100,10 +104,10 @@ function particles(lab,gl,canvas){
  lab.stage.querySelector('.shader-hint').textContent='鼠标靠近，粒子散开 · 移开，文字重新聚合';
  const move=e=>{const r=lab.stage.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};};
  lab.stage.addEventListener('pointermove',move);lab.stage.addEventListener('pointerleave',()=>pointer=null);
- new ResizeObserver(()=>resize(lab,gl,canvas)).observe(lab.stage);resize(lab,gl,canvas);lab.root.classList.add('shader-ready');
+ new ResizeObserver(()=>resize(lab,gl,canvas)).observe(lab.stage);resize(lab,gl,canvas);ready(lab);
  const scatter=()=>{burst=.7;points.forEach(p=>{const angle=Math.random()*Math.PI*2,speed=120+Math.random()*260;p.vx+=Math.cos(angle)*speed;p.vy+=Math.sin(angle)*speed;});};
  loop(lab.stage,(t,dt)=>{
-  if(mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready')return;
+  if(mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
   dt*=motion.speed;burst=Math.max(0,burst-dt);const w=lab.stage.clientWidth,h=lab.stage.clientHeight;
   points.forEach((p,i)=>{const tx=p.tx*w,ty=p.ty*h;let ax=(tx-p.x)*(burst?3:22),ay=(ty-p.y)*(burst?3:22);
    if(pointer){const dx=p.x-pointer.x,dy=p.y-pointer.y,d=Math.hypot(dx,dy);if(d<85){const force=(1-d/85)*1900;ax+=dx/Math.max(d,1)*force;ay+=dy/Math.max(d,1)*force;}}

@@ -6,7 +6,9 @@ export function mount(key, data, replay) {
  registerExhibit(key,data,replay);
  root.querySelector('.q').addEventListener('click',()=>say(key));
  root.querySelector('[data-play]')?.addEventListener('click',()=>{SFX.play(key);say(key);replay();});
- stage.addEventListener('pointerdown',()=>{say(key);SFX.play(key);});
+ stage.addEventListener('pointerdown',()=>say(key));
+ stage.addEventListener('click',()=>{say(key);SFX.play(key);});
+ const playButton=root.querySelector('[data-play]');if(playButton)playButton.dataset.label=playButton.textContent;
  return {root,stage};
 }
 export function animate(el,frames,duration=700,options={}) {
@@ -15,10 +17,14 @@ export function animate(el,frames,duration=700,options={}) {
 // Render loops actually stop outside the viewport, in background tabs and on reduced motion.
 export function loop(stage, draw, continuous=true) {
  let visible=false,id=0,previous=0;
- const frame=t=>{id=0;if(!visible||document.hidden)return;const dt=Math.min((t-previous)/1000,.04)||.016;previous=t;draw(t,dt);if(continuous&&!motion.reduced)id=requestAnimationFrame(frame);};
+ const frame=t=>{id=0;if(!visible||document.hidden)return;const dt=Math.min((t-previous)/1000,.04)||.016;previous=t;const keep=draw(t,dt);if(keep!==false&&continuous&&!motion.reduced)id=requestAnimationFrame(frame);};
  const wake=()=>{if(visible&&!document.hidden&&!id){previous=performance.now();id=requestAnimationFrame(frame);}};
  const observer=new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(!visible){cancelAnimationFrame(id);id=0;}else wake();},{rootMargin:'40px'});observer.observe(stage);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(id);id=0;}else wake();});
  matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',wake);
+ addEventListener('resize',wake);
+ addEventListener('scroll',()=>{if(motion.reduced)wake();},{passive:true});
+ stage.parentElement.addEventListener('click',wake);
+ stage.addEventListener('pointermove',()=>{if(motion.reduced)wake();});
  return wake;
 }

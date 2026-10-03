@@ -14,7 +14,7 @@ for(const key of Object.keys(definitions)){
   if(key==='velocity'){fake=14;return;}
   if(key==='pinned'){demo=(demo+1)%3;setChapter(lab,demo,true);return;}
   const target= key==='parallax'?lab.stage.querySelector('.city-type'):key==='horizontal'?lab.stage.querySelector('.horizontal-track'):lab.stage.querySelector('.reveal-poster');
-  if(key==='parallax')animate(target,[{translate:'0 0'},{translate:'0 -75px'},{translate:'0 0'}],1400);
+  if(key==='parallax'){const animation=animate(target,[{translate:'0 0'},{translate:'0 -75px'},{translate:'0 0'}],1400);animation.onfinish=()=>animation.cancel();}
   else if(key==='horizontal'){demo=demo?0:1;animate(target,[{transform:getComputedStyle(target).transform},{transform:`translateX(${-demo*(target.scrollWidth-lab.stage.clientWidth)}px)`}],1000);}
   else animate(target,[{clipPath:'inset(100% 0 0 0)'},{clipPath:'inset(0% 0 0 0)'}],1000);
  });labs[key]=lab;
@@ -51,5 +51,4 @@ function setChapter(lab,n,user=false){
  lab.stage.querySelector('.pin-title').innerHTML=title;lab.stage.querySelector('.pin-poster>i').textContent=mark;
  lab.stage.querySelectorAll('.pin-steps i').forEach((el,i)=>el.classList.toggle('on',i<=n));
  animate(poster,[{opacity:.2,translate:'0 24px'},{opacity:1,translate:'0 0'}],500);
- if(user)SFX.play('pinned');
 }

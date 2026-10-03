@@ -1,5 +1,5 @@
 // Recorded CC0 sounds are the body. Only the continuous charge is synthesized.
-const variants = (prefix, zero = false) => (prefix === 'pluck' ? [0, 1] : [0, 1, 2]).map(i => `${prefix}_${String(i + (zero ? 0 : 1)).padStart(3, '0')}.ogg`);
+const variants = (prefix, zero = false) => (prefix === 'pluck' ? [0, 1] : prefix === 'tick' ? [0,1,3] : [0, 1, 2]).map(i => `${prefix}_${String(i + (zero ? 0 : 1)).padStart(3, '0')}.ogg`);
 const groups = {
  tick: ['tick_001.ogg','tick_002.ogg','tick_004.ogg'], push: variants('impactMetal_light', true), up: variants('click'),
  ripple: variants('pluck'), wipe: variants('maximize'), roll: variants('tick'),
@@ -7,7 +7,7 @@ const groups = {
  burst: variants('impactSoft_heavy', true), glass: variants('impactGlass_heavy', true),
  glitch: variants('glitch'), jelly: variants('drop'), error: variants('error'),
  magnetic: variants('pluck'), trail: variants('open'), spotlight: variants('maximize'),
- tilt: variants('pluck'), toggle: variants('click'), submit: variants('confirmation'),
+ tilt: variants('pluck'), toggle: variants('click'), submit: variants('click'),
  custom: variants('click'), ink: variants('drop'), wave: variants('pluck'), mask: variants('maximize'), typewriter: variants('tick'),
  parallax: variants('open'), pinned: variants('click'), horizontal: variants('maximize'), reveal: variants('open'), velocity: variants('minimize'),
  flip: variants('click'), shared: variants('maximize'), curtain: variants('minimize'), native: variants('open'),

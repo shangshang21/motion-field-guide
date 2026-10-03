@@ -27,7 +27,7 @@ const defs={
  let running=false,elapsed=0,previous=0,phase='idle',id=0;
  const lab=mount('submit',defs.submit,()=>submit()),button=lab.stage.querySelector('.submit-object');
  function submit(){if(running)return;running=true;elapsed=0;previous=performance.now();phase='loading';button.className='submit-object loading';button.disabled=true;button.querySelector('span').textContent='正在提交';lab.root.querySelector('.demo-readout').textContent='Loading / 01';id=requestAnimationFrame(frame);}
- function frame(t){elapsed+=Math.min(t-previous,50)*motion.speed;previous=t;
+ function frame(t){elapsed+=(t-previous)*motion.speed;previous=t;
   if(phase==='loading'&&(elapsed>=1400||motion.reduced)){phase='success';elapsed=0;button.className='submit-object success';button.querySelector('span').textContent='已保存 ✓';lab.root.querySelector('.demo-readout').textContent='Success / 02';SFX.play('done');animate(button,[{scale:'.9'},{scale:'1.05'},{scale:'1'}],300);}
   else if(phase==='success'&&elapsed>=1600){running=false;phase='idle';button.className='submit-object';button.disabled=false;button.querySelector('span').textContent='提交存档 ↗';lab.root.querySelector('.demo-readout').textContent='Ready / 00';return;}
   id=requestAnimationFrame(frame);

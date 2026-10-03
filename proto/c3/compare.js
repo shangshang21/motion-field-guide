@@ -1,4 +1,5 @@
 import {catalog,exhibitByKey} from './catalog.js';
+import {cardTools} from './tools.js';
 import {loadModule} from './lazy.js';
 import {registerPhraseExtension,refreshPhrase,say} from './core.js';
 import {loop} from './frame.js';
@@ -15,7 +16,7 @@ export function validateSnapshot(key,values){
 function apply(root,values){for(const [name,v] of Object.entries(values)){const input=name==='text'?root.querySelector('.type-edit input'):root.querySelector(`[data-param="${name}"]`);if(input){input.value=String(v);input.dispatchEvent(new Event(input.tagName==='SELECT'?'change':'input',{bubbles:true}));}}}
 async function replica(root,key,values,side){
  const clone=root.cloneNode(true);clone.removeAttribute('data-k');clone.dataset.sourceKey=key;clone.classList.remove('card','active','phrase-arrival');clone.classList.add('ab-replica');
- clone.querySelectorAll('.ab-tools,.ab-panel,.card-actions,.exhibit-feelings').forEach(e=>e.remove());clone.querySelector('.lab-controls')?.replaceChildren();clone.querySelector('.bezier-values')?.replaceChildren();
+ clone.querySelectorAll('.ab-tools,.ab-panel,.card-actions,.exhibit-feelings,#dialog').forEach(e=>e.remove());clone.querySelector('.lab-controls')?.replaceChildren();clone.querySelector('.bezier-values')?.replaceChildren();
  clone.querySelectorAll('[id]').forEach(e=>{const old=e.id;e.id=`ab-${key}-${side}-${old}`;clone.querySelectorAll(`[for="${old}"]`).forEach(label=>label.htmlFor=e.id);});
  if(key==='easing')clone.querySelector('pattern').id=`ab-grid-${side}`;
  return {clone,init:async()=>{
@@ -45,7 +46,7 @@ export function clearComparison(key){const c=comparisons.get(key);if(c){c.panel.
 registerPhraseExtension(key=>{const state=comparisonState(key);return state?'｜A/B '+JSON.stringify(state):'';});
 function enhance(key){const root=document.querySelector(`[data-k="${key}"]`);if(!root||root.querySelector('.ab-tools')||!controls(root).length)return;
  const tools=document.createElement('div');tools.className='ab-tools';tools.innerHTML='<button class="ab-toggle mono" type="button" aria-expanded="false">A/B 对比 ↔</button><span>存下 A，调出 B。</span><button class="ab-save mono" type="button" title="把当前参数重新存为 A">重存 A</button>';
- root.querySelector('footer').before(tools);tools.querySelector('.ab-toggle').onclick=async()=>{const c=comparisons.get(key);await openComparison(key,c?.A||snapshot(key));playComparison(key);};tools.querySelector('.ab-save').onclick=async()=>{await openComparison(key,snapshot(key));playComparison(key);};
+ cardTools(root).append(tools);tools.querySelector('.ab-toggle').onclick=async()=>{const c=comparisons.get(key);await openComparison(key,c?.A||snapshot(key));playComparison(key);};tools.querySelector('.ab-save').onclick=async()=>{await openComparison(key,snapshot(key));playComparison(key);};
  root.addEventListener('input',e=>{if(!e.target.closest('.ab-replica')){update(key);refreshPhrase();}});root.addEventListener('change',e=>{if(!e.target.closest('.ab-replica')){update(key);refreshPhrase();}});
 }
 const observer=new MutationObserver(records=>{for(const r of records){const root=r.target.closest?.('.card[data-k]');if(root)enhance(root.dataset.k);}});observer.observe(document.querySelector('#app'),{childList:true,subtree:true});catalog.forEach(e=>enhance(e.key));

@@ -9,3 +9,11 @@ function annotate(){for(const [key,label] of Object.entries(hints)){const root=d
  document.querySelectorAll('.how[data-mouse-label]').forEach(h=>{const label=mobile.matches?'Tap · 点一下':h.dataset.mouseLabel;if(h.textContent!==label)h.textContent=label;});
 }
 annotate();mobile.addEventListener('change',annotate);
+
+// Dock to the selected exhibit on phones: the guide never covers a title or stage.
+function dockGuide(){
+ const root=key&&document.querySelector(`.card[data-k="${key}"]`);
+ if(mobile.matches&&root){root.append(dialog);dialog.classList.add('inline-guide');}
+ else {document.body.append(dialog);dialog.classList.remove('inline-guide');}
+}
+addEventListener('exhibit-say',dockGuide);mobile.addEventListener('change',dockGuide);

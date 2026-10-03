@@ -1,4 +1,5 @@
 import {catalog,exhibitByKey} from './catalog.js';
+import {cardTools} from './tools.js';
 import {loadModule} from './lazy.js';
 import {phrase,say} from './core.js';
 import {parsePhrase,restorePhrase} from './phrase.js';
@@ -20,7 +21,7 @@ modal.querySelector('.code-copy').onclick=async()=>{await copy(exported);modal.q
 modal.querySelector('.code-download').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([exported],{type:'text/html'}));a.href=url;a.download=`motion-${selected}.html`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 export async function copyShare(key,button){await loadModule(exhibitByKey.get(key).module);say(key);await copy(shareURL(key));const old=button.textContent;button.textContent='已复制 ✓';setTimeout(()=>button.textContent=old,1800);}
 share.onclick=()=>selected&&copyShare(selected,share);take.onclick=()=>selected&&showCode(selected);
-function enhance(){for(const e of catalog){const root=document.querySelector(`.card[data-k="${e.key}"]`);if(!root||root.querySelector('.card-actions'))continue;const tools=document.createElement('div');tools.className='card-actions mono';tools.innerHTML='<button title="复制当前参数的分享链接">分享 ↗</button><button title="拿走当前参数的独立代码">代码 &lt;/&gt;</button>';root.querySelector('footer').before(tools);tools.children[0].onclick=()=>copyShare(e.key,tools.children[0]);tools.children[1].onclick=()=>showCode(e.key);}}
+function enhance(){for(const e of catalog){const root=document.querySelector(`.card[data-k="${e.key}"]`);if(!root||root.querySelector('.card-actions'))continue;const tools=document.createElement('div');tools.className='card-actions mono';tools.innerHTML='<button title="复制当前参数的分享链接">分享 ↗</button><button title="拿走当前参数的独立代码">代码 &lt;/&gt;</button>';cardTools(root).append(tools);tools.children[0].onclick=()=>copyShare(e.key,tools.children[0]);tools.children[1].onclick=()=>showCode(e.key);}}
 enhance();
 const query=new URLSearchParams(location.search);
 if(query.has('motion')){

@@ -15,7 +15,7 @@ for(const feeling of ['全部',...feelings]){
 function render(){
  const matches=selected.size?matchingExhibits([...selected]):representatives,shown=expanded?matches:matches.slice(0,12);
  filters.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.feeling==='全部'?!selected.size:selected.has(b.dataset.feeling))));
- count.textContent=`找到 ${matches.length} 件${selected.size?' / '+[...selected].join(' + '):' / 七个展厅'}`;clear.disabled=!selected.size;
+ count.textContent=`找到 ${matches.length} 件${selected.size?' / '+[...selected].join(' + '):' / 八个展厅'}`;clear.disabled=!selected.size;
  results.replaceChildren();
  for(const exhibit of shown){
   const link=document.createElement('a');link.href=`#exhibit-${exhibit.key}`;link.className='feeling-result';link.dataset.exhibit=exhibit.key;link.dataset.tags=exhibit.tags.join(' ');
@@ -33,6 +33,6 @@ for(const exhibit of catalog){
  const root=document.querySelector(`[data-k="${exhibit.key}"]`);root.id=`exhibit-${exhibit.key}`;root.dataset.feelings=exhibit.tags.join(' ');
  const labels=document.createElement('span');labels.className='exhibit-feelings';labels.setAttribute('aria-label','感觉标签');
  exhibit.tags.forEach(tag=>{const button=document.createElement('button');button.type='button';button.textContent=tag;button.setAttribute('aria-label',`查找“${tag}”的动效`);button.addEventListener('click',()=>{selected.clear();selected.add(tag);expanded=false;render();document.querySelector('#dX').click();index.scrollIntoView({behavior:motion.reduced?'instant':'smooth',block:'start'});});labels.append(button);});
- root.querySelector('footer').append(labels);
+ (root.querySelector('.card-tools')||root.querySelector('footer')).append(labels);
 }
 render();

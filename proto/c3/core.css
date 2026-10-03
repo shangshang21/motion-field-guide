@@ -1,99 +1,3 @@
-
-  @font-face { font-family: 'Anton'; src: url('../../assets/fonts/Anton.woff2') format('woff2'); font-display: swap; }
-  @font-face { font-family: 'Heavy SC'; src: url('../../assets/fonts/NotoSansSC-Black-sub.woff2') format('woff2'); font-weight: 900; font-display: swap; }
-  :root {
-    --paper: #f2f0eb; --paper2: #e8e5de; --or: #ff5b00; --ink: #111110; --grey: #8f8c85;
-    --spd: 1;
-    color-scheme: light; /* 刻意的单一浅色视觉（都市游戏 UI），不做暗色版 */
-    --disp: 'Anton', 'Heavy SC', Impact, 'Arial Narrow', sans-serif;
-    --heavy: 'Heavy SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-    --sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
-    --mono: ui-monospace, 'SF Mono', Menlo, monospace;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-  ::selection { background: var(--or); color: var(--ink); }
-  button { font: inherit; color: inherit; cursor: pointer; }
-  .shake-screen { animation: screenShake calc(380ms / var(--spd)) cubic-bezier(.36,.07,.19,.97); }
-  @keyframes screenShake { 20%{transform:translate(-6px,3px)} 40%{transform:translate(5px,-4px)} 60%{transform:translate(-4px,2px)} 80%{transform:translate(2px,-1px)} }
-  .flash { position: fixed; inset: 0; background: #fff; z-index: 999; pointer-events: none; opacity: 0; }
-
-  /* ---------- 通用装饰 ---------- */
-  .halftone { background-image: radial-gradient(var(--ink) 1.3px, transparent 1.7px); background-size: 9px 9px; }
-  .hazard { background: repeating-linear-gradient(-45deg, var(--or) 0 14px, var(--ink) 14px 28px); }
-  .mono { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-
-  /* ---------- 顶部 HUD ---------- */
-  .hud { position: fixed; top: 0; left: 0; right: 0; z-index: 80; display: flex; align-items: center; gap: 22px; padding: calc(14px + env(safe-area-inset-top, 0px)) 28px 14px; pointer-events: none; }
-  .hud > * { pointer-events: auto; }
-  .hud .logo { display: flex; align-items: center; gap: 10px; background: var(--ink); color: var(--paper); padding: 7px 12px 7px 10px; transform: skewX(-12deg); }
-  .hud .logo > * { transform: skewX(12deg); }
-  .hud .logo i { color: var(--or); font-style: normal; font-size: 15px; }
-  .hud .logo { text-decoration: none; }
-  .hud.is-scrolled { background: var(--paper); border-bottom: 2px solid var(--ink); }
-  .hud-nav { display: flex; align-items: center; gap: 6px; }
-  .hud-nav a { text-decoration: none; color: var(--ink); padding: 7px 9px; background: var(--paper); border: 1px solid transparent; }
-  .hud-nav a:hover { border-color: var(--ink); }
-  .hud-nav a[aria-current=location] { background: var(--ink); color: var(--or); }
-  .speed-toggle { display: flex; gap: 6px; align-items: center; border: 2px solid var(--ink); background: var(--ink); color: var(--paper); padding: 5px 9px; font: 700 11px/1.4 var(--mono); white-space: nowrap; }
-  .speed-toggle > span { color: var(--or); font-size: 13px; }
-  .speed-toggle[aria-expanded=true] { background: var(--or); color: var(--ink); }
-  .speed-toggle[aria-expanded=true] > span { color: var(--ink); }
-  .speed-dock { position: fixed; top: 64px; right: 28px; z-index: 85; width: 320px; border: 2px solid var(--paper); box-shadow: 6px 6px 0 var(--or); }
-  .speed-dock[hidden] { display: none; }
-  .speed-scale { display: flex; justify-content: space-between; color: var(--grey); font-size: 9px; margin-top: 10px; }
-  .speed-dock p { color: var(--grey); font: 12px/1.6 var(--sans); margin: 15px 0 0; }
-  .hud .sp { flex: 1; }
-  .hud .clock { font-variant-numeric: tabular-nums; }
-  .sfx { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 2px solid var(--ink); padding: 5px 10px; }
-  .sfx .bars { display: flex; gap: 2px; align-items: flex-end; height: 12px; }
-  .sfx .bars b { width: 3px; background: var(--ink); height: 12px; transform-origin: bottom; animation: eq .8s ease-in-out infinite alternate; }
-  .sfx .bars b:nth-child(2) { animation-delay: -.3s; } .sfx .bars b:nth-child(3) { animation-delay: -.6s; }
-  @keyframes eq { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
-  .sfx.off .bars b { animation: none; height: 3px; background: var(--grey); }
-
-  /* ---------- 首屏 ---------- */
-  .hero { position: relative; min-height: 100vh; overflow: hidden; display: grid; grid-template-columns: 1.15fr 1fr; padding: 96px 28px 140px; }
-  .hero .ht { position: absolute; right: 0; top: 0; width: 70vw; height: 100%; opacity: .2; -webkit-mask-image: radial-gradient(circle at 100% 10%, #000, transparent 65%); mask-image: radial-gradient(circle at 100% 10%, #000, transparent 65%); }
-  .hero .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(17,17,16,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(17,17,16,.06) 1px, transparent 1px); background-size: 64px 64px; }
-  .big-no { position: absolute; right: 2vw; top: 6vh; font-family: var(--disp); font-size: 34vw; line-height: .8; color: transparent; -webkit-text-stroke: 2px rgba(17,17,16,.12); pointer-events: none; }
-
-  .left { position: relative; z-index: 5; align-self: center; }
-  .kicker { display: inline-flex; gap: 12px; align-items: center; margin-bottom: 18px; }
-  .kicker .tag { background: var(--or); color: var(--ink); padding: 4px 9px; }
-  .t1 { font-family: var(--disp); font-size: clamp(90px, 13.5vw, 230px); line-height: .82; margin: 0; letter-spacing: -.01em; transform: skewX(-8deg); transform-origin: left bottom; }
-  .t1 span { display: inline-block; transform: translateY(110%); animation: up calc(900ms / var(--spd)) cubic-bezier(.2,.9,.2,1) forwards; }
-  .t2 { display: inline-flex; align-items: center; gap: 22px; margin-top: 10px; background: var(--or); padding: 6px 28px 10px 18px; transform: skewX(-12deg) translateX(-140%); animation: slideIn calc(800ms / var(--spd)) cubic-bezier(.2,.9,.2,1) calc(250ms / var(--spd)) forwards; box-shadow: 10px 10px 0 var(--ink); }
-  .t2 > * { transform: skewX(12deg); }
-  .t2 b { font-family: var(--heavy); font-weight: 900; font-size: clamp(64px, 8.5vw, 140px); line-height: 1.05; color: var(--ink); }
-  .t2 small { font-family: var(--disp); font-size: clamp(18px, 1.6vw, 26px); line-height: 1.1; color: var(--paper); }
-  @keyframes up { to { transform: none; } }
-  @keyframes slideIn { to { transform: skewX(-12deg) translateX(0); } }
-  .lead { font-size: clamp(16px, 1.4vw, 21px); font-weight: 600; margin: 40px 0 30px; max-width: 30em; line-height: 1.6; }
-  .lead em { font-style: normal; background: linear-gradient(transparent 58%, rgba(255,91,0,.45) 58%); }
-
-  .start { position: relative; display: inline-flex; align-items: center; gap: 18px; border: 0; background: var(--ink); color: var(--paper); padding: 20px 34px 20px 28px; transform: skewX(-12deg); box-shadow: 8px 8px 0 var(--or); transition: transform calc(120ms / var(--spd)), box-shadow calc(120ms / var(--spd)); }
-  .start > * { transform: skewX(12deg); }
-  .start .k { font-family: var(--disp); font-size: 30px; letter-spacing: .04em; }
-  .start .tri { width: 0; height: 0; border-left: 14px solid var(--or); border-block: 9px solid transparent; animation: blink 1s steps(2) infinite; }
-  .start:hover { transform: skewX(-12deg) translate(-3px, -3px); box-shadow: 11px 11px 0 var(--or); }
-  .start:active { transform: skewX(-12deg) translate(8px, 8px); box-shadow: 0 0 0 var(--or); }
-  @keyframes blink { 50% { opacity: 0; } }
-  .start-hint { display: block; margin-top: 16px; color: var(--grey); }
-
-  .right { position: relative; z-index: 4; }
-  .guide { position: absolute; right: -2vw; bottom: -140px; height: 96vh; max-height: 1000px; will-change: transform;  }
-  .guide img { height: 100%; width: auto; display: block; }
-  .stripe-block { position: absolute; right: 8vw; top: 12vh; width: 26vw; height: 52vh; transform: skewX(-12deg); opacity: .95; }
-  .badge { position: absolute; left: 0; top: 4vh; width: 150px; height: 150px; animation: spin calc(16s / var(--spd)) linear infinite; z-index: 6; }
-  .badge circle { fill: var(--or); }
-  .badge text { font-family: var(--disp); font-size: 13.5px; letter-spacing: 2.6px; fill: var(--ink); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .sticker { position: absolute; z-index: 7; background: var(--paper); border: 2px solid var(--ink); padding: 6px 10px; box-shadow: 4px 4px 0 var(--ink); }
-  .barcode { height: 34px; width: 120px; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 13px); }
-
   /* ---------- 交叉警戒带 ---------- */
   .tapes { position: relative; height: 230px; margin-top: -150px; z-index: 20; pointer-events: none; overflow: hidden; }
   .tape { position: absolute; left: -10vw; width: 120vw; overflow: hidden; border-block: 3px solid var(--ink); }
@@ -202,7 +106,7 @@
   .collection-discovered { min-width: 180px; text-align: right; }
   .discovery-meter { margin-top: 10px; height: 6px; background: var(--paper2); overflow: hidden; }
   .discovery-meter i { display: block; height: 100%; width: 0; background: var(--or); transition: width calc(250ms / var(--spd)); }
-  .collection-note { margin: 18px 0 30px; font-size: 14px; color: #747168; }
+  .collection-note { margin: 18px 0 30px; font-size: 14px; color: #625f58; }
   .slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
   .slot { aspect-ratio: 3/4; border: 3px solid var(--ink); position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; overflow: hidden; background: var(--paper); }
   .slot .lv { position: absolute; left: 10px; top: 10px; }

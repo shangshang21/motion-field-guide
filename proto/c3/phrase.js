@@ -87,7 +87,7 @@ export async function navigateExhibit(key,{replay=false}={}){
  // Give the newly visible neighboring lazy modules one short turn to settle their controls.
  await new Promise(resolve=>setTimeout(resolve,120));await frames();
  const target=root.querySelector('.lab-stage,.type-stage,.demo-stage,.pad')||root;
- const position=behavior=>{const r=target.getBoundingClientRect(),mobile=innerWidth<=760;const top=Math.max(mobile?212:120,(innerHeight-r.height)/2+(mobile?65:0));scrollTo({top:scrollY+r.top-top,behavior});};
+ const position=behavior=>{const r=target.getBoundingClientRect(),mobile=innerWidth<=760;const top=Math.max(mobile?125:120,(innerHeight-r.height)/2);scrollTo({top:scrollY+r.top-top,behavior});};
  position(motion.reduced?'instant':'smooth');
  // content-visibility changes upstream heights while scrolling across several halls.
  settleTask=setTimeout(()=>{position('instant');hall.style.contentVisibility='';openedHall=null;},650);

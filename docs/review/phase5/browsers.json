@@ -1,0 +1,1374 @@
+[
+  {
+    "browser": "webkit",
+    "version": "26.6",
+    "mobile": false,
+    "checks": [
+      {
+        "name": "First greeting visible",
+        "passed": true
+      },
+      {
+        "name": "Greeting remembered after reload",
+        "passed": true
+      },
+      {
+        "name": "hall: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "push: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ripple: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "roll: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hold: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "burst: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "glitch: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "jelly: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shake: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "tilt: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "toggle: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "submit: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-cursor: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "magnetic: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "trail: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spotlight: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "custom: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ink: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-text: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "split: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "scramble: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wave: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "mask: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "typewriter: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-scroll: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "parallax: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pinned: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "horizontal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "reveal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "velocity: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-transition: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "flip: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shared: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "curtain: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "native: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-shader: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "distortion: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "dissolve: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "gradient: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "particles: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-timing: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "easing: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spring: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "duration: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "stagger: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-gesture: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "inertia: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "rubber: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "swipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pull: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "Four shaders render or show an explicit static fallback",
+        "passed": true
+      },
+      {
+        "name": "Tools open with keyboard focusable buttons",
+        "passed": true
+      },
+      {
+        "name": "A/B renders two live replicas",
+        "passed": true
+      },
+      {
+        "name": "Escape closes tools and restores focus",
+        "passed": true
+      },
+      {
+        "name": "inertia: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "rubber: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "swipe: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "pull: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "All 41 local OGG files decode",
+        "passed": true
+      },
+      {
+        "name": "Recorded sounds decode and play",
+        "passed": true
+      },
+      {
+        "name": "No uncaught errors or failed resource loads",
+        "passed": true
+      },
+      {
+        "name": "Idle-page WCAG A/AA scan has no violations",
+        "passed": true
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "shader": [
+      {
+        "key": "distortion",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "移动鼠标，让照片泛起波纹",
+        "canvas": true
+      },
+      {
+        "key": "dissolve",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "点击切换 · 噪声把前后两帧接起来",
+        "canvas": true
+      },
+      {
+        "key": "gradient",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "缓慢流动 · 点击改变流向",
+        "canvas": true
+      },
+      {
+        "key": "particles",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "鼠标靠近，粒子散开 · 移开，文字重新聚合",
+        "canvas": true
+      }
+    ],
+    "audio": {
+      "decoded": 38,
+      "started": 281,
+      "errors": [],
+      "allFiles": 41
+    },
+    "axe": [],
+    "cancelledOnReload": [
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_004.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_001.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_003.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_001.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_000.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_001.ogg",
+        "error": "cancelled"
+      }
+    ]
+  },
+  {
+    "browser": "webkit",
+    "version": "26.6",
+    "mobile": true,
+    "checks": [
+      {
+        "name": "First greeting visible",
+        "passed": true
+      },
+      {
+        "name": "Greeting remembered after reload",
+        "passed": true
+      },
+      {
+        "name": "hall: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "push: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ripple: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "roll: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hold: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "burst: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "glitch: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "jelly: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shake: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "tilt: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "toggle: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "submit: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-cursor: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "magnetic: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "trail: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spotlight: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "custom: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ink: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-text: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "split: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "scramble: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wave: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "mask: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "typewriter: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-scroll: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "parallax: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pinned: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "horizontal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "reveal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "velocity: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-transition: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "flip: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shared: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "curtain: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "native: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-shader: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "distortion: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "dissolve: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "gradient: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "particles: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-timing: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "easing: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spring: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "duration: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "stagger: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-gesture: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "inertia: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "rubber: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "swipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pull: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "Four shaders render or show an explicit static fallback",
+        "passed": true
+      },
+      {
+        "name": "Tools open with keyboard focusable buttons",
+        "passed": true
+      },
+      {
+        "name": "A/B renders two live replicas",
+        "passed": true
+      },
+      {
+        "name": "Escape closes tools and restores focus",
+        "passed": true
+      },
+      {
+        "name": "inertia: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "rubber: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "swipe: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "pull: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "All 41 local OGG files decode",
+        "passed": true
+      },
+      {
+        "name": "Recorded sounds decode and play",
+        "passed": true
+      },
+      {
+        "name": "Mobile guide is inside selected card, outside its stage",
+        "passed": true
+      },
+      {
+        "name": "No uncaught errors or failed resource loads",
+        "passed": true
+      },
+      {
+        "name": "Idle-page WCAG A/AA scan has no violations",
+        "passed": true
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "shader": [
+      {
+        "key": "distortion",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "点一下，照片泛起真实水波",
+        "canvas": true
+      },
+      {
+        "key": "dissolve",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "点击切换 · 噪声把前后两帧接起来",
+        "canvas": true
+      },
+      {
+        "key": "gradient",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "缓慢流动 · 点击改变流向",
+        "canvas": true
+      },
+      {
+        "key": "particles",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "点一下打散 · 松开后重新聚成文字",
+        "canvas": true
+      }
+    ],
+    "audio": {
+      "decoded": 38,
+      "started": 281,
+      "errors": [],
+      "allFiles": 41
+    },
+    "axe": [],
+    "cancelledOnReload": [
+      {
+        "url": "http://localhost:3300/assets/sfx/click_001.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_004.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_003.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_001.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/gallery-font.css",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_001.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/gallery.js",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_000.ogg",
+        "error": "cancelled"
+      }
+    ]
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "mobile": false,
+    "checks": [
+      {
+        "name": "First greeting visible",
+        "passed": true
+      },
+      {
+        "name": "Greeting remembered after reload",
+        "passed": true
+      },
+      {
+        "name": "hall: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "push: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ripple: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "roll: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hold: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "burst: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "glitch: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "jelly: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shake: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "tilt: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "toggle: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "submit: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-cursor: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "magnetic: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "trail: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spotlight: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "custom: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ink: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-text: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "split: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "scramble: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wave: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "mask: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "typewriter: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-scroll: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "parallax: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pinned: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "horizontal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "reveal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "velocity: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-transition: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "flip: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shared: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "curtain: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "native: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-shader: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "distortion: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "dissolve: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "gradient: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "particles: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-timing: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "easing: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spring: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "duration: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "stagger: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-gesture: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "inertia: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "rubber: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "swipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pull: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "Four shaders render or show an explicit static fallback",
+        "passed": true
+      },
+      {
+        "name": "Tools open with keyboard focusable buttons",
+        "passed": true
+      },
+      {
+        "name": "A/B renders two live replicas",
+        "passed": true
+      },
+      {
+        "name": "Escape closes tools and restores focus",
+        "passed": true
+      },
+      {
+        "name": "inertia: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "rubber: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "swipe: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "pull: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "All 41 local OGG files decode",
+        "passed": true
+      },
+      {
+        "name": "Recorded sounds decode and play",
+        "passed": true
+      },
+      {
+        "name": "No uncaught errors or failed resource loads",
+        "passed": true
+      },
+      {
+        "name": "Idle-page WCAG A/AA scan has no violations",
+        "passed": true
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "shader": [
+      {
+        "key": "distortion",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "移动鼠标，让照片泛起波纹",
+        "canvas": true
+      },
+      {
+        "key": "dissolve",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "点击切换 · 噪声把前后两帧接起来",
+        "canvas": true
+      },
+      {
+        "key": "gradient",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "缓慢流动 · 点击改变流向",
+        "canvas": true
+      },
+      {
+        "key": "particles",
+        "mode": "ready",
+        "quality": "desktop",
+        "static": false,
+        "hint": "鼠标靠近，粒子散开 · 移开，文字重新聚合",
+        "canvas": true
+      }
+    ],
+    "audio": {
+      "decoded": 38,
+      "started": 284,
+      "errors": [],
+      "allFiles": 41
+    },
+    "axe": [],
+    "cancelledOnReload": [
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "NS_BINDING_ABORTED"
+      }
+    ]
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "mobile": true,
+    "checks": [
+      {
+        "name": "First greeting visible",
+        "passed": true
+      },
+      {
+        "name": "Greeting remembered after reload",
+        "passed": true
+      },
+      {
+        "name": "hall: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "push: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ripple: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "roll: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hold: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "burst: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "glitch: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "jelly: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shake: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "tilt: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "toggle: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "submit: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-cursor: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "magnetic: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "trail: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spotlight: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "custom: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "ink: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-text: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "split: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "scramble: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "wave: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "mask: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "typewriter: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-scroll: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "parallax: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pinned: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "horizontal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "reveal: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "velocity: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-transition: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "flip: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "shared: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "curtain: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "native: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-shader: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "distortion: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "dissolve: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "gradient: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "particles: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-timing: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "easing: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "spring: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "duration: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "stagger: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "hall-gesture: no horizontal overflow",
+        "passed": true
+      },
+      {
+        "name": "inertia: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "rubber: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "swipe: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "pull: phrase restore and replay",
+        "passed": true
+      },
+      {
+        "name": "Four shaders render or show an explicit static fallback",
+        "passed": true
+      },
+      {
+        "name": "Tools open with keyboard focusable buttons",
+        "passed": true
+      },
+      {
+        "name": "A/B renders two live replicas",
+        "passed": true
+      },
+      {
+        "name": "Escape closes tools and restores focus",
+        "passed": true
+      },
+      {
+        "name": "inertia: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "rubber: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "swipe: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "pull: native drag + keyboard",
+        "passed": true
+      },
+      {
+        "name": "All 41 local OGG files decode",
+        "passed": true
+      },
+      {
+        "name": "Recorded sounds decode and play",
+        "passed": true
+      },
+      {
+        "name": "Mobile guide is inside selected card, outside its stage",
+        "passed": true
+      },
+      {
+        "name": "No uncaught errors or failed resource loads",
+        "passed": true
+      },
+      {
+        "name": "Idle-page WCAG A/AA scan has no violations",
+        "passed": true
+      }
+    ],
+    "errors": [],
+    "failed": [],
+    "shader": [
+      {
+        "key": "distortion",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "点一下，照片泛起真实水波",
+        "canvas": true
+      },
+      {
+        "key": "dissolve",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "点击切换 · 噪声把前后两帧接起来",
+        "canvas": true
+      },
+      {
+        "key": "gradient",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "缓慢流动 · 点击改变流向",
+        "canvas": true
+      },
+      {
+        "key": "particles",
+        "mode": "ready",
+        "quality": "mobile-dpr1",
+        "static": false,
+        "hint": "点一下打散 · 松开后重新聚成文字",
+        "canvas": true
+      }
+    ],
+    "audio": {
+      "decoded": 38,
+      "started": 284,
+      "errors": [],
+      "allFiles": 41
+    },
+    "axe": [],
+    "cancelledOnReload": [
+      {
+        "url": "http://localhost:3300/proto/c3/feeling.js",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/phrase.js",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/compare.js",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/share.js",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/guide.js",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_001.ogg",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/mobile.js",
+        "error": "NS_BINDING_ABORTED"
+      }
+    ]
+  }
+]

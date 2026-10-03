@@ -16,8 +16,8 @@ export function validateSnapshot(key,values){
 function apply(root,values){for(const [name,v] of Object.entries(values)){const input=name==='text'?root.querySelector('.type-edit input'):root.querySelector(`[data-param="${name}"]`);if(input){input.value=String(v);input.dispatchEvent(new Event(input.tagName==='SELECT'?'change':'input',{bubbles:true}));}}}
 async function replica(root,key,values,side){
  const clone=root.cloneNode(true);clone.removeAttribute('data-k');clone.dataset.sourceKey=key;clone.classList.remove('card','active','phrase-arrival');clone.classList.add('ab-replica');
- clone.querySelectorAll('.ab-tools,.ab-panel,.card-actions,.exhibit-feelings,#dialog').forEach(e=>e.remove());clone.querySelector('.lab-controls')?.replaceChildren();clone.querySelector('.bezier-values')?.replaceChildren();
- clone.querySelectorAll('[id]').forEach(e=>{const old=e.id;e.id=`ab-${key}-${side}-${old}`;clone.querySelectorAll(`[for="${old}"]`).forEach(label=>label.htmlFor=e.id);});
+ clone.querySelectorAll('.ab-tools,.ab-panel,.card-actions,.exhibit-feelings,.card-toolbar,#dialog').forEach(e=>e.remove());clone.querySelector('.lab-controls')?.replaceChildren();clone.querySelector('.bezier-values')?.replaceChildren();
+ clone.querySelectorAll('[id]').forEach(e=>{const old=e.id;e.id=`ab-${key}-${side}-${old}`;clone.querySelectorAll(`[for="${old}"]`).forEach(label=>label.htmlFor=e.id);for(const attr of ['aria-controls','aria-labelledby','aria-describedby'])clone.querySelectorAll(`[${attr}]`).forEach(el=>el.setAttribute(attr,el.getAttribute(attr).split(' ').map(id=>id===old?e.id:id).join(' '))); });
  if(key==='easing')clone.querySelector('pattern').id=`ab-grid-${side}`;
  return {clone,init:async()=>{
   if(['magnetic','trail','spotlight'].includes(key))(await import('./cursor.js')).createCursorComparison(key,clone);

@@ -3,13 +3,13 @@ import {catalog,exhibitByKey} from './catalog.js';
 import {loadModule} from './lazy.js';
 import {phrase,say} from './core.js';
 let openCard=null;
-function close(root,focus=false){if(!root)return;root.querySelector('.card-tools').hidden=true;const toggle=root.querySelector('.tools-toggle');toggle.setAttribute('aria-expanded','false');if(focus)toggle.focus();if(openCard===root)openCard=null;}
+function close(root,focus=false){if(!root)return;root.querySelector(':scope > .card-tools').hidden=true;const toggle=root.querySelector('.tools-toggle');toggle.setAttribute('aria-expanded','false');if(focus)toggle.focus();if(openCard===root)openCard=null;}
 export function cardTools(root){
  if(root.querySelector(':scope > .card-tools'))return root.querySelector(':scope > .card-tools');
  const key=root.dataset.k,entry=exhibitByKey.get(key),footer=root.querySelector('footer');
  const name=document.createElement('div');name.className='card-name';name.append(footer.querySelector('b'),footer.querySelector('em'));
  const panel=document.createElement('div');panel.className='card-tools';panel.id=`tools-${key}`;panel.hidden=true;panel.setAttribute('role','group');panel.setAttribute('aria-label',`${entry.name}的工具`);
- const q=footer.querySelector('.q');q.textContent='听讲解 ↗';q.onclick=async()=>{await loadModule(entry.module);say(key);};panel.append(q);
+ const q=footer.querySelector('.q');q.textContent='听讲解 ↗';q.setAttribute('aria-label',`听讲解：${entry.name}`);q.onclick=async()=>{await loadModule(entry.module);say(key);};panel.append(q);
  const toolbar=document.createElement('div');toolbar.className='card-toolbar mono';
  toolbar.innerHTML=`<button class="card-copy" aria-label="复制${entry.name}的口令" title="复制当前手感的口令">口令 ↗</button><button class="tools-toggle" aria-expanded="false" aria-controls="tools-${key}" aria-label="展开${entry.name}的工具">工具 <span aria-hidden="true">···</span></button>`;
  footer.append(name,toolbar);footer.after(panel);

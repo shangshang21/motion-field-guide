@@ -13,7 +13,7 @@ const groups = {
  flip: variants('click'), shared: variants('maximize'), curtain: variants('minimize'), native: variants('open'),
  distortion: variants('pluck'), dissolve: variants('glitch'), gradient: variants('open'), particles: variants('drop'),
 };
-let ctx, enabled = true, hold, lastTick = 0;
+let ctx, enabled = true, unlocked = false, hold, lastTick = 0;
 const buffers = new Map(), previous = new Map(), live = new Set();
 function context() {
  ctx ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -24,10 +24,10 @@ async function load(file) {
  if (!buffers.has(file)) buffers.set(file, fetch(new URL('../../assets/sfx/' + file, import.meta.url)).then(r => { if (!r.ok) throw Error(r.status); return r.arrayBuffer(); }).then(b => context().decodeAudioData(b)).catch(() => { buffers.delete(file); return null; }));
  return buffers.get(file);
 }
-function unlock() { if (!enabled) return; context(); ['tick','up','push'].forEach(k => groups[k].forEach(load)); }
+function unlock() { unlocked = true; if (!enabled) return; context(); ['tick','up','push'].forEach(k => groups[k].forEach(load)); }
 addEventListener('pointerdown', unlock, { once: true }); addEventListener('keydown', unlock, { once: true });
 async function sample(key, delay = 0, volume = 1) {
- if (!enabled || !groups[key]) return;
+ if (!enabled || !unlocked || !groups[key]) return;
  const now = performance.now(); if (key === 'tick' && now - lastTick < 75) return; if (key === 'tick') lastTick = now;
  const files = groups[key], choices = files.filter(f => f !== previous.get(key));
  const file = choices[Math.floor(Math.random() * choices.length)]; previous.set(key, file);

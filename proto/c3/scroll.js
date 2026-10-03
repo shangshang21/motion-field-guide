@@ -1,4 +1,4 @@
-import {mount,motion,animate,clamp,loop,SFX} from './lab.js';
+import {mount,motion,animate,clamp,loop,SFX,geometry,frameState} from './lab.js';
 const definitions={
  parallax:{no:'23',name:'视差',en:'Parallax',params:()=> '远层 0.15 · 中层 0.45 · 近层 0.90',say:'把画面拆成远、中、近三层，滚动同一段距离，每层走的路程不同。近处移动得多，远处移动得少，平面就有了纵深。这里的建筑、字和路牌分别是一层。'},
  pinned:{no:'24',name:'钉住滚动',en:'Pinned Scroll',params:()=> '钉住顶部 110px · 章节 3 · 行程 900px',say:'先把画面钉在屏幕里，让下面的滚动距离成为一条时间轴。往下滚，画面留在原地，章节依次变化；走完整段后，画面才继续离开。它适合把一个过程分几幕讲清楚。'},
@@ -6,8 +6,7 @@ const definitions={
  reveal:{no:'26',name:'滚动进度揭示',en:'Scroll Reveal',params:()=> '遮罩 底部向上 · 行程 420px',say:'画面已经放好，只是被遮罩挡住。滚动越往前，遮罩就越小，内容逐渐露出；往回滚，它也会重新藏起来。进度直接控制可见面积。'},
  velocity:{no:'27',name:'滚动速度形变',en:'Scroll Velocity Skew',params:()=> '最大倾斜 14° · 回正阻尼 0.12',say:'比较前后两帧滚了多远，就能知道滚动有多快。速度越大，字越倾斜，像被惯性拽了一下；停止滚动后慢慢回正。这里还限制了最大角度，避免把内容拉坏。'},
 };
-const labs={};let velocity=0,lastY=scrollY,lastTime=performance.now(),fake=0;
-addEventListener('scroll',()=>{const now=performance.now();velocity=clamp((scrollY-lastY)/Math.max(now-lastTime,8)*2,-14,14);lastY=scrollY;lastTime=now;},{passive:true});
+const labs={};let velocity=0,fake=0;
 for(const key of Object.keys(definitions)){
  let demo=0;
  const lab=mount(key,definitions[key],()=>{
@@ -18,30 +17,32 @@ for(const key of Object.keys(definitions)){
   else if(key==='horizontal'){demo=demo?0:1;animate(target,[{transform:getComputedStyle(target).transform},{transform:`translateX(${-demo*(target.scrollWidth-lab.stage.clientWidth)}px)`}],1000);}
   else animate(target,[{clipPath:'inset(100% 0 0 0)'},{clipPath:'inset(0% 0 0 0)'}],1000);
  });labs[key]=lab;
- let progress=0,chapter=-1;
+ let progress=0,chapter=-1;const box=geometry(lab.root),stageBox=geometry(lab.stage),readout=lab.root.querySelector('.demo-readout'),track=lab.stage.querySelector('.horizontal-track');let trackWidth=0;if(track)new ResizeObserver(()=>trackWidth=track.scrollWidth).observe(track);
+ const text=value=>{if(readout.textContent!==value)readout.textContent=value;};
  loop(lab.stage,(t,dt)=>{
-  const rect=lab.root.getBoundingClientRect();
-  const raw=clamp((innerHeight*.82-rect.top)/(innerHeight*.6+lab.stage.clientHeight));
+  const rect={top:box.y,height:box.height};
+  const raw=clamp((innerHeight*.82-rect.top)/(innerHeight*.6+stageBox.height));
   progress+= (raw-progress)*(motion.reduced?1:1-Math.exp(-dt*8*motion.speed));
-  lab.root.querySelector('.demo-readout').textContent=`Progress / ${Math.round(progress*100).toString().padStart(3,'0')}%`;
+  text(`Progress / ${Math.round(progress*100).toString().padStart(3,'0')}%`);
   if(key==='parallax'){
    lab.stage.querySelectorAll('.city-layer').forEach((el,i)=>{el.style.translate=`0 ${(progress-.5)*[-35,-110,-200][i]}px`;});
   }else if(key==='pinned'){
-   const p=motion.reduced?1:clamp((110-rect.top)/Math.max(1,rect.height-lab.stage.clientHeight-220));
+   const p=motion.reduced?1:clamp((110-rect.top)/Math.max(1,rect.height-stageBox.height-220));
    const next=Math.min(2,Math.floor(p*3));
    if(next!==chapter){chapter=next;setChapter(lab,next);}
-   lab.root.querySelector('.demo-readout').textContent=`Chapter / 0${chapter+1} · ${Math.round(p*100)}%`;
+   text(`Chapter / 0${chapter+1} · ${Math.round(p*100)}%`);
   }else if(key==='horizontal'){
-   const track=lab.stage.querySelector('.horizontal-track');if(!track.getAnimations().some(a=>a.playState==='running')){track.getAnimations().forEach(a=>a.cancel());track.style.transform=`translateX(${-progress*Math.max(0,track.scrollWidth-lab.stage.clientWidth)}px)`;}
+   const track=lab.stage.querySelector('.horizontal-track');if(!track.getAnimations().some(a=>a.playState==='running')){track.getAnimations().forEach(a=>a.cancel());track.style.transform=`translateX(${-progress*Math.max(0,trackWidth-stageBox.width)}px)`;}
   }else if(key==='reveal'){
    const poster=lab.stage.querySelector('.reveal-poster');if(!poster.getAnimations().some(a=>a.playState==='running')){poster.getAnimations().forEach(a=>a.cancel());poster.style.clipPath=`inset(${(1-progress)*100}% 0 0 0)`;}
   }else{
-   const target=motion.reduced?0:Math.abs(velocity)>.3?velocity:fake;
+   velocity=clamp(frameState.delta/Math.max(dt*1000,8)*2,-14,14)||velocity;const target=motion.reduced?0:Math.abs(velocity)>.3?velocity:fake;
    fake*=Math.exp(-dt*5*motion.speed);velocity*=Math.exp(-dt*3);
    const poster=lab.stage.querySelector('.velocity-poster');const current=Number(poster.dataset.skew||0);const skew=current+(target-current)*(1-Math.exp(-dt*9*motion.speed));poster.dataset.skew=skew;
    poster.style.transform=`skewY(${-skew}deg) scaleX(${1+Math.abs(skew)*.006})`;
-   lab.root.querySelector('.demo-readout').textContent=`Velocity / ${Math.abs(skew).toFixed(1)}°`;
+   text(`Velocity / ${Math.abs(skew).toFixed(1)}°`);
   }
+  if(Math.abs(raw-progress)<.0001 && (key!=='velocity'||(Math.abs(velocity)+Math.abs(fake)+Math.abs(Number(lab.stage.querySelector('.velocity-poster').dataset.skew||0))<.03)))return false;
  });
 }
 function setChapter(lab,n,user=false){

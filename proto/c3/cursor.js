@@ -1,3 +1,4 @@
+import { loop, geometry } from './frame.js';
 import { motion, registerExhibit, say, refreshPhrase, SFX } from './core.js';
 const ORANGE = '#ff5b00';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -34,12 +35,12 @@ const format = (p, v) => (p.step < 1 ? v.toFixed(2) : Math.round(v)) + (p.unit |
 function mountLab(key, replay) {
   const data = definitions[key], root = document.querySelector(`[data-k="${key}"]`);
   const stage = root.querySelector('.lab-stage'), canvas = root.querySelector('canvas');
-  const ctx = canvas.getContext('2d'), state = {}, box = { width: 0, height: 0, visible: false };
+  const ctx = canvas.getContext('2d'), state = {}, box = geometry(stage);
   Object.entries(data.controls).forEach(([name, p]) => {
     state[name] = p.value;
     const label = document.createElement('label'); label.className = 'lab-ctl';
     label.innerHTML = `<span>${p.label}</span><output></output><input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${p.value}" aria-label="${data.name} ${p.label}">`;
-    const input = label.querySelector('input'), output = label.querySelector('output');
+    const input = label.querySelector('input'); input.dataset.param = name; const output = label.querySelector('output');
     const refresh = () => {
       output.value = format(p, state[name]);
       input.style.setProperty('--fill', `${(state[name] - p.min) / (p.max - p.min) * 100}%`);
@@ -58,17 +59,17 @@ function mountLab(key, replay) {
   stage.addEventListener('keydown', e => { if (e.target === stage && ['Enter', ' '].includes(e.key)) { e.preventDefault(); say(key); replay(); } });
   new ResizeObserver(() => {
     box.width = stage.clientWidth; box.height = stage.clientHeight;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
     canvas.width = Math.round(box.width * dpr); canvas.height = Math.round(box.height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }).observe(stage);
-  new IntersectionObserver(es => { box.visible = es[0].isIntersecting; }, { rootMargin: '80px' }).observe(stage);
+  
   function ink() {
     ctx.clearRect(0, 0, box.width, box.height);
     ctx.strokeStyle = ORANGE; ctx.fillStyle = ORANGE; ctx.lineWidth = 1;
     ctx.font = '10px ui-monospace, Menlo, monospace'; ctx.globalAlpha = 1; ctx.setLineDash([]);
   }
-  const point = e => { const r = stage.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const point = e => ({ x: e.clientX - box.x, y: e.clientY - box.y });
   const cross = (x, y, r = 5) => { ctx.beginPath(); ctx.moveTo(x - r, y); ctx.lineTo(x + r, y); ctx.moveTo(x, y - r); ctx.lineTo(x, y + r); ctx.stroke(); };
   const text = (str, x, y) => ctx.fillText(str, clamp(x, 12, Math.max(12, box.width - ctx.measureText(str).width - 12)), clamp(y, 38, box.height - 60));
   return { root, stage, canvas, ctx, state, box, point, ink, cross, text, get xray() { return root.classList.contains('is-xray'); } };
@@ -78,19 +79,18 @@ function magnetic() {
   let demoTimer, pointer = { x: 0, y: 0, inside: false };
   const lab = mountLab('magnetic', () => {
     pointer = { x: lab.box.width / 2 + 90, y: lab.box.height / 2 - 55, inside: true };
-    clearTimeout(demoTimer); demoTimer = setTimeout(() => pointer.inside = false, motion.ms(1500));
+    clearTimeout(demoTimer); demoTimer = setTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
   });
   const { stage, state, box, ctx, ink, cross, text } = lab, target = lab.root.querySelector('.magnetic-target');
-  const current = { x: 0, y: 0 }; let previous = performance.now();
+  const current = { x: 0, y: 0 }; let wakeMagnetic = () => {};
   stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; clearTimeout(demoTimer); pointer = { ...lab.point(e), inside: true }; });
   stage.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') pointer.inside = false; });
   stage.addEventListener('pointerdown', e => {
     pointer = { ...lab.point(e), inside: true };
     if (Math.hypot(pointer.x - box.width / 2, pointer.y - box.height / 2) < 15) { pointer.x += 80; pointer.y -= 40; }
-    clearTimeout(demoTimer); demoTimer = setTimeout(() => pointer.inside = false, motion.ms(1500));
+    clearTimeout(demoTimer); demoTimer = setTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
   });
-  function frame(now) {
-    const dt = Math.min((now - previous) / 1000, .04); previous = now;
+  wakeMagnetic = loop(stage, (now, dt) => {
     if (box.visible) {
       const cx = box.width / 2, cy = box.height / 2;
       const dx = pointer.x - cx, dy = pointer.y - cy, distance = Math.hypot(dx, dy);
@@ -114,17 +114,16 @@ function magnetic() {
           text(`TARGET ○ / CURRENT ● / LEFT ${Math.round(Math.hypot(tx - current.x, ty - current.y))}px`, 16, box.height - 64);
         } else text('ENTER FIELD → TARGET ○ / CURRENT ●', 16, box.height - 64);
       }
+      if (Math.hypot(tx-current.x,ty-current.y)<.05) return false;
     }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+  });
 }
 
 function trail() {
   let imageIndex = 0, last = null, pointer = null, serial = 0, previous = performance.now(), demo = 0;
   const photos = [], images = Array.from({ length: 8 }, (_, i) => new URL(`../../assets/web/motion-0${i + 1}.jpg`, import.meta.url).href);
   images.forEach(src => { const img = new Image(); img.src = src; img.decode().catch(() => {}); });
-  const lab = mountLab('trail', replay);
+  const lab = mountLab('trail', replay); let wakeTrail = () => {};
   const { stage, state, box, ctx, ink, text, cross } = lab, layer = lab.root.querySelector('.trail-layer');
   function place(x, y) {
     if (photos.length >= (motion.reduced ? 3 : 10)) photos.shift().el.remove();
@@ -133,7 +132,7 @@ function trail() {
     y = clamp(y, height / 2 + 38, box.height - height / 2 - 54);
     const el = document.createElement('img'); el.className = 'trail-photo'; el.alt = ''; el.src = images[imageIndex++ % images.length];
     el.style.cssText = `width:${width}px;height:${height}px;left:${x - width / 2}px;top:${y - height / 2}px;z-index:${++serial}`;
-    layer.append(el); stage.classList.add('playing');
+    layer.append(el); wakeTrail(); stage.classList.add('playing');
     photos.push({ el, x, y, width, height, age: 0, life: state.life, angle: (serial % 5 - 2) * 4, n: serial });
   }
   function replay() {
@@ -155,8 +154,8 @@ function trail() {
   stage.addEventListener('pointermove', move);
   stage.addEventListener('pointerleave', () => { last = null; pointer = null; });
   stage.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || motion.reduced) replay(); else { pointer = lab.point(e); last = pointer; place(pointer.x, pointer.y); } });
-  function frame(now) {
-    const dt = Math.min(now - previous, 40) * motion.speed; previous = now;
+  wakeTrail = loop(stage, (now, seconds) => {
+    const dt = seconds * 1000 * motion.speed;
     for (let i = photos.length - 1; i >= 0; i--) {
       const p = photos[i]; p.age += dt;
       if (p.age > p.life + 320) { p.el.remove(); photos.splice(i, 1); continue; }
@@ -180,9 +179,8 @@ function trail() {
         text(`NEXT IN ${Math.max(0, Math.round(state.gap - Math.hypot(pointer.x - last.x, pointer.y - last.y)))}px / GAP ${state.gap}px`, 16, 52);
       } else text(`GAP ${state.gap}px / LIFE ${state.life}ms`, 16, 52);
     }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+    if (!photos.length) return false;
+  });
 }
 
 function spotlight() {
@@ -195,8 +193,7 @@ function spotlight() {
   stage.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') target = lab.point(e); });
   stage.addEventListener('pointerdown', e => { target = lab.point(e); });
   lab.root.querySelector('[data-replay]').addEventListener('click', () => { say('spotlight'); lab.root.querySelector('.lab-stage').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); });
-  function frame(now) {
-    const dt = Math.min((now - previous) / 1000, .04); previous = now;
+  loop(stage, (now, dt) => {
     if (box.visible) {
       current ||= { x: box.width * .38, y: box.height * .48 }; target ||= { ...current };
       const ease = motion.reduced ? 1 : 1 - Math.pow(1 - state.ease, dt * 60 * motion.speed);
@@ -208,9 +205,8 @@ function spotlight() {
         text(`MASK R=${state.radius}px / LERP=${state.ease.toFixed(2)}`, 16, 52);
         text(`TARGET ＋ / LIGHT ● / LEFT ${Math.round(Math.hypot(target.x - current.x, target.y - current.y))}px`, 16, box.height - 65);
       }
+      if (Math.hypot(target.x-current.x,target.y-current.y)<.05) return false;
     }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+  });
 }
 magnetic(); trail(); spotlight();

@@ -1,3 +1,4 @@
+import { loop as renderLoop, geometry, schedule, frameState } from './frame.js';
 import { SFX } from './sound.js';
 
 import { impact } from './impact.js';
@@ -48,33 +49,40 @@ setInterval(() => ($('#clock').textContent = new Date().toTimeString().slice(0, 
 
 /* ================= 首屏：鼠标视差 ================= */
 const pxEls = $$('[data-px]'); let mx = 0, my = 0, sx = 0, sy = 0;
-addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !motion.reduced) { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; } });
+addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !motion.reduced) { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; wakeHero(); } }, { passive: true });
 
 /* ================= 交叉警戒带：对向滚动，滚得越快走得越快 ================= */
 const TAPE = ['<span>Press<i>✳</i><small>按下去</small><i>✳</i>Hover<i>✳</i><small>悬停</small><i>✳</i>Hold<i>✳</i><small>长按</small><i>✳</i>Click<i>✳</i><small>点击</small><i>✳</i></span>',
               '<span>Motion Field Guide<i>✳</i><small>动效图鉴</small><i>✳</i>Vol.01<i>✳</i><small>每个瞬间都有名字</small><i>✳</i></span>'];
 const tracks = $$('.track').map((t, k) => { t.innerHTML = TAPE[k].repeat(4); return { el: t, dir: +t.dataset.dir, x: k ? -400 : 0 }; });
-let lastY = scrollY, vel = 0;
-
-(function frame() {
-  sx = motion.reduced ? 0 : lerp(sx, mx, .07); sy = motion.reduced ? 0 : lerp(sy, my, .07);
+let vel = 0;
+const hero = $('.hero'), heroBox = geometry(hero, true);
+new IntersectionObserver(entries => hero.classList.toggle('is-offscreen', !entries[0].isIntersecting)).observe(hero);
+const wakeHero = renderLoop(hero, (t, dt) => {
+  const ease = 1 - Math.exp(-dt * 4.4);
+  sx = motion.reduced ? 0 : lerp(sx, mx, ease); sy = motion.reduced ? 0 : lerp(sy, my, ease);
   pxEls.forEach(el => { const d = +el.dataset.px; el.style.translate = `${-sx * d * 50}px ${-sy * d * 30}px`; });
-  const dy = scrollY - lastY; lastY = scrollY; vel = lerp(vel, dy, .1);
-  tracks.forEach(t => {
-    const w = t.el.scrollWidth / 4;
-    if (!motion.reduced) t.x += t.dir * (1.1 + Math.abs(vel) * .8) * SPD;
-    if (t.x < -w) t.x += w; if (t.x > 0) t.x -= w;
-    t.el.style.transform = `translateX(${t.x}px)`;
+  if (Math.abs(mx-sx)+Math.abs(my-sy)<.0001) return false;
+});
+let tapeWidth = 1;
+const tapeBox = geometry($('.tapes'), true);
+const measureTape = () => { tracks.forEach(track => track.width = track.el.scrollWidth / 4); };
+new ResizeObserver(measureTape).observe(tracks[0].el); document.fonts.ready.then(measureTape);
+renderLoop($('.tapes'), (t, dt) => {
+  vel = lerp(vel, frameState.delta, 1-Math.exp(-dt*6));
+  tracks.forEach(track => {
+    if (!motion.reduced) track.x += track.dir*(1.1+Math.abs(vel)*.8)*SPD*dt*60;
+    const width = track.width || 1; track.x = ((track.x % width) - width) % width;
+    track.el.style.transform = `translateX(${track.x}px)`;
   });
-  requestAnimationFrame(frame);
-})();
+});
 
 /* ================= PRESS START：音效 + 闪白 + 震屏 + 跳转 ================= */
 $('#start').addEventListener('click', () => {
   SFX.play('start');
   if (!motion.reduced) {
     $('#flash').animate([{ opacity: .85 }, { opacity: 0 }], { duration: ms(450), easing: 'ease-out' });
-    const app = $('#app'); app.classList.remove('shake-screen'); void app.offsetWidth; app.classList.add('shake-screen');
+    $('#app').animate([0,-6,5,-4,2,0].map(x => ({ transform: `translateX(${x}px)` })), {duration: ms(380)});
   }
   setTimeout(() => $('#hall').scrollIntoView({ behavior: motion.reduced ? 'instant' : 'smooth' }), ms(260));
   setTimeout(() => say('welcome'), ms(900));
@@ -147,15 +155,17 @@ speedToggle.addEventListener('click', () => {
 });
 document.addEventListener('click', e => { if (!e.target.closest('#speed-toggle, #speed-dock')) closeSpeed(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !speedDock.hidden) closeSpeed(true); });
+const navLinks = $$('.hud-nav a').map(a => ({a, box: geometry($(a.hash), true)}));
 function updateHud() {
-  $('.hud').classList.toggle('is-scrolled', $('.hero').getBoundingClientRect().bottom < 100);
+  $('.hud').classList.toggle('is-scrolled', heroBox.y + heroBox.height < 100);
   let current = null;
-  $$('.hud-nav a').forEach(a => { if ($(a.hash).getBoundingClientRect().top <= 180) current = a; });
-  $$('.hud-nav a').forEach(a => { if (a === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  navLinks.forEach(({a,box}) => { if (box.y <= 180) current = a; });
+  navLinks.forEach(({a}) => { if (a === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  return false;
 }
-let hudFrame = 0;
-addEventListener('scroll', () => { if (!hudFrame) hudFrame = requestAnimationFrame(() => { updateHud(); hudFrame = 0; }); }, { passive: true });
-addEventListener('resize', updateHud); updateHud();
+const hudJob = schedule(updateHud);
+addEventListener('scroll', () => hudJob.wake(), { passive: true });
+addEventListener('resize', () => hudJob.wake(), { passive: true });
 
 /* ================= 卡片 ================= */
 const cards = $('#cards');
@@ -192,18 +202,18 @@ function fxHover(b, k) {
   b.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') b.classList.remove('is-hover'); });
 }
 function fxHold(b) {
-  let p = 0, holding = false, last = 0, raf = 0, reset = 0;
+  let p = 0, holding = false, last = 0, reset = 0;
   const lbl = b.querySelector('.lbl'), TOTAL = () => ms(1200);
-  function loop(t) {
-    const dt = t - last; last = t;
+  const wakeHold = renderLoop(b.closest('.card'), (t, seconds) => {
+    const dt = seconds * 1000;
     p = clamp(p + (holding ? dt / TOTAL() : -dt / ms(300)), 0, 1);
     b.style.setProperty('--p', p); SFX.holdSet(p);
     if (holding && p >= 1) { holding = false; SFX.holdStop(); b.classList.add('done'); lbl.textContent = 'CONFIRMED ✓';
       impact(b, { motion, charged: true, sound: () => { SFX.play('burst'); setTimeout(() => SFX.play('done'), ms(200)); } });
-      reset = setTimeout(() => { b.classList.remove('done'); lbl.textContent = '按住不放'; p = 0; b.style.setProperty('--p', 0); }, ms(1800)); return; }
-    if (holding || p > 0) raf = requestAnimationFrame(loop);
-  }
-  const start = () => { if (b.classList.contains('done') || holding) return; holding = true; last = performance.now(); SFX.holdStart(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
+      reset = setTimeout(() => { b.classList.remove('done'); lbl.textContent = '按住不放'; p = 0; b.style.setProperty('--p', 0); }, ms(1800)); return false; }
+    if (!holding && p <= 0) return false;
+  });
+  const start = () => { if (b.classList.contains('done') || holding) return; holding = true; last = performance.now(); SFX.holdStart(); wakeHold(); };
   b.addEventListener('pointerdown', e => { if (e.button !== 0) return; b.setPointerCapture(e.pointerId); start(); });
   const rel = () => { if (!holding) return; holding = false; SFX.holdStop(); };
   b.addEventListener('pointerup', rel); b.addEventListener('pointercancel', rel); b.addEventListener('lostpointercapture', rel);

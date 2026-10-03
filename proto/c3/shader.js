@@ -1,4 +1,4 @@
-import {mount,motion,clamp,loop} from './lab.js';
+import {mount,motion,clamp,loop,geometry} from './lab.js';
 const defs={
  distortion:{no:'32',name:'图片扭曲',en:'Hover Distortion',params:()=> '水波半径 0.42 · 扭曲强度 0.045 · 衰减 2.8',say:'图片被贴在一张由像素组成的平面上，鼠标附近的纹理坐标会沿波纹轻轻偏移。坐标一动，照片就像液体一样起伏。离开后波纹衰减，原来的画面会重新平静。'},
  dissolve:{no:'33',name:'位移溶解',en:'Displacement Transition',params:()=> '噪声尺度 5.5 · 位移 0.16 · 切换 1500ms',say:'两张照片共用一张连续的噪声场。切换时，噪声先把纹理坐标推开，再决定哪些像素先交给下一张图。边缘会不规则地流动，所以像溶解，而不是简单淡入淡出。'},
@@ -53,11 +53,12 @@ for(const key of Object.keys(defs)){
  }
  mobile.addEventListener('change',()=>{if(mobile.matches)fallback(lab,'手机静态预览 · 桌面可体验实时着色器');else{init();if(lab.root.dataset.gpu==='ready')ready(lab);}});
  reduce.addEventListener('change',()=>{if(reduce.matches)fallback(lab,'已减少动态效果 · 当前显示静态预览');else{init();if(lab.root.dataset.gpu==='ready')ready(lab);}});
- init();
+ const preload=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){preload.disconnect();setTimeout(init,0);}},{rootMargin:'240px'});preload.observe(lab.stage);
 }
 function resize(lab,gl,canvas){const dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.round(lab.stage.clientWidth*dpr);canvas.height=Math.round(lab.stage.clientHeight*dpr);gl.viewport(0,0,canvas.width,canvas.height);}
 function surface(key,lab,gl,canvas){
- const generation=lab.root.dataset.generation;
+ const generation=lab.root.dataset.generation,box=geometry(lab.stage),readout=lab.root.querySelector('.demo-readout');
+ const text=value=>{if(readout.textContent!==value)readout.textContent=value;};
  const p=program(gl,vertex,fragment),buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
  const position=gl.getAttribLocation(p,'a_position');gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
  const u=Object.fromEntries(['resolution','pointer','aspect','time','energy','progress','mode','direction','image0','image1'].map(n=>[n,gl.getUniformLocation(p,'u_'+n)]));
@@ -72,7 +73,7 @@ function surface(key,lab,gl,canvas){
  textures.then(()=>{loaded=true;if(lab.root.dataset.generation===generation&&!mobile.matches&&!reduce.matches)ready(lab);}).catch(()=>fallback(lab,'图片加载失败 · 已显示静态预览'));
  const overlay=document.createElement('b');overlay.className='shader-overlay';overlay.innerHTML=key==='distortion'?'LIQUID<br>SIGNAL':key==='dissolve'?'BETWEEN<br>FRAMES':'FLOW<br>STATE';lab.stage.append(overlay);
  const hint=lab.stage.querySelector('.shader-hint');hint.textContent=key==='distortion'?'移动鼠标，让照片泛起波纹':key==='dissolve'?'点击切换 · 噪声把前后两帧接起来':'缓慢流动 · 点击改变流向';
- lab.stage.addEventListener('pointermove',e=>{const r=lab.stage.getBoundingClientRect();aim.x=clamp((e.clientX-r.left)/r.width);aim.y=1-clamp((e.clientY-r.top)/r.height);if(key==='distortion')target=1;});
+ lab.stage.addEventListener('pointermove',e=>{aim.x=clamp((e.clientX-box.x)/box.width);aim.y=1-clamp((e.clientY-box.y)/box.height);if(key==='distortion')target=1;});
  lab.stage.addEventListener('pointerleave',()=>{target=0;});
  const observer=new ResizeObserver(()=>resize(lab,gl,canvas));observer.observe(lab.stage);resize(lab,gl,canvas);
  loop(lab.stage,(t,dt)=>{
@@ -83,14 +84,15 @@ function surface(key,lab,gl,canvas){
   energy+=(target-energy)*(1-Math.exp(-dt*2.8*motion.speed));
   if(key==='dissolve'){const step=dt*motion.speed/1.5;progress=target>progress?Math.min(target,progress+step):Math.max(target,progress-step);}
   gl.uniform2f(u.resolution,canvas.width,canvas.height);gl.uniform2f(u.pointer,pointer.x,pointer.y);gl.uniform2f(u.aspect,aspects[0],aspects[1]);gl.uniform1f(u.time,time);gl.uniform1f(u.energy,energy);gl.uniform1f(u.progress,progress);gl.uniform1f(u.direction,direction);gl.drawArrays(gl.TRIANGLES,0,6);
-  lab.root.querySelector('.demo-readout').textContent=key==='dissolve'?`Mix / ${Math.round(progress*100)}%`:key==='distortion'?`Ripple / ${energy.toFixed(2)}`:`Flow / ${direction===1?'→':'←'}`;
+  text(key==='dissolve'?`Mix / ${Math.round(progress*100)}%`:key==='distortion'?`Ripple / ${energy.toFixed(2)}`:`Flow / ${direction===1?'→':'←'}`);
  });
  return()=>{if(key==='dissolve')target=target?0:1;else if(key==='gradient')direction*=-1;else{aim.x=.5;aim.y=.5;target=1.5;pulse=1.5;}};
 }
 function particles(lab,gl,canvas){
  const vs=`attribute vec2 a_position;attribute float a_seed;uniform vec2 u_resolution;uniform float u_dpr;varying float v_seed;void main(){vec2 pos=a_position/u_resolution*2.-1.;gl_Position=vec4(pos.x,-pos.y,0.,1.);gl_PointSize=(1.5+a_seed*2.)*u_dpr;v_seed=a_seed;}`;
  const fs=`precision mediump float;varying float v_seed;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;vec3 c=mix(vec3(1.,.357,0.),vec3(.949,.941,.922),step(.75,v_seed));gl_FragColor=vec4(c,1.-smoothstep(.2,.5,d));}`;
- const generation=lab.root.dataset.generation;
+ const generation=lab.root.dataset.generation,box=geometry(lab.stage),readout=lab.root.querySelector('.demo-readout');
+ const text=value=>{if(readout.textContent!==value)readout.textContent=value;};
  const p=program(gl,vs,fs),mask=document.createElement('canvas');mask.width=600;mask.height=420;
  const ctx=mask.getContext('2d');ctx.fillStyle='#fff';ctx.font='900 155px Anton, sans-serif';ctx.textAlign='center';ctx.fillText('FORM',300,205);ctx.font='900 95px Anton, sans-serif';ctx.fillText('06',300,315);
  const pixels=ctx.getImageData(0,0,600,420).data,points=[];
@@ -102,19 +104,19 @@ function particles(lab,gl,canvas){
  gl.bindBuffer(gl.ARRAY_BUFFER,seedBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(points.map(p=>p.seed)),gl.STATIC_DRAW);gl.enableVertexAttribArray(seedLoc);gl.vertexAttribPointer(seedLoc,1,gl.FLOAT,false,0,0);
  const res=gl.getUniformLocation(p,'u_resolution'),dpr=gl.getUniformLocation(p,'u_dpr');let pointer=null,burst=0;
  lab.stage.querySelector('.shader-hint').textContent='鼠标靠近，粒子散开 · 移开，文字重新聚合';
- const move=e=>{const r=lab.stage.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};};
+ const move=e=>{pointer={x:e.clientX-box.x,y:e.clientY-box.y};};
  lab.stage.addEventListener('pointermove',move);lab.stage.addEventListener('pointerleave',()=>pointer=null);
  new ResizeObserver(()=>resize(lab,gl,canvas)).observe(lab.stage);resize(lab,gl,canvas);ready(lab);
  const scatter=()=>{burst=.7;points.forEach(p=>{const angle=Math.random()*Math.PI*2,speed=120+Math.random()*260;p.vx+=Math.cos(angle)*speed;p.vy+=Math.sin(angle)*speed;});};
  loop(lab.stage,(t,dt)=>{
   if(mobile.matches||reduce.matches||lab.root.dataset.gpu!=='ready'||lab.root.dataset.generation!==generation)return false;
-  dt*=motion.speed;burst=Math.max(0,burst-dt);const w=lab.stage.clientWidth,h=lab.stage.clientHeight;
+  dt*=motion.speed;burst=Math.max(0,burst-dt);const w=box.width,h=box.height;
   points.forEach((p,i)=>{const tx=p.tx*w,ty=p.ty*h;let ax=(tx-p.x)*(burst?3:22),ay=(ty-p.y)*(burst?3:22);
    if(pointer){const dx=p.x-pointer.x,dy=p.y-pointer.y,d=Math.hypot(dx,dy);if(d<85){const force=(1-d/85)*1900;ax+=dx/Math.max(d,1)*force;ay+=dy/Math.max(d,1)*force;}}
    const drag=Math.exp(-dt*8);p.vx=(p.vx+ax*dt)*drag;p.vy=(p.vy+ay*dt)*drag;p.x+=p.vx*dt;p.y+=p.vy*dt;data[i*2]=p.x;data[i*2+1]=p.y;
   });
   gl.clearColor(.067,.067,.063,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform2f(res,w,h);gl.uniform1f(dpr,canvas.width/w);gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,data);gl.drawArrays(gl.POINTS,0,points.length);
-  lab.root.querySelector('.demo-readout').textContent=`${points.length} particles / ${burst?'Scatter':'Gather'}`;
+  text(`${points.length} particles / ${burst?'Scatter':'Gather'}`);
  });
  return scatter;
 }

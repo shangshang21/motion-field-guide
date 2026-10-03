@@ -14,17 +14,4 @@ export function mount(key, data, replay) {
 export function animate(el,frames,duration=700,options={}) {
  return el.animate(frames,{duration:motion.reduced?1:motion.ms(duration),easing:'cubic-bezier(.22,1,.36,1)',fill:'both',...options});
 }
-// Render loops actually stop outside the viewport, in background tabs and on reduced motion.
-export function loop(stage, draw, continuous=true) {
- let visible=false,id=0,previous=0;
- const frame=t=>{id=0;if(!visible||document.hidden)return;const dt=Math.min((t-previous)/1000,.04)||.016;previous=t;const keep=draw(t,dt);if(keep!==false&&continuous&&!motion.reduced)id=requestAnimationFrame(frame);};
- const wake=()=>{if(visible&&!document.hidden&&!id){previous=performance.now();id=requestAnimationFrame(frame);}};
- const observer=new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(!visible){cancelAnimationFrame(id);id=0;}else wake();},{rootMargin:'40px'});observer.observe(stage);
- document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(id);id=0;}else wake();});
- matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',wake);
- addEventListener('resize',wake);
- addEventListener('scroll',()=>{if(motion.reduced)wake();},{passive:true});
- stage.parentElement.addEventListener('click',wake);
- stage.addEventListener('pointermove',()=>{if(motion.reduced)wake();});
- return wake;
-}
+export { loop, geometry, frameState } from './frame.js';

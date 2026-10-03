@@ -1,3 +1,4 @@
+import { transient } from './frame.js';
 // 每次起爆都独立积分：速度拉伸火花，阻力削弱碎片速度，重力留下下坠的尾巴。
 const TAU = Math.PI * 2;
 const ORANGE = '#ff5b00', INK = '#111110', PAPER = '#f2f0eb';
@@ -28,7 +29,8 @@ export async function impact(button, { motion, sound, charged = false }) {
   windup = button.animate([
     { transform: 'scale(1)' }, { transform: 'scale(.88,.91)' },
   ], { duration: motion.ms(80), easing: 'cubic-bezier(.65,0,1,1)', fill: 'forwards' });
-  await windup.finished;
+  try { await windup.finished; } catch { return; }
+  if (!alive) return;
   sound();
   pad.classList.add('impact-stop');
   if (charged) document.querySelector('#app').animate([
@@ -40,7 +42,7 @@ export async function impact(button, { motion, sound, charged = false }) {
   cv = document.createElement('canvas');
   cv.className = 'impact-canvas'; cv.setAttribute('aria-hidden', 'true'); pad.append(cv);
   const pr = pad.getBoundingClientRect(), br = button.getBoundingClientRect();
-  const width = pr.width, height = pr.height, dpr = Math.min(devicePixelRatio || 1, 2);
+  const width = pr.width, height = pr.height, dpr = Math.min(devicePixelRatio || 1, 1.5);
   cv.width = Math.round(width * dpr); cv.height = Math.round(height * dpr);
   const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
   const cx = br.left - pr.left + br.width / 2, cy = br.top - pr.top + br.height / 2;
@@ -64,9 +66,9 @@ export async function impact(button, { motion, sound, charged = false }) {
     radius: random(16, 28), delay: .1 + i * .035,
   }));
   let age = 0, previous = performance.now(), freeze = .045, released = false;
-  function render(now) {
-    if (!alive) return;
-    const step = Math.min((now - previous) / 1000, .04) * motion.speed; previous = now;
+  transient(pad, (now, dtSeconds) => {
+    if (!alive) return false;
+    const step = dtSeconds * motion.speed;
     freeze -= step;
     const dt = freeze > 0 ? 0 : step;
     if (freeze <= 0 && !released) {
@@ -135,8 +137,6 @@ export async function impact(button, { motion, sound, charged = false }) {
       ctx.beginPath(); ctx.moveTo(...p.shape[0]); ctx.lineTo(...p.shape[1]); ctx.stroke(); ctx.restore();
     });
     ctx.restore();
-    if (age < 1.55 && !motion.reduced && cv.isConnected) requestAnimationFrame(render);
-    else cleanup();
-  }
-  requestAnimationFrame(render);
+    if (age >= 1.55 || motion.reduced || !cv.isConnected) { cleanup(); return false; }
+  });
 }

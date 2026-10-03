@@ -8,3 +8,7 @@ const observer=new IntersectionObserver(entries=>entries.forEach(({isIntersectin
 document.querySelector('#hall-cursor').dataset.module='cursor';
 document.querySelector('#hall-text').dataset.module='type';
 document.querySelectorAll('[data-module]').forEach(el=>observer.observe(el));
+
+// Decode photos one viewport ahead, so entering a hall doesn't wait for decode.
+const images=new IntersectionObserver(entries=>entries.forEach(({target,isIntersecting})=>{if(!isIntersecting)return;images.unobserve(target);target.loading='eager';target.decode().catch(()=>{});}),{rootMargin:'800px'});
+document.querySelectorAll('img[loading="lazy"]').forEach(img=>images.observe(img));

@@ -49,9 +49,9 @@
   .hud .clock { font-variant-numeric: tabular-nums; }
   .sfx { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 2px solid var(--ink); padding: 5px 10px; }
   .sfx .bars { display: flex; gap: 2px; align-items: flex-end; height: 12px; }
-  .sfx .bars b { width: 3px; background: var(--ink); animation: eq .8s ease-in-out infinite alternate; }
+  .sfx .bars b { width: 3px; background: var(--ink); height: 12px; transform-origin: bottom; animation: eq .8s ease-in-out infinite alternate; }
   .sfx .bars b:nth-child(2) { animation-delay: -.3s; } .sfx .bars b:nth-child(3) { animation-delay: -.6s; }
-  @keyframes eq { from { height: 3px; } to { height: 12px; } }
+  @keyframes eq { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
   .sfx.off .bars b { animation: none; height: 3px; background: var(--grey); }
 
   /* ---------- 首屏 ---------- */
@@ -84,7 +84,7 @@
   .start-hint { display: block; margin-top: 16px; color: var(--grey); }
 
   .right { position: relative; z-index: 4; }
-  .guide { position: absolute; right: -2vw; bottom: -140px; height: 96vh; max-height: 1000px; will-change: transform; filter: drop-shadow(10px 10px 0 rgba(17,17,16,.9)); }
+  .guide { position: absolute; right: -2vw; bottom: -140px; height: 96vh; max-height: 1000px; will-change: transform;  }
   .guide img { height: 100%; width: auto; display: block; }
   .stripe-block { position: absolute; right: 8vw; top: 12vh; width: 26vw; height: 52vh; transform: skewX(-12deg); opacity: .95; }
   .badge { position: absolute; left: 0; top: 4vh; width: 150px; height: 150px; animation: spin calc(16s / var(--spd)) linear infinite; z-index: 6; }
@@ -297,3 +297,14 @@
     .t2 { transform: skewX(-12deg); }
     .card:hover { transform: none; }
   }
+
+/* Skipped halls retain their measured size after first entry. */
+.hall { content-visibility: auto; contain-intrinsic-size: auto 1900px; }
+#hall { contain-intrinsic-size: auto 1950px; } #hall-cursor { contain-intrinsic-size: auto 2050px; }
+#hall-text { contain-intrinsic-size: auto 1650px; } #hall-scroll { contain-intrinsic-size: auto 2550px; }
+#hall-transition { contain-intrinsic-size: auto 1400px; } #hall-shader { contain-intrinsic-size: auto 1900px; }
+[data-px], .custom-pointer { will-change: transform; }
+.hero.is-offscreen .badge, .hero.is-offscreen .tri { animation-play-state: paused; }
+@media(max-width:760px){#hall{contain-intrinsic-size:auto 5150px}#hall-cursor{contain-intrinsic-size:auto 3150px}#hall-text{contain-intrinsic-size:auto 2900px}#hall-scroll{contain-intrinsic-size:auto 3400px}#hall-transition{contain-intrinsic-size:auto 2250px}#hall-shader{contain-intrinsic-size:auto 2550px}}
+
+.guide { width: auto; }

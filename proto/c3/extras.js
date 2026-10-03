@@ -1,4 +1,4 @@
-import {mount,motion,animate,loop,clamp,SFX} from './lab.js';
+import {mount,motion,animate,loop,clamp,SFX,geometry} from './lab.js';
 const defs={
  tilt:{no:'15',name:'三维倾斜',en:'3D Tilt',params:()=> '透视 800px · 最大角度 14° · 文字深度 35px',say:'把鼠标离中心的距离换算成卡片的旋转角度，就像拿着它轻轻倾斜。文字再向前抬一点，比卡片更靠近你。透视让近处变大、远处变小，平面就有了厚度。'},
  toggle:{no:'16',name:'开关切换',en:'Toggle',params:()=> '滑块行程 66px · 弹簧时长 450ms',say:'一次点击，同时改变开关的值、底色和滑块位置。滑块先多走一点，再回到终点，就有了拨动的手感。文字也跟着更新，不只靠颜色表示开或关。'},
@@ -12,8 +12,8 @@ const defs={
 {
  let aim={x:0,y:0},current={x:0,y:0},timer;
  const lab=mount('tilt',defs.tilt,()=>{aim={x:12,y:-12};clearTimeout(timer);timer=setTimeout(()=>aim={x:0,y:0},motion.ms(1200));});
- const object=lab.stage.querySelector('.tilt-object');
- lab.stage.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=object.getBoundingClientRect();aim={x:clamp((e.clientY-r.top)/r.height-.5,-.5,.5)*-28,y:clamp((e.clientX-r.left)/r.width-.5,-.5,.5)*28};});
+ const object=lab.stage.querySelector('.tilt-object'),box=geometry(lab.stage);
+ lab.stage.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;aim={x:clamp((e.clientY-box.y)/box.height-.5,-.5,.5)*-28,y:clamp((e.clientX-box.x)/box.width-.5,-.5,.5)*28};});
  lab.stage.addEventListener('pointerleave',()=>aim={x:0,y:0});
  object.addEventListener('click',()=>{aim={x:10,y:12};clearTimeout(timer);timer=setTimeout(()=>aim={x:0,y:0},motion.ms(1300));});
  loop(lab.stage,(t,dt)=>{const ease=1-Math.exp(-dt*10*motion.speed);current.x+=(aim.x-current.x)*ease;current.y+=(aim.y-current.y)*ease;object.style.transform=motion.reduced?'none':`rotateX(${current.x}deg) rotateY(${current.y}deg)`;});
@@ -26,33 +26,33 @@ const defs={
 {
  let running=false,elapsed=0,previous=0,phase='idle',id=0;
  const lab=mount('submit',defs.submit,()=>submit()),button=lab.stage.querySelector('.submit-object');
- function submit(){if(running)return;running=true;elapsed=0;previous=performance.now();phase='loading';button.className='submit-object loading';button.disabled=true;button.querySelector('span').textContent='正在提交';lab.root.querySelector('.demo-readout').textContent='Loading / 01';id=requestAnimationFrame(frame);}
- function frame(t){elapsed+=(t-previous)*motion.speed;previous=t;
+ function submit(){if(running)return;running=true;elapsed=0;previous=performance.now();phase='loading';button.className='submit-object loading';button.disabled=true;button.querySelector('span').textContent='正在提交';lab.root.querySelector('.demo-readout').textContent='Loading / 01';wakeSubmit();}
+ function frame(t,dt){if(!running)return false;elapsed+=dt*1000*motion.speed;previous=t;
   if(phase==='loading'&&(elapsed>=1400||motion.reduced)){phase='success';elapsed=0;button.className='submit-object success';button.querySelector('span').textContent='已保存 ✓';lab.root.querySelector('.demo-readout').textContent='Success / 02';SFX.play('done');animate(button,[{scale:'.9'},{scale:'1.05'},{scale:'1'}],300);}
   else if(phase==='success'&&elapsed>=1600){running=false;phase='idle';button.className='submit-object';button.disabled=false;button.querySelector('span').textContent='提交存档 ↗';lab.root.querySelector('.demo-readout').textContent='Ready / 00';return;}
-  id=requestAnimationFrame(frame);
  }
+ const wakeSubmit=loop(lab.stage,frame);
  button.addEventListener('click',submit);
 }
 {
  let aim={x:.6,y:.45},current={...aim};
- const lab=mount('custom',defs.custom,()=>{aim=aim.x>.5?{x:.25,y:.5}:{x:.72,y:.5};});const cursor=lab.stage.querySelector('.custom-pointer');
- lab.stage.addEventListener('pointermove',e=>{const r=lab.stage.getBoundingClientRect();aim={x:clamp((e.clientX-r.left)/r.width),y:clamp((e.clientY-r.top)/r.height)};});
- lab.stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){const r=lab.stage.getBoundingClientRect();aim={x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};}});
- loop(lab.stage,(t,dt)=>{const ease=motion.reduced?1:1-Math.exp(-dt*10*motion.speed);current.x+=(aim.x-current.x)*ease;current.y+=(aim.y-current.y)*ease;cursor.style.left=current.x*100+'%';cursor.style.top=current.y*100+'%';cursor.style.translate='-50% -50%';});
+ const lab=mount('custom',defs.custom,()=>{aim=aim.x>.5?{x:.25,y:.5}:{x:.72,y:.5};});const cursor=lab.stage.querySelector('.custom-pointer'),box=geometry(lab.stage);
+ lab.stage.addEventListener('pointermove',e=>{aim={x:clamp((e.clientX-box.x)/box.width),y:clamp((e.clientY-box.y)/box.height)};});
+ lab.stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){aim={x:(e.clientX-box.x)/box.width,y:(e.clientY-box.y)/box.height};}});
+ loop(lab.stage,(t,dt)=>{const ease=motion.reduced?1:1-Math.exp(-dt*10*motion.speed);current.x+=(aim.x-current.x)*ease;current.y+=(aim.y-current.y)*ease;cursor.style.left='0';cursor.style.top='0';cursor.style.transform=`translate(${current.x*box.width}px,${current.y*box.height}px) translate(-50%,-50%)`;if(Math.hypot(aim.x-current.x,aim.y-current.y)<.0001)return false;});
 }
 {
  let points=[],aim=null,current=null,age=0,demo=0;
- const lab=mount('ink',defs.ink,()=>{demo=1.7;age=0;});const canvas=lab.stage.querySelector('canvas'),ctx=canvas.getContext('2d');
- new ResizeObserver(()=>{const dpr=Math.min(devicePixelRatio||1,2);canvas.width=lab.stage.clientWidth*dpr;canvas.height=lab.stage.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}).observe(lab.stage);
- const move=e=>{const r=lab.stage.getBoundingClientRect();aim={x:e.clientX-r.left,y:e.clientY-r.top};age=0;};
+ const lab=mount('ink',defs.ink,()=>{demo=1.7;age=0;});const canvas=lab.stage.querySelector('canvas'),ctx=canvas.getContext('2d'),box=geometry(lab.stage);
+ new ResizeObserver(()=>{const dpr=Math.min(devicePixelRatio||1,1.5);canvas.width=lab.stage.clientWidth*dpr;canvas.height=lab.stage.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}).observe(lab.stage);
+ const move=e=>{aim={x:e.clientX-box.x,y:e.clientY-box.y};age=0;};
  lab.stage.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')move(e);});lab.stage.addEventListener('pointerleave',()=>aim=null);lab.stage.addEventListener('pointerdown',()=>{demo=1.7;age=0;});
  loop(lab.stage,(t,dt)=>{
-  const w=lab.stage.clientWidth,h=lab.stage.clientHeight;ctx.clearRect(0,0,w,h);dt*=motion.speed;age+=dt;
+  const w=box.width,h=box.height;ctx.clearRect(0,0,w,h);dt*=motion.speed;age+=dt;
   if(demo>0){demo-=dt;const p=1-demo/1.7;aim={x:w*(.15+p*.7),y:h*(.5+Math.sin(p*Math.PI*3)*.18)};age=0;if(demo<=0)aim=null;}
   if(aim&&age<.85){current||={...aim};const ease=motion.reduced?1:1-Math.exp(-dt*14);current.x+=(aim.x-current.x)*ease;current.y+=(aim.y-current.y)*ease;points.push({...current,age:0});}
   points.forEach(p=>p.age+=dt);points=points.filter(p=>p.age<.85).slice(-36);
-  for(let i=1;i<points.length;i++){ctx.beginPath();ctx.lineCap='round';ctx.lineWidth=2+12*i/points.length;ctx.strokeStyle=`rgba(255,91,0,${(1-points[i].age/.85)*i/points.length})`;ctx.moveTo(points[i-1].x,points[i-1].y);ctx.lineTo(points[i].x,points[i].y);ctx.stroke();}
+  for(let i=1;i<points.length;i++){ctx.beginPath();ctx.lineCap='round';ctx.lineWidth=2+12*i/points.length;ctx.strokeStyle=`rgba(255,91,0,${(1-points[i].age/.85)*i/points.length})`;ctx.moveTo(points[i-1].x,points[i-1].y);ctx.lineTo(points[i].x,points[i].y);ctx.stroke();}if(!points.length&&!demo)return false;
  });
 }
 {
@@ -69,6 +69,6 @@ const defs={
  let elapsed=0,count=0,running=false;const wording='每个瞬间，\n都有名字。';
  const lab=mount('typewriter',defs.typewriter,()=>play()),text=lab.stage.querySelector('.writer-word span');
  function play(){elapsed=0;count=0;running=true;text.textContent='';if(motion.reduced){text.textContent=wording;running=false;}}
- loop(lab.stage,(t,dt)=>{if(!running)return;elapsed+=dt*1000*motion.speed;const next=Math.min(wording.length,Math.floor(elapsed/65));if(next!==count){count=next;text.textContent=wording.slice(0,count);SFX.play('tick');}if(count===wording.length)running=false;});
+ loop(lab.stage,(t,dt)=>{if(!running)return false;elapsed+=dt*1000*motion.speed;const next=Math.min(wording.length,Math.floor(elapsed/65));if(next!==count){count=next;text.textContent=wording.slice(0,count);SFX.play('tick');}if(count===wording.length)running=false;});
  new IntersectionObserver(es=>{if(es[0].isIntersecting&&!running&&!count)play();},{threshold:.4}).observe(lab.stage);
 }

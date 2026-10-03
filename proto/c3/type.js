@@ -1,3 +1,4 @@
+import { loop } from './frame.js';
 import { motion, registerExhibit, say, refreshPhrase, SFX } from './core.js';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const definitions = {
@@ -25,12 +26,12 @@ function mountType(key) {
   const lines = root.querySelector(`.${key === 'split' ? 'split' : 'scramble'}-lines`);
   const bars = root.querySelector('.progress-bars'), counter = root.querySelector('.type-timeline output');
   const status = root.querySelector('.type-status'), play = root.querySelector('.type-play');
-  const state = {}, chars = []; let run = 0, running = false, elapsed = 0, previous = 0, nextRefresh = 0;
+  const state = {}, chars = []; let draw = () => false, run = 0, running = false, elapsed = 0, previous = 0, nextRefresh = 0;
   Object.entries(data.controls).forEach(([name, p]) => {
     state[name] = p.value;
     const label = document.createElement('label'); label.className = 'lab-ctl';
     label.innerHTML = `<span>${p.label}</span><output>${p.value}${p.unit}</output><input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${p.value}" aria-label="${data.name} ${p.label}">`;
-    const range = label.querySelector('input');
+    const range = label.querySelector('input'); range.dataset.param = name;
     const update = () => {
       label.querySelector('output').value = `${state[name]}${p.unit}`;
       range.style.setProperty('--fill', `${(state[name] - p.min) / (p.max - p.min) * 100}%`);
@@ -101,9 +102,9 @@ function mountType(key) {
     running = true; elapsed = 0; nextRefresh = 0; previous = performance.now(); const id = ++run;
     progress(0); status.textContent = key === 'split' ? 'Sequence playing…' : 'Decoding signal…';
     if (key === 'scramble') root.querySelector('.stage-label').innerHTML = '<i>●</i> Decoding signal';
-    function frame(now) {
-      if (id !== run || !running) return;
-      elapsed += Math.min(now - previous, 50) * motion.speed; previous = now;
+    draw = (now, dt) => {
+      if (id !== run || !running) return false;
+      elapsed += dt * 1000 * motion.speed; previous = now;
       if (motion.reduced) { finish(); return; }
       if (key === 'split') {
         let complete = 0;
@@ -130,10 +131,10 @@ function mountType(key) {
         progress(lock);
         if (elapsed >= state.duration) { finish(); return; }
       }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    };
+    wake();
   }
+  const wake = loop(stage, (now, dt) => draw(now, dt));
   new ResizeObserver(fit).observe(stage); prepare();
   // 首次进展柜时播放一次；之后全部由用户重播，不循环抢注意力。
   const observer = new IntersectionObserver(es => {

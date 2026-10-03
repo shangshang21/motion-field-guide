@@ -1,0 +1,100 @@
+{
+  "label": "before",
+  "date": "2026-10-03T15:24:49.601Z",
+  "metadata": {
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "dpr": 1,
+    "viewport": [
+      1440,
+      900
+    ],
+    "height": 14902
+  },
+  "results": [
+    {
+      "scenario": "scroll",
+      "elapsedMs": 30015.5,
+      "frames": 1789,
+      "fps": 59.60253868834436,
+      "droppedFrames": 12,
+      "p95FrameMs": 16.700000000004366,
+      "maxFrameMs": 216.70000000000073,
+      "longTasks": 1,
+      "maxLongTaskMs": 235,
+      "over100ms": 1,
+      "layoutEvents": 3797,
+      "forcedLayouts": 3795,
+      "layoutMs": 542.8540000000008,
+      "paintEvents": 1861,
+      "paintViewportEquivalents": 1809.8194212962962
+    },
+    {
+      "scenario": "hero-pointer",
+      "elapsedMs": 6016.5,
+      "frames": 342,
+      "fps": 56.8436798803291,
+      "droppedFrames": 19,
+      "p95FrameMs": 16.700000000004366,
+      "maxFrameMs": 333.29999999999563,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "over100ms": 0,
+      "layoutEvents": 344,
+      "forcedLayouts": 344,
+      "layoutMs": 40.563000000000024,
+      "paintEvents": 688,
+      "paintViewportEquivalents": 688.0
+    },
+    {
+      "scenario": "cursor-pointer",
+      "elapsedMs": 6016.5,
+      "frames": 361,
+      "fps": 60.00166209590294,
+      "droppedFrames": 0,
+      "p95FrameMs": 16.799999999995634,
+      "maxFrameMs": 16.80000000000291,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "over100ms": 0,
+      "layoutEvents": 362,
+      "forcedLayouts": 362,
+      "layoutMs": 43.41499999999998,
+      "paintEvents": 737,
+      "paintViewportEquivalents": 737.0
+    },
+    {
+      "scenario": "shader-pointer",
+      "elapsedMs": 6016.399999999994,
+      "frames": 361,
+      "fps": 60.00265939764649,
+      "droppedFrames": 0,
+      "p95FrameMs": 16.79999999998836,
+      "maxFrameMs": 16.80000000000291,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "over100ms": 0,
+      "layoutEvents": 1086,
+      "forcedLayouts": 1086,
+      "layoutMs": 125.92300000000031,
+      "paintEvents": 2172,
+      "paintViewportEquivalents": 2172.0
+    },
+    {
+      "scenario": "impact-hold",
+      "elapsedMs": 8016.400000000009,
+      "frames": 481,
+      "fps": 60.00199590838774,
+      "droppedFrames": 0,
+      "p95FrameMs": 16.70000000001164,
+      "maxFrameMs": 16.80000000000291,
+      "longTasks": 0,
+      "maxLongTaskMs": 0,
+      "over100ms": 0,
+      "layoutEvents": 502,
+      "forcedLayouts": 489,
+      "layoutMs": 90.31399999999996,
+      "paintEvents": 1155,
+      "paintViewportEquivalents": 1019.3520316358025
+    }
+  ]
+}

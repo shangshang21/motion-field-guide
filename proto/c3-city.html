@@ -11,15 +11,23 @@
   <div class="flash" id="flash"></div>
 
   <header class="hud mono">
-    <div class="logo"><i>✳</i><span>Motion // Field Guide</span></div>
-    <span class="mid">Halls 05 · Exhibits 12 · Vol.01</span>
+    <a class="logo" href="#top" aria-label="回到首页"><i>✳</i><span>Motion // Field Guide</span></a>
+    <span class="mid">Halls 03 / 06 · Exhibits 14</span>
+    <nav class="hud-nav" aria-label="展厅导航"><a href="#hall">01 按钮</a><a href="#hall-cursor">02 光标</a><a href="#hall-text">03 文字</a><a href="#collection" aria-label="收藏进度">收藏 ↗</a></nav>
     <span class="sp"></span>
     <span class="clock" id="clock">00:00:00</span>
+    <button class="speed-toggle" id="speed-toggle" aria-label="调整全局速度，当前 1.00 倍" aria-expanded="false" aria-controls="speed-dock"><span aria-hidden="true">↯</span><b id="hudSpd">1.00x</b></button>
     <button class="sfx mono" id="sfx" aria-pressed="true"><span class="bars"><b></b><b></b><b></b></span><span id="sfxLbl">SFX ON</span></button>
   </header>
+  <div class="speed-dock speed mono" id="speed-dock" hidden>
+    <div class="speed-top"><span>全局速度 Speed</span><b id="dockSpd">1.00x</b></div>
+    <div class="segs" id="dock-segs" role="radiogroup" aria-label="全局动效速度"></div>
+    <div class="speed-scale"><span>0.25x</span><span>1.00x</span><span>2.00x</span></div>
+    <p>所有展厅共用这一档速度，口令会同步更新。</p>
+  </div>
 
   <main id="app">
-  <section class="hero">
+  <section class="hero" id="top">
     <div class="grid"></div>
     <div class="ht halftone"></div>
     <div class="big-no">01</div>
@@ -57,7 +65,7 @@
       <h2>按钮展厅<small>Hall 01 · Press · 9 Exhibits</small></h2>
       <div class="speed mono">
         <div class="speed-top"><span>动效速度 Speed</span><b id="spdVal">1.00x</b></div>
-        <div class="segs" id="segs"></div>
+        <div class="segs" id="segs" role="radiogroup" aria-label="全局动效速度"></div>
       </div>
     </div>
     <div class="cards" id="cards"></div>
@@ -151,15 +159,16 @@
     </div>
   </section>
 
-  <section class="collect">
-    <h3>Collection<small>收藏进度 3 / 12</small></h3>
+  <section class="collect" id="collection" aria-labelledby="collection-title">
+    <div class="collection-head"><h3 id="collection-title">Collection<small>收藏进度 3 / 6</small></h3><div class="collection-discovered"><span class="mono" id="discovered">已认识 0 / 14 件</span><div class="discovery-meter" aria-hidden="true"><i id="discovery-fill"></i></div></div></div>
+    <p class="collection-note">三个展厅，十四件可玩的动效。点选一个街区，接着逛。</p>
     <div class="slots">
-      <div class="slot open"><span class="lv mono">Hall 01</span><b>按钮</b><span class="mono">9 件 · 已开放</span></div>
-      <div class="slot open"><span class="lv mono">Hall 02</span><b>光标</b><span class="mono">2 / 3 · 已开放</span></div>
-      <div class="slot lock"><span class="lv mono">Hall 03</span><b>滚动</b><span class="mono">第二期解锁</span></div>
-      <div class="slot lock"><span class="lv mono">Hall 04</span><b>文字</b><span class="mono">第二期解锁</span></div>
-      <div class="slot lock"><span class="lv mono">Hall 05</span><b>转场</b><span class="mono">第二期解锁</span></div>
-      <div class="slot lock"><span class="lv mono">Hall 06</span><b>着色器</b><span class="mono">第二期解锁</span></div>
+      <a class="slot open" href="#hall"><span class="lv mono">Hall 01 <i>↗</i></span><span class="slot-art" aria-hidden="true">↓</span><b>按钮</b><span class="mono">9 件 · 已开放</span><span class="slot-count mono" data-hall="button">已认识 0 / 9</span></a>
+      <a class="slot open" href="#hall-cursor"><span class="lv mono">Hall 02 <i>↗</i></span><span class="slot-art" aria-hidden="true">↖</span><b>光标</b><span class="mono">3 件 · 已开放</span><span class="slot-count mono" data-hall="cursor">已认识 0 / 3</span></a>
+      <a class="slot open" href="#hall-text"><span class="lv mono">Hall 03 <i>↗</i></span><span class="slot-art" aria-hidden="true">Aa</span><b>文字</b><span class="mono">2 件 · 已开放</span><span class="slot-count mono" data-hall="text">已认识 0 / 2</span></a>
+      <div class="slot lock"><span class="lv mono">Hall 04</span><span class="slot-art" aria-hidden="true">＋</span><b>滚动</b><span class="mono">第二期解锁</span></div>
+      <div class="slot lock"><span class="lv mono">Hall 05</span><span class="slot-art" aria-hidden="true">＋</span><b>转场</b><span class="mono">第二期解锁</span></div>
+      <div class="slot lock"><span class="lv mono">Hall 06</span><span class="slot-art" aria-hidden="true">＋</span><b>着色器</b><span class="mono">第二期解锁</span></div>
     </div>
   </section>
 
@@ -169,13 +178,13 @@
   </footer>
   </main>
 
-  <div class="dialog" id="dialog">
+  <div class="dialog" id="dialog" role="region" aria-label="导览员讲解" inert>
     <div class="dlg">
       <div class="face"><span class="ph">✳</span><img src="../assets/city-web/guide-bust.jpg" alt="" onerror="this.remove()"></div>
       <div class="body">
-        <div class="who"><span class="nm mono">✳ 导览员</span><span class="ttl" id="dTtl"></span><button class="x" id="dX" aria-label="关闭">✕</button></div>
+        <div class="who"><span class="nm mono">✳ 导览员</span><span class="ttl" id="dTtl" aria-live="polite"></span><button class="x" id="dX" aria-label="关闭讲解">✕</button></div>
         <div class="txt" id="dTxt"></div>
-        <div class="act mono"><button class="pri" id="dCopy">复制口令</button><button id="dAgain">再按一次</button><span class="code" id="dCode"></span></div>
+        <div class="act mono"><button class="pri" id="dCopy">复制口令</button><button id="dAgain">再玩一次</button><span class="code" id="dCode"></span></div>
       </div>
     </div>
   </div>

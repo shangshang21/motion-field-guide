@@ -1,22 +1,31 @@
 // 每次起爆都独立积分：速度拉伸火花，阻力削弱碎片速度，重力留下下坠的尾巴。
 const TAU = Math.PI * 2;
 const ORANGE = '#ff5b00', INK = '#111110', PAPER = '#f2f0eb';
-const running = new WeakSet();
+const running = new WeakMap();
 const random = (min, max) => min + Math.random() * (max - min);
 
 export async function impact(button, { motion, sound, charged = false }) {
-  if (running.has(button)) return;
-  running.add(button);
+  const previousImpact = running.get(button);
+  if (previousImpact?.locked) return;
+  previousImpact?.cancel();
   const pad = button.closest('.pad');
+  let alive = true, cv = null, windup = null;
+  const active = { locked: true, cancel: cleanup }; running.set(button, active);
+  function cleanup() {
+    if (!alive) return;
+    alive = false; cv?.remove(); windup?.cancel();
+    pad.classList.remove('impact-stop', 'impact-rest');
+    if (running.get(button) === active) running.delete(button);
+  }
   if (motion.reduced) {
     sound();
     pad.classList.add('impact-rest');
-    setTimeout(() => { pad.classList.remove('impact-rest'); running.delete(button); }, 220);
+    setTimeout(cleanup, 220);
     return;
   }
 
   // 先收紧，再保留约三帧的压缩姿态。爆点在这段定格里出现。
-  const windup = button.animate([
+  windup = button.animate([
     { transform: 'scale(1)' }, { transform: 'scale(.88,.91)' },
   ], { duration: motion.ms(80), easing: 'cubic-bezier(.65,0,1,1)', fill: 'forwards' });
   await windup.finished;
@@ -28,7 +37,7 @@ export async function impact(button, { motion, sound, charged = false }) {
     { transform: 'translate(1px,0)' }, { transform: 'translate(0,0)' },
   ], { duration: motion.ms(240), easing: 'steps(1)' });
 
-  const cv = document.createElement('canvas');
+  cv = document.createElement('canvas');
   cv.className = 'impact-canvas'; cv.setAttribute('aria-hidden', 'true'); pad.append(cv);
   const pr = pad.getBoundingClientRect(), br = button.getBoundingClientRect();
   const width = pr.width, height = pr.height, dpr = Math.min(devicePixelRatio || 1, 2);
@@ -56,11 +65,12 @@ export async function impact(button, { motion, sound, charged = false }) {
   }));
   let age = 0, previous = performance.now(), freeze = .045, released = false;
   function render(now) {
+    if (!alive) return;
     const step = Math.min((now - previous) / 1000, .04) * motion.speed; previous = now;
     freeze -= step;
     const dt = freeze > 0 ? 0 : step;
     if (freeze <= 0 && !released) {
-      released = true; pad.classList.remove('impact-stop'); windup.cancel();
+      released = true; active.locked = false; pad.classList.remove('impact-stop'); windup.cancel();
       button.animate([{ transform: 'scale(.88,.91)' }, { transform: 'scale(1.05,1.02)', offset: .45 },
         { transform: 'scale(1)' }], { duration: motion.ms(290), easing: 'cubic-bezier(.16,1,.3,1)' });
     }
@@ -126,7 +136,7 @@ export async function impact(button, { motion, sound, charged = false }) {
     });
     ctx.restore();
     if (age < 1.55 && !motion.reduced && cv.isConnected) requestAnimationFrame(render);
-    else { cv.remove(); pad.classList.remove('impact-stop'); windup.cancel(); running.delete(button); }
+    else cleanup();
   }
   requestAnimationFrame(render);
 }

@@ -108,7 +108,7 @@ function magnetic() {
         text(`FIELD R=${state.radius}px / F=${state.strength.toFixed(2)}`, 16, 52);
         if (pointer.inside) {
           ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(pointer.x, pointer.y); ctx.stroke(); cross(pointer.x, pointer.y, 8);
-          ctx.beginPath(); ctx.arc(cx + tx, cy + ty, 7, 0, Math.PI * 2); ctx.stroke();
+          ctx.beginPath(); ctx.arc(cx + tx, cy + ty, 7, 0, Math.PI * 2); ctx.fillStyle = '#111110'; ctx.fill(); ctx.stroke(); ctx.fillStyle = ORANGE;
           ctx.beginPath(); ctx.arc(cx + current.x, cy + current.y, 3, 0, Math.PI * 2); ctx.fill();
           text(`DIST ${Math.round(distance)}px`, pointer.x + 14, pointer.y - 14);
           text(`TARGET ○ / CURRENT ● / LEFT ${Math.round(Math.hypot(tx - current.x, ty - current.y))}px`, 16, box.height - 64);

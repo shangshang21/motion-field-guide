@@ -11,6 +11,28 @@ export const motion = { get speed() { return SPD; }, get reduced() { return redu
 const replays = new Map();
 export function registerExhibit(key, data, replay) { EX[key] = data; replays.set(key, replay); }
 export function refreshPhrase() { if (curKey && EX[curKey]) $('#dCode').textContent = phrase(curKey); }
+const hallContents = {
+  button: ['push', 'ripple', 'wipe', 'roll', 'hold', 'burst', 'glitch', 'jelly', 'shake'],
+  cursor: ['magnetic', 'trail', 'spotlight'], text: ['split', 'scramble'],
+};
+const collectionKey = 'motion-field-guide.phase1.collection';
+let discovered = new Set();
+try {
+  const stored = JSON.parse(localStorage.getItem(collectionKey) || '[]');
+  if (Array.isArray(stored)) discovered = new Set(stored.filter(k => Object.values(hallContents).flat().includes(k)));
+} catch { /* 浏览器禁用存储时，仍可在当前页面记录。 */ }
+function refreshCollection(key) {
+  if (key && Object.values(hallContents).flat().includes(key)) {
+    discovered.add(key);
+    try { localStorage.setItem(collectionKey, JSON.stringify([...discovered])); } catch { }
+  }
+  $('#discovered').textContent = `已认识 ${discovered.size} / 14 件`;
+  $('#discovery-fill').style.width = `${discovered.size / 14 * 100}%`;
+  Object.entries(hallContents).forEach(([hall, keys]) => {
+    $(`[data-hall="${hall}"]`).textContent = `已认识 ${keys.filter(k => discovered.has(k)).length} / ${keys.length}`;
+  });
+}
+refreshCollection();
 
 /* ================= 音效：全部用 Web Audio 现场合成，不需要音频文件 ================= */
 const SFX = (() => {
@@ -124,12 +146,16 @@ $('#start').addEventListener('click', () => {
 /* ================= 展品数据 ================= */
 const EX = {
   push:   { no: '01', name: '按压下沉', en: 'Push Down', how: 'Press', label: 'Push', sfx: 'push',
-            say: '按钮底下藏着一条“厚度”（阴影）。按下时按钮往下走，阴影同时变薄，就像真的被压进去了。松手再弹回来。关键是时间要很短，七十毫秒左右，慢了就不像实体按键。' },
+            params: () => '厚度 10px · 按下 70ms',
+            say: '按钮底下的阴影就是它的“厚度”。按下时按钮往下走，阴影同时变薄，松手再弹回来。响应大约七十毫秒，才能像实体按键一样干脆。' },
   ripple: { no: '02', name: '涟漪', en: 'Ripple', how: 'Click', label: 'Ripple', sfx: 'ripple',
-            say: '在你点下去的那个位置生成一个圆，从零放大到盖满整个按钮，同时慢慢变透明。谷歌 Material Design 的招牌反馈，告诉你“点到了，而且就点在这儿”。' },
+            params: () => '扩散 700ms · 起点 点击位置',
+            say: '在你点下去的位置画一个圆，从零放大到盖满按钮，同时慢慢变透明。这样既能知道点到了，也能知道反馈从哪里开始。' },
   wipe:   { no: '03', name: '填充擦除', en: 'Fill Wipe', how: 'Hover', label: 'Wipe', sfx: 'wipe',
-            say: '按钮里藏着一块横向缩成 0 的色块。鼠标进来，它从左边展开；鼠标离开，它从右边收走。进出方向不同，所以像被“刷”过去一样。斜切一下更有速度感。' },
+            params: () => '展开 420ms · 斜切 -20°',
+            say: '按钮里藏着一块横向缩成零的色块。鼠标进来时从左边展开，离开时从右边收走。两个方向不同，所以像被刷过去一样。' },
   roll:   { no: '04', name: '文字翻滚', en: 'Text Roll', how: 'Hover', label: 'Roll Over', sfx: 'roll',
+            params: () => '逐字间隔 22ms · 翻滚 380ms',
             say: '每个字母下面藏着一个一模一样的复制品。悬停时整列往上推一格，原来的字滚出去、复制品滚进来。每个字母晚一点点出发，就形成了波浪。' },
   hold:   { no: '05', name: '长按充能', en: 'Hold to Confirm', how: 'Hold', label: '按住不放', sfx: null,
             params: () => '充能 1200ms · 定格 45ms · 微震 3px',
@@ -138,11 +164,14 @@ const EX = {
             params: () => '蓄力 80ms · 定格 45ms · 重力 440px/s² · 阻力 2.10',
             say: '按钮先往里收一下，爆点停住两三帧，再放出闪光和冲击波。火花飞得越快就越长，碎片受阻力减速、受重力下坠，最后只留下淡烟。' },
   glitch: { no: '07', name: '故障', en: 'Glitch', how: 'Hover', label: 'Glitch', sfx: 'glitch',
-            say: '同一行字复制成两份，染成橙色和青色，每份只露出随机的一条横带，再左右错开几像素，快速切换。模拟信号出错的样子，赛博、街头风很爱用。' },
+            params: () => '偏移 5px · 切片周期 300ms / 380ms',
+            say: '同一行字复制成两份，每份只露出一条横带，再左右错开几像素，快速切换。错位的色层像信号短暂出了问题，移动很少也能看出变化。' },
   jelly:  { no: '08', name: '果冻回弹', en: 'Squash & Stretch', how: 'Click', label: 'Jelly', sfx: 'jelly',
+            params: () => '挤压 1.28 × 0.72 · 回弹 750ms',
             say: '动画十二原则里的“挤压与拉伸”：先压扁变宽，再拉高变窄，来回几次、幅度越来越小，最后停住。总体积看起来不变，所以显得有弹性、有重量。' },
   shake:  { no: '09', name: '错误抖动', en: 'Error Shake', how: 'Click', label: '删除存档', sfx: 'error',
-            say: '左右快速晃几下、幅度越来越小，同时变成红色。就像有人摇头说“不行”。输错密码、操作被拒绝时用它，不用读字也知道出错了。' },
+            params: () => '振幅 14px · 抖动 480ms',
+            say: '按钮左右晃几下，幅度越来越小，同时用颜色提示出错。像有人摇头说“不行”，在输错密码或操作被拒绝时，能给出直观的反馈。' },
 };
 const LINES = {
   welcome: { ttl: '欢迎来到按钮展厅', say: '嗨，我是这里的导览员 ✳。下面九个按钮随便按，按完我就告诉你它叫什么、怎么做出来的。右上角那条可以调整体速度，调到你喜欢的手感，再把口令复制给开发者就行。' },
@@ -150,18 +179,46 @@ const LINES = {
 
 /* ================= 速度档位 ================= */
 const SPEEDS = [.25, .5, .75, 1, 1.25, 1.5, 1.75, 2];
-const segs = $('#segs');
-SPEEDS.forEach((v, i) => {
-  const b = document.createElement('button'); b.setAttribute('aria-label', v + 'x');
-  b.addEventListener('click', () => setSpeed(v)); segs.appendChild(b);
+$$('#segs, #dock-segs').forEach(segs => {
+  SPEEDS.forEach(v => {
+    const b = document.createElement('button'); b.setAttribute('aria-label', v + 'x'); b.setAttribute('role', 'radio');
+    b.dataset.speed = v; b.addEventListener('click', () => setSpeed(v)); segs.appendChild(b);
+  });
+  segs.addEventListener('keydown', e => {
+    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault(); let i = SPEEDS.indexOf(SPD);
+    i = e.key === 'Home' ? 0 : e.key === 'End' ? SPEEDS.length - 1 : clamp(i + (e.key === 'ArrowRight' ? 1 : -1), 0, SPEEDS.length - 1);
+    setSpeed(SPEEDS[i]); segs.children[i].focus();
+  });
 });
-function setSpeed(v) {
+function setSpeed(v, silent = false) {
   SPD = v; document.documentElement.style.setProperty('--spd', v);
   $('#spdVal').textContent = v.toFixed(2) + 'x';
-  $$('#segs button').forEach((b, i) => b.classList.toggle('on', SPEEDS[i] <= v));
-  SFX.play('tick'); if (curKey && EX[curKey]) $('#dCode').textContent = phrase(curKey);
+  $('#hudSpd').textContent = $('#dockSpd').textContent = v.toFixed(2) + 'x';
+  $('#speed-toggle').setAttribute('aria-label', `调整全局速度，当前 ${v.toFixed(2)} 倍`);
+  $$('.segs button').forEach(b => {
+    const selected = Number(b.dataset.speed) === v;
+    b.classList.toggle('on', Number(b.dataset.speed) <= v); b.setAttribute('aria-checked', String(selected)); b.tabIndex = selected ? 0 : -1;
+  });
+  if (!silent) SFX.play('tick'); refreshPhrase();
 }
-setSpeed(1);
+setSpeed(1, true);
+const speedToggle = $('#speed-toggle'), speedDock = $('#speed-dock');
+function closeSpeed(focus = false) { speedDock.hidden = true; speedToggle.setAttribute('aria-expanded', 'false'); if (focus) speedToggle.focus(); }
+speedToggle.addEventListener('click', () => {
+  speedDock.hidden = !speedDock.hidden; speedToggle.setAttribute('aria-expanded', String(!speedDock.hidden));
+});
+document.addEventListener('click', e => { if (!e.target.closest('#speed-toggle, #speed-dock')) closeSpeed(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && !speedDock.hidden) closeSpeed(true); });
+function updateHud() {
+  $('.hud').classList.toggle('is-scrolled', $('.hero').getBoundingClientRect().bottom < 100);
+  let current = null;
+  $$('.hud-nav a').forEach(a => { if ($(a.hash).getBoundingClientRect().top <= 180) current = a; });
+  $$('.hud-nav a').forEach(a => { if (a === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+}
+let hudFrame = 0;
+addEventListener('scroll', () => { if (!hudFrame) hudFrame = requestAnimationFrame(() => { updateHud(); hudFrame = 0; }); }, { passive: true });
+addEventListener('resize', updateHud); updateHud();
 
 /* ================= 卡片 ================= */
 const cards = $('#cards');
@@ -178,19 +235,24 @@ function fxPush(b) {
   b.addEventListener('pointerdown', () => { b.classList.add('down'); SFX.play('push'); });
   const up = () => { if (b.classList.contains('down')) { b.classList.remove('down'); SFX.play('up'); } };
   b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up);
+  b.addEventListener('pointercancel', up);
+  b.addEventListener('click', e => { if (!e.detail) { b.classList.add('down'); SFX.play('push'); setTimeout(up, ms(140)); } });
 }
 function fxRipple(b) {
-  b.addEventListener('pointerdown', e => {
+  const ripple = (e = null) => {
     const r = b.getBoundingClientRect(), d = Math.hypot(r.width, r.height) * 2;
     const s = document.createElement('span'); s.className = 'rip';
-    s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+    s.style.cssText = `width:${d}px;height:${d}px;left:${(e ? e.clientX - r.left : r.width / 2) - d / 2}px;top:${(e ? e.clientY - r.top : r.height / 2) - d / 2}px`;
     b.appendChild(s); SFX.play('ripple');
     s.animate([{ transform: 'scale(0)', opacity: 1 }, { transform: 'scale(1)', opacity: 0 }], { duration: motion.reduced ? 1 : ms(700), easing: 'cubic-bezier(.2,.8,.2,1)' }).onfinish = () => s.remove();
-  });
+  };
+  b.addEventListener('pointerdown', ripple);
+  b.addEventListener('click', e => { if (!e.detail) ripple(); });
 }
 function fxHover(b, k) {
   b.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { SFX.play(EX[k].sfx); say(k); } });
-  b.addEventListener('click', () => { b.classList.toggle('is-hover'); SFX.play(EX[k].sfx); say(k); });
+  b.addEventListener('click', e => { if (e.pointerType === 'touch' || matchMedia('(hover: none)').matches || !e.detail) b.classList.toggle('is-hover'); SFX.play(EX[k].sfx); say(k); });
+  b.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') b.classList.remove('is-hover'); });
 }
 function fxHold(b) {
   let p = 0, holding = false, last = 0, raf = 0, reset = 0;
@@ -249,10 +311,12 @@ function say(k) {
   $$('.card').forEach(c => c.classList.toggle('active', c.dataset.k === k));
   if (curKey === k && $('#dialog').classList.contains('show')) return;
   curKey = k;
+  if (EX[k]) refreshCollection(k);
   $('#dTtl').innerHTML = EX[k] ? `Nº${d.no} ${d.name}<em>${d.en}</em>` : d.ttl;
   $('#dCode').textContent = EX[k] ? phrase(k) : '';
   $('#dCopy').style.display = $('#dAgain').style.display = EX[k] ? '' : 'none';
   $('#dialog').classList.add('show');
+  $('#dialog').inert = false;
   const txt = $('#dTxt'), full = d.say, id = ++typing; let i = 0;
   if (motion.reduced) { txt.textContent = full; return; }
   (function type() {
@@ -263,7 +327,7 @@ function say(k) {
     if (i < full.length) setTimeout(type, ms(22));
   })();
 }
-function closeDialog() { $('#dialog').classList.remove('show'); typing++; curKey = null; SFX.play('up'); }
+function closeDialog() { $('#dialog').classList.remove('show'); $('#dialog').inert = true; typing++; curKey = null; SFX.play('up'); }
 $('#dX').addEventListener('click', closeDialog);
 addEventListener('keydown', e => { if (e.key === 'Escape') closeDialog(); });
 $('#dTxt').addEventListener('click', () => { const d = EX[curKey] || LINES[curKey]; if (d) { typing++; $('#dTxt').textContent = d.say; } });
@@ -281,5 +345,13 @@ $('#dAgain').addEventListener('click', () => {
 
 // 第一次滚到按钮展厅，导览员自己打招呼
 let greeted = false;
-new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !greeted) { greeted = true; setTimeout(() => { if (!curKey) say('welcome'); }, 400); } }), { threshold: .25 }).observe($('#hall'));
+new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting && !greeted) {
+    greeted = true;
+    setTimeout(() => {
+      const r = $('#hall').getBoundingClientRect();
+      if (!curKey && r.bottom > innerHeight * .2 && r.top < innerHeight * .8) say('welcome');
+    }, 500);
+  }
+}), { threshold: .25 }).observe($('#hall'));
 export { say, SFX, phrase };

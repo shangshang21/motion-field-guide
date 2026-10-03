@@ -12,6 +12,7 @@
   }
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; }
+  html { scroll-behavior: smooth; }
   body { background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   ::selection { background: var(--or); color: var(--ink); }
   button { font: inherit; color: inherit; cursor: pointer; }
@@ -30,6 +31,20 @@
   .hud .logo { display: flex; align-items: center; gap: 10px; background: var(--ink); color: var(--paper); padding: 7px 12px 7px 10px; transform: skewX(-12deg); }
   .hud .logo > * { transform: skewX(12deg); }
   .hud .logo i { color: var(--or); font-style: normal; font-size: 15px; }
+  .hud .logo { text-decoration: none; }
+  .hud.is-scrolled { background: var(--paper); border-bottom: 2px solid var(--ink); }
+  .hud-nav { display: flex; align-items: center; gap: 6px; }
+  .hud-nav a { text-decoration: none; color: var(--ink); padding: 7px 9px; background: var(--paper); border: 1px solid transparent; }
+  .hud-nav a:hover { border-color: var(--ink); }
+  .hud-nav a[aria-current=location] { background: var(--ink); color: var(--or); }
+  .speed-toggle { display: flex; gap: 6px; align-items: center; border: 2px solid var(--ink); background: var(--ink); color: var(--paper); padding: 5px 9px; font: 700 11px/1.4 var(--mono); white-space: nowrap; }
+  .speed-toggle > span { color: var(--or); font-size: 13px; }
+  .speed-toggle[aria-expanded=true] { background: var(--or); color: var(--ink); }
+  .speed-toggle[aria-expanded=true] > span { color: var(--ink); }
+  .speed-dock { position: fixed; top: 64px; right: 28px; z-index: 85; width: 320px; border: 2px solid var(--paper); box-shadow: 6px 6px 0 var(--or); }
+  .speed-dock[hidden] { display: none; }
+  .speed-scale { display: flex; justify-content: space-between; color: var(--grey); font-size: 9px; margin-top: 10px; }
+  .speed-dock p { color: var(--grey); font: 12px/1.6 var(--sans); margin: 15px 0 0; }
   .hud .sp { flex: 1; }
   .hud .clock { font-variant-numeric: tabular-nums; }
   .sfx { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 2px solid var(--ink); padding: 5px 10px; }
@@ -181,15 +196,29 @@
   .collect { padding: 60px 28px 140px; }
   .collect h3 { font-family: var(--disp); font-weight: 400; font-size: 64px; margin: 0 0 26px; text-transform: uppercase; }
   .collect h3 small { font-family: var(--heavy); font-weight: 900; font-size: 26px; margin-left: 14px; }
+  .collect { scroll-margin-top: 100px; }
+  .collection-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .collection-head h3 { margin-bottom: 0; }
+  .collection-discovered { min-width: 180px; text-align: right; }
+  .discovery-meter { margin-top: 10px; height: 6px; background: var(--paper2); overflow: hidden; }
+  .discovery-meter i { display: block; height: 100%; width: 0; background: var(--or); transition: width calc(250ms / var(--spd)); }
+  .collection-note { margin: 18px 0 30px; font-size: 14px; color: #747168; }
   .slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
   .slot { aspect-ratio: 3/4; border: 3px solid var(--ink); position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; overflow: hidden; background: var(--paper); }
   .slot .lv { position: absolute; left: 10px; top: 10px; }
+  a.slot { text-decoration: none; color: var(--ink); transition: transform calc(150ms / var(--spd)), box-shadow calc(150ms / var(--spd)); }
+  a.slot:hover { transform: translate(-4px,-4px); box-shadow: 6px 6px 0 var(--ink); }
+  a.slot:active { transform: translate(2px,2px); box-shadow: none; }
+  .slot .lv { right: 10px; display: flex; justify-content: space-between; }
+  .slot .lv i { font-style: normal; }
+  .slot .slot-art { position: absolute; top: 20%; left: 13px; font: 400 clamp(60px, 7vw, 100px)/1 var(--disp); transform: skewX(-10deg); }
+  .slot .slot-count { margin-top: 9px; font-size: 9px; border-top: 1px solid #11111040; padding-top: 7px; }
   .slot b { font-family: var(--heavy); font-weight: 900; font-size: 22px; position: relative; }
   .slot span { position: relative; }
   .slot.open { background: var(--or); }
   .slot.open::before { content: ''; position: absolute; inset: 0; opacity: .25; background-image: radial-gradient(var(--ink) 1.3px, transparent 1.7px); background-size: 8px 8px; -webkit-mask-image: linear-gradient(to top, #000, transparent); mask-image: linear-gradient(to top, #000, transparent); }
   .slot.lock { background: repeating-linear-gradient(-45deg, var(--paper2) 0 10px, var(--paper) 10px 20px); color: var(--grey); }
-  .slot.lock b::before { content: '🔒 '; filter: grayscale(1); }
+  .slot.lock .slot-art { color: #8f8c8533; }
 
   footer.end { background: var(--ink); color: var(--paper); padding: 70px 28px 40px; position: relative; overflow: hidden; }
   footer.end .t { font-family: var(--disp); font-size: 14vw; line-height: .8; text-transform: uppercase; }
@@ -227,7 +256,27 @@
     .cards { grid-template-columns: 1fr; } .slots { grid-template-columns: repeat(3, 1fr); }
     .dlg { grid-template-columns: 84px 1fr; } .dlg .act .code { display: none; }
   }
-  @media (max-width: 600px) {
+  @media (max-width: 1280px) { .hud .mid { display: none; } }
+  @media (max-width: 760px) {
+    .hall, .collect { scroll-margin-top: 100px; }
+    .hud { padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; gap: 8px; flex-wrap: wrap; }
+    .hud .logo { font-size: 9px; letter-spacing: .045em; gap: 7px; padding-right: 9px; }
+    .hud .sfx { font-size: 9px; gap: 5px; padding: 5px 7px; }
+    .speed-toggle { font-size: 10px; padding: 5px 7px; }
+    .speed-toggle > span { display: none; }
+    .hud .sp { flex: 1; min-width: 0; }
+    .hud-nav { display: none; order: 10; width: 100%; justify-content: space-between; padding-top: 3px; gap: 4px; }
+    .hud.is-scrolled .hud-nav { display: flex; }
+    .hud-nav a { font-size: 10px; padding: 6px 10px; }
+    .speed-dock { top: 91px; right: 16px; width: min(320px, calc(100vw - 32px)); min-width: 0; }
+    .collection-head { flex-wrap: wrap; gap: 18px; }
+    .collect h3 { font-size: 48px; line-height: 1; }
+    .collect h3 small { display: block; margin: 14px 0 0; font-size: 23px; }
+    .collection-discovered { width: 100%; text-align: left; }
+    .slot { aspect-ratio: 3/5; padding: 10px 8px; }
+    .slot b { font-size: 20px; }
+    .slot > .mono { font-size: 9px; letter-spacing: 0; }
+    .slot .slot-art { top: 22%; left: 10px; font-size: 56px; }
     .card footer { gap: 7px; flex-wrap: wrap; }
     .card footer b { font-size: 21px; }
     .card footer em { font-size: 15px; }

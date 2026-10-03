@@ -21,6 +21,7 @@ export function parsePhrase(value){
  return {entry,speed,params:parseParams(m[3]||'')};
 }
 const bindings={
+ inertia:{摩擦:'friction',质量:'mass'},rubber:{阻力:'resistance',刚度:'stiffness'},swipe:{甩出速度:'threshold',归位阻尼:'damping'},pull:{触发距离:'threshold',刷新时长:'duration'},
  magnetic:{强度:'strength',范围:'radius',跟手速度:'ease'},trail:{间距:'gap',停留:'life',尺寸:'size'},spotlight:{光圈:'radius',跟手速度:'ease'},
  split:{逐字间隔:'stagger',升起时长:'duration'},scramble:{解码时长:'duration',刷新间隔:'interval'},
  easing:{时长:'duration'},spring:{刚度:'stiffness',阻尼:'damping'},stagger:{间隔:'gap',单张:'duration',种子:'seed'},
@@ -39,7 +40,7 @@ function restorationPlan({entry,params}){
  const root=document.querySelector(`[data-k="${entry.key}"]`),data=getExhibit(entry.key),current=parseParams(data.params?.()||''),plan=[];
  for(const [label,value] of params){
   const param=bindings[entry.key]?.[label];
-  if(param){const input=root.querySelector(`[data-param="${param}"]`),unit=input?.type==='range'&&/ms\s*$/.test(current.get(label)||'')?'ms':/px\s*$/.test(current.get(label)||'')?'px':'';plan.push(controlPlan(root,param,numeric(value,label,unit),label));continue;}
+  if(param){const input=root.querySelector(`[data-param="${param}"]`),unit=input?.type==='range'&&/ms\s*$/.test(current.get(label)||'')?'ms':/px\s*$/.test(current.get(label)||'')?'px':/px\/s\s*$/.test(current.get(label)||'')?'px/s':'';plan.push(controlPlan(root,param,numeric(value,label,unit),label));continue;}
   if(label==='文字'&&['split','scramble'].includes(entry.key)){
    const input=root.querySelector('.type-edit input');if(!value.trim()||[...value].length>input.maxLength)throw Error(`文字需要有内容，最多 ${input.maxLength} 个字符。`);
    if(entry.key==='scramble'&&!/^[A-Z0-9 ./#&+_-]+$/.test(value))throw Error('乱码解码的文字请使用 A–Z、数字、空格或 ./#&+_-。');

@@ -1,4 +1,4 @@
-const modules={timing:()=>import('./timing.js'),cursor:()=>import('./cursor.js'),type:()=>import('./type.js'),extras:()=>import('./extras.js'),scroll:()=>import('./scroll.js'),transition:()=>import('./transition.js'),shader:()=>import('./shader.js')};
+const modules={gesture:()=>import('./gesture.js'),timing:()=>import('./timing.js'),cursor:()=>import('./cursor.js'),type:()=>import('./type.js'),extras:()=>import('./extras.js'),scroll:()=>import('./scroll.js'),transition:()=>import('./transition.js'),shader:()=>import('./shader.js')};
 const pending=new Map();
 export function loadModule(key) {
  if(key==='core')return Promise.resolve();

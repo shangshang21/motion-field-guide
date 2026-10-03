@@ -1,6 +1,7 @@
 // Recorded CC0 sounds are the body. Only the continuous charge is synthesized.
 const variants = (prefix, zero = false) => (prefix === 'pluck' ? [0, 1] : prefix === 'tick' ? [0,1,3] : [0, 1, 2]).map(i => `${prefix}_${String(i + (zero ? 0 : 1)).padStart(3, '0')}.ogg`);
 const groups = {
+ inertia: variants('drop'), rubber: variants('pluck'), swipe: variants('maximize'), pull: variants('open'),
  easing: variants('open'), spring: variants('drop'), duration: variants('click'), stagger: variants('tick'),
  tick: ['tick_001.ogg','tick_002.ogg','tick_004.ogg'], push: variants('impactMetal_light', true), up: variants('click'),
  ripple: variants('pluck'), wipe: variants('maximize'), roll: variants('tick'),

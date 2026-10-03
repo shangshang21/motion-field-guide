@@ -32,8 +32,8 @@ const definitions = {
 };
 const format = (p, v) => (p.step < 1 ? v.toFixed(2) : Math.round(v)) + (p.unit || '');
 
-function mountLab(key, replay) {
-  const data = definitions[key], root = document.querySelector(`[data-k="${key}"]`);
+function mountLab(key, replay, override) {
+  const data = {...definitions[key]}, root = override || document.querySelector(`[data-k="${key}"]`);
   const stage = root.querySelector('.lab-stage'), canvas = root.querySelector('canvas');
   const ctx = canvas.getContext('2d'), state = {}, box = geometry(stage);
   Object.entries(data.controls).forEach(([name, p]) => {
@@ -50,7 +50,7 @@ function mountLab(key, replay) {
     refresh(); root.querySelector('.lab-controls').append(label);
   });
   data.params = () => Object.entries(data.controls).map(([name, p]) => `${p.label} ${format(p, state[name])}`).join(' · ');
-  registerExhibit(key, data, replay);
+  root._replay=replay; if(!override)registerExhibit(key, data, replay);
   root.querySelector('.q').addEventListener('click', () => say(key));
   root.querySelector('.xray-toggle').addEventListener('click', e => {
     const on = root.classList.toggle('is-xray'); e.currentTarget.setAttribute('aria-pressed', String(on)); SFX.play('tick');
@@ -75,12 +75,12 @@ function mountLab(key, replay) {
   return { root, stage, canvas, ctx, state, box, point, ink, cross, text, get xray() { return root.classList.contains('is-xray'); } };
 }
 
-function magnetic() {
+function magnetic(override) {
   let demoTimer, pointer = { x: 0, y: 0, inside: false };
   const lab = mountLab('magnetic', () => {
     pointer = { x: lab.box.width / 2 + 90, y: lab.box.height / 2 - 55, inside: true };
     clearTimeout(demoTimer); demoTimer = setTimeout(() => { pointer.inside = false; wakeMagnetic(); }, motion.ms(1500));
-  });
+  },override);
   const { stage, state, box, ctx, ink, cross, text } = lab, target = lab.root.querySelector('.magnetic-target');
   const current = { x: 0, y: 0 }; let wakeMagnetic = () => {};
   stage.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; clearTimeout(demoTimer); pointer = { ...lab.point(e), inside: true }; });
@@ -119,11 +119,11 @@ function magnetic() {
   });
 }
 
-function trail() {
+function trail(override) {
   let imageIndex = 0, last = null, pointer = null, serial = 0, previous = performance.now(), demo = 0;
   const photos = [], images = Array.from({ length: 8 }, (_, i) => new URL(`../../assets/web/motion-0${i + 1}.jpg`, import.meta.url).href);
   images.forEach(src => { const img = new Image(); img.src = src; img.decode().catch(() => {}); });
-  const lab = mountLab('trail', replay); let wakeTrail = () => {};
+  const lab = mountLab('trail', replay,override); let wakeTrail = () => {};
   const { stage, state, box, ctx, ink, text, cross } = lab, layer = lab.root.querySelector('.trail-layer');
   function place(x, y) {
     if (photos.length >= (motion.reduced ? 3 : 10)) photos.shift().el.remove();
@@ -183,12 +183,12 @@ function trail() {
   });
 }
 
-function spotlight() {
+function spotlight(override) {
   let current = null, target = null, previous = performance.now(), demoIndex = 0;
   const lab = mountLab('spotlight', () => {
     const points = [[.73, .45], [.23, .5], [.51, .69]];
     const p = points[demoIndex++ % points.length]; target = { x: lab.box.width * p[0], y: lab.box.height * p[1] };
-  });
+  },override);
   const { stage, state, box, ctx, ink, cross, text } = lab, lit = stage.querySelector('.spot-lit');
   stage.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') target = lab.point(e); });
   stage.addEventListener('pointerdown', e => { target = lab.point(e); });
@@ -210,3 +210,5 @@ function spotlight() {
   });
 }
 magnetic(); trail(); spotlight();
+
+export const createCursorComparison=(key,root)=>({magnetic,trail,spotlight}[key](root));

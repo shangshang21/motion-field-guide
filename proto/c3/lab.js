@@ -1,12 +1,12 @@
 import { motion, registerExhibit, say, SFX } from './core.js';
 export { motion, say, SFX };
 export const clamp = (v,a=0,b=1) => Math.max(a,Math.min(b,v));
-export function mount(key, data, replay) {
- const root=document.querySelector(`[data-k="${key}"]`),stage=root.querySelector('.demo-stage');
- registerExhibit(key,data,replay);
+export function mount(key, data, replay, override) {
+ const root=override||document.querySelector(`[data-k="${key}"]`),stage=root.querySelector('.demo-stage');
+ root._replay=replay; if(!override)registerExhibit(key,data,replay);
  root.querySelector('.q').addEventListener('click',()=>say(key));
  root.querySelector('[data-play]')?.addEventListener('click',()=>{SFX.play(key);say(key);replay();});
- stage.addEventListener('pointerdown',()=>say(key));
+ if(!override)stage.addEventListener('pointerdown',()=>say(key));
  stage.addEventListener('click',()=>{say(key);SFX.play(key);});
  const playButton=root.querySelector('[data-play]');if(playButton)playButton.dataset.label=playButton.textContent;
  return {root,stage};

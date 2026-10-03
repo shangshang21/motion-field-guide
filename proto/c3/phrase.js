@@ -1,3 +1,4 @@
+import {validateSnapshot,restoreComparison,clearComparison} from './compare.js';
 import {catalog,exhibitByKey} from './catalog.js';
 import {loadModule} from './lazy.js';
 import {getExhibit,motion,setSpeed,say,replayExhibit,phrase} from './core.js';
@@ -12,13 +13,14 @@ export function parseParams(source=''){
  return result;
 }
 export function parsePhrase(value){
+ let comparison=null;const marker=value.lastIndexOf('｜A/B {');if(marker>=0){try{comparison=JSON.parse(value.slice(marker+5));}catch{throw Error('A/B 参数格式不完整。');}value=value.slice(0,marker);}
  const m=value.trim().match(/^([^｜|]+)[｜|]\s*速度\s*(\d+(?:\.\d+)?)\s*[x×](?:\s*[｜|]\s*([\s\S]*))?$/i);
  if(!m)throw Error('请使用“名字 English｜速度 1.00x｜参数”的口令格式。');
  const head=normalize(m[1]),entry=catalog.find(e=>[`${e.name} ${e.en}`,e.name,e.en,`Nº${e.no} ${e.name} ${e.en}`].some(n=>normalize(n)===head));
  if(!entry)throw Error(`没有找到“${m[1].trim()}”，请检查展品名字。`);
  const speed=Number(m[2]);if(speed<.25||speed>2)throw Error('速度需要在 0.25x 到 2.00x 之间。');
  if(Math.abs(speed*100-Math.round(speed*100))>1e-6)throw Error('速度最多保留两位小数。');
- return {entry,speed,params:parseParams(m[3]||'')};
+ return {entry,speed,comparison,params:parseParams(m[3]||'')};
 }
 const bindings={
  inertia:{摩擦:'friction',质量:'mass'},rubber:{阻力:'resistance',刚度:'stiffness'},swipe:{甩出速度:'threshold',归位阻尼:'damping'},pull:{触发距离:'threshold',刷新时长:'duration'},
@@ -80,8 +82,9 @@ export async function navigateExhibit(key,{replay=false}={}){
 }
 export async function restorePhrase(value){
  const parsed=parsePhrase(value);await loadModule(parsed.entry.module);
+ if(parsed.comparison){validateSnapshot(parsed.entry.key,parsed.comparison.A);validateSnapshot(parsed.entry.key,parsed.comparison.B);}
  const {plan}=restorationPlan(parsed); // Validate everything before changing any state.
- plan.forEach(apply=>apply());setSpeed(parsed.speed,true);
+ plan.forEach(apply=>apply());setSpeed(parsed.speed,true);if(parsed.comparison)await restoreComparison(parsed.entry.key,parsed.comparison);else clearComparison(parsed.entry.key);
  await navigateExhibit(parsed.entry.key,{replay:true});return {entry:parsed.entry,phrase:phrase(parsed.entry.key),speed:parsed.speed};
 }
 const form=document.querySelector('#phrase-form'),input=document.querySelector('#phrase-input'),panel=document.querySelector('#phrase-return'),status=document.querySelector('#phrase-status'),submit=form.querySelector('[type=submit]');

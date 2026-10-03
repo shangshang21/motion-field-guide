@@ -11,6 +11,8 @@ const ms = v => v / SPD;
 const reduction = matchMedia('(prefers-reduced-motion: reduce)');
 export const motion = { get speed() { return SPD; }, get reduced() { return reduction.matches; }, ms };
 const replays = new Map();
+let phraseExtension=()=>'';
+export function registerPhraseExtension(fn){phraseExtension=fn;}
 export function registerExhibit(key, data, replay) { EX[key] = data; replays.set(key, replay); }
 export function refreshPhrase() { if (curKey && EX[curKey]) $('#dCode').textContent = phrase(curKey); }
 const hallContents = {
@@ -253,7 +255,7 @@ $$('#cards > .card').forEach(c => {
 });
 
 /* ================= 导览员对话框：打字机 ================= */
-function phrase(k) { const e = EX[k]; return `${e.name} ${e.en}｜速度 ${SPD.toFixed(2)}x${e.params ? '｜' + e.params() : ''}`; }
+function phrase(k) { const e = EX[k]; return `${e.name} ${e.en}｜速度 ${SPD.toFixed(2)}x${e.params ? '｜' + e.params() : ''}${phraseExtension(k)}`; }
 function say(k) {
   const d = EX[k] || LINES[k]; if (!d) return;
   $$('.card').forEach(c => c.classList.toggle('active', c.dataset.k === k));

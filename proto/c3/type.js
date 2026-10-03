@@ -20,8 +20,8 @@ const definitions = {
   },
 };
 
-function mountType(key) {
-  const root = document.querySelector(`[data-k="${key}"]`), data = definitions[key];
+function mountType(key,override) {
+  const root = override||document.querySelector(`[data-k="${key}"]`), data = {...definitions[key]};
   const input = root.querySelector('.type-edit input'), stage = root.querySelector('.type-stage');
   const lines = root.querySelector(`.${key === 'split' ? 'split' : 'scramble'}-lines`);
   const bars = root.querySelector('.progress-bars'), counter = root.querySelector('.type-timeline output');
@@ -42,7 +42,7 @@ function mountType(key) {
   });
   const wording = () => input.value.trim() || (key === 'split' ? '每个瞬间 都有名字' : 'MOTION LEXICON');
   data.params = () => quoteText(wording()) + ' · ' + Object.entries(data.controls).map(([k, p]) => `${p.label} ${state[k]}${p.unit}`).join(' · ');
-  registerExhibit(key, data, replay);
+  root._replay=replay; if(!override)registerExhibit(key, data, replay);
   root.querySelector('.q').addEventListener('click', () => say(key));
   play.addEventListener('click', () => { say(key); replay(); });
   input.addEventListener('input', () => {
@@ -142,3 +142,5 @@ function mountType(key) {
   }, { threshold: .55 }); observer.observe(stage);
 }
 mountType('split'); mountType('scramble');
+
+export const createTypeComparison=mountType;

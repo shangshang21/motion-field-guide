@@ -229,6 +229,10 @@
         "passed": true
       },
       {
+        "name": "Escape closes code dialog while tools are open",
+        "passed": true
+      },
+      {
         "name": "Escape closes tools and restores focus",
         "passed": true
       },
@@ -303,14 +307,14 @@
     ],
     "audio": {
       "decoded": 38,
-      "started": 281,
+      "started": 303,
       "errors": [],
       "allFiles": 41
     },
     "axe": [],
     "cancelledOnReload": [
       {
-        "url": "http://localhost:3300/assets/sfx/tick_004.ogg",
+        "url": "http://localhost:3300/assets/sfx/click_002.ogg",
         "error": "cancelled"
       },
       {
@@ -318,7 +322,7 @@
         "error": "cancelled"
       },
       {
-        "url": "http://localhost:3300/assets/sfx/click_002.ogg",
+        "url": "http://localhost:3300/assets/sfx/tick_004.ogg",
         "error": "cancelled"
       },
       {
@@ -326,19 +330,19 @@
         "error": "cancelled"
       },
       {
-        "url": "http://localhost:3300/assets/sfx/tick_001.ogg",
-        "error": "cancelled"
-      },
-      {
         "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
         "error": "cancelled"
       },
       {
-        "url": "http://localhost:3300/assets/sfx/tick_002.ogg",
+        "url": "http://localhost:3300/assets/sfx/tick_001.ogg",
         "error": "cancelled"
       },
       {
         "url": "http://localhost:3300/assets/sfx/impactMetal_light_000.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_002.ogg",
         "error": "cancelled"
       },
       {
@@ -577,6 +581,10 @@
         "passed": true
       },
       {
+        "name": "Escape closes code dialog while tools are open",
+        "passed": true
+      },
+      {
         "name": "Escape closes tools and restores focus",
         "passed": true
       },
@@ -655,38 +663,14 @@
     ],
     "audio": {
       "decoded": 38,
-      "started": 281,
+      "started": 283,
       "errors": [],
       "allFiles": 41
     },
     "axe": [],
     "cancelledOnReload": [
       {
-        "url": "http://localhost:3300/assets/sfx/click_001.ogg",
-        "error": "cancelled"
-      },
-      {
-        "url": "http://localhost:3300/assets/sfx/tick_004.ogg",
-        "error": "cancelled"
-      },
-      {
-        "url": "http://localhost:3300/assets/sfx/click_003.ogg",
-        "error": "cancelled"
-      },
-      {
-        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
-        "error": "cancelled"
-      },
-      {
-        "url": "http://localhost:3300/assets/sfx/tick_002.ogg",
-        "error": "cancelled"
-      },
-      {
         "url": "http://localhost:3300/assets/sfx/tick_001.ogg",
-        "error": "cancelled"
-      },
-      {
-        "url": "http://localhost:3300/proto/c3/gallery-font.css",
         "error": "cancelled"
       },
       {
@@ -694,7 +678,23 @@
         "error": "cancelled"
       },
       {
-        "url": "http://localhost:3300/proto/c3/gallery.js",
+        "url": "http://localhost:3300/assets/sfx/tick_004.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_003.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/tick_002.ogg",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_000.ogg",
         "error": "cancelled"
       },
       {
@@ -702,7 +702,15 @@
         "error": "cancelled"
       },
       {
-        "url": "http://localhost:3300/assets/sfx/impactMetal_light_000.ogg",
+        "url": "http://localhost:3300/proto/c3/gallery-font.css",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/proto/c3/gallery.js",
+        "error": "cancelled"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/click_001.ogg",
         "error": "cancelled"
       }
     ]
@@ -937,6 +945,10 @@
         "passed": true
       },
       {
+        "name": "Escape closes code dialog while tools are open",
+        "passed": true
+      },
+      {
         "name": "Escape closes tools and restores focus",
         "passed": true
       },
@@ -1011,7 +1023,7 @@
     ],
     "audio": {
       "decoded": 38,
-      "started": 284,
+      "started": 268,
       "errors": [],
       "allFiles": 41
     },
@@ -1019,6 +1031,10 @@
     "cancelledOnReload": [
       {
         "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_001.ogg",
         "error": "NS_BINDING_ABORTED"
       }
     ]
@@ -1253,6 +1269,10 @@
         "passed": true
       },
       {
+        "name": "Escape closes code dialog while tools are open",
+        "passed": true
+      },
+      {
         "name": "Escape closes tools and restores focus",
         "passed": true
       },
@@ -1331,42 +1351,22 @@
     ],
     "audio": {
       "decoded": 38,
-      "started": 284,
+      "started": 275,
       "errors": [],
       "allFiles": 41
     },
     "axe": [],
     "cancelledOnReload": [
       {
+        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
+        "error": "NS_BINDING_ABORTED"
+      },
+      {
         "url": "http://localhost:3300/proto/c3/feeling.js",
         "error": "NS_BINDING_ABORTED"
       },
       {
         "url": "http://localhost:3300/proto/c3/phrase.js",
-        "error": "NS_BINDING_ABORTED"
-      },
-      {
-        "url": "http://localhost:3300/proto/c3/compare.js",
-        "error": "NS_BINDING_ABORTED"
-      },
-      {
-        "url": "http://localhost:3300/proto/c3/share.js",
-        "error": "NS_BINDING_ABORTED"
-      },
-      {
-        "url": "http://localhost:3300/proto/c3/guide.js",
-        "error": "NS_BINDING_ABORTED"
-      },
-      {
-        "url": "http://localhost:3300/assets/sfx/impactMetal_light_002.ogg",
-        "error": "NS_BINDING_ABORTED"
-      },
-      {
-        "url": "http://localhost:3300/assets/sfx/impactMetal_light_001.ogg",
-        "error": "NS_BINDING_ABORTED"
-      },
-      {
-        "url": "http://localhost:3300/proto/c3/mobile.js",
         "error": "NS_BINDING_ABORTED"
       }
     ]

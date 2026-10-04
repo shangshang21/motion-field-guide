@@ -1,0 +1,228 @@
+{
+  "date": "2026-10-04T09:18:26.152Z",
+  "viewport": [
+    390,
+    844
+  ],
+  "dpr": 3,
+  "input": "CDP touchStart / touchMove / touchEnd / touchCancel",
+  "physicalDevice": false,
+  "results": [
+    {
+      "name": "01 Push Down: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "02 Ripple: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "03 Fill Wipe: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "04 Text Roll: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "05 Hold to Confirm: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "06 Particle Burst: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "07 Glitch: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "08 Squash & Stretch: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "09 Error Shake: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "10 Magnetic: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "11 Image Trail: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "12 Spotlight Reveal: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "13 Split Text Stagger: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "14 Scramble: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "15 3D Tilt: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "16 Toggle: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "17 Submit State: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "18 Custom Cursor: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "19 Cursor Trail: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "20 Variable Font Wave: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "21 Text Mask Reveal: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "22 Typewriter: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "23 Parallax: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "24 Pinned Scroll: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "25 Horizontal Scroll: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "26 Scroll Reveal: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "27 Scroll Velocity Skew: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "28 FLIP Layout: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "29 Shared Element: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "30 Curtain / Wipe: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "31 View Transitions API: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "32 Hover Distortion: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Hover Distortion: live GPU stays enabled",
+      "passed": true
+    },
+    {
+      "name": "33 Displacement Transition: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Displacement Transition: live GPU stays enabled",
+      "passed": true
+    },
+    {
+      "name": "34 Noise Gradient: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Noise Gradient: live GPU stays enabled",
+      "passed": true
+    },
+    {
+      "name": "35 Particles to Shape: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Particles to Shape: live GPU stays enabled",
+      "passed": true
+    },
+    {
+      "name": "36 Easing: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "37 Spring: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "38 Duration: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "39 Stagger: actual touch and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Inertia continues after finger release",
+      "passed": true
+    },
+    {
+      "name": "Rubber compresses beyond its boundary",
+      "passed": true
+    },
+    {
+      "name": "Rubber springs back towards nearest boundary",
+      "passed": true
+    },
+    {
+      "name": "Slow swipe returns without dismissing",
+      "passed": true
+    },
+    {
+      "name": "Fast swipe dismisses one card",
+      "passed": true
+    },
+    {
+      "name": "Pointer cancellation never dismisses a card",
+      "passed": true
+    },
+    {
+      "name": "Pull crosses threshold and refreshes on release",
+      "passed": true
+    },
+    {
+      "name": "Pull refresh finishes and settles",
+      "passed": true
+    },
+    {
+      "name": "Guide leaves the full gesture stage unobstructed",
+      "passed": true
+    },
+    {
+      "name": "All original hover effects have explicit tap guidance",
+      "passed": true
+    },
+    {
+      "name": "No JavaScript errors in the actual touch pipeline",
+      "passed": true
+    }
+  ]
+}

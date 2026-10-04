@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-04T09:16:38.494Z",
+  "results": [
+    {
+      "name": "Catalog: 43 exhibits, unique numbers and existing cards",
+      "passed": true
+    },
+    {
+      "name": "Every copied phrase can be read back, including unloaded halls",
+      "passed": true
+    },
+    {
+      "name": "Restore speed and magnetic strength/radius/ease",
+      "passed": true
+    },
+    {
+      "name": "Custom text survives separators and is restored with timing",
+      "passed": true
+    },
+    {
+      "name": "Copied custom text escapes quotes and round-trips exactly",
+      "passed": true
+    },
+    {
+      "name": "Restore all four bezier control coordinates",
+      "passed": true
+    },
+    {
+      "name": "Restore spring, duration ratio and reproducible stagger seed",
+      "passed": true
+    },
+    {
+      "name": "Invalid parameter is atomic: controls and speed remain unchanged",
+      "passed": true
+    },
+    {
+      "name": "Bad names, duplicates, unsupported values and unknown parameters fail",
+      "passed": true
+    },
+    {
+      "name": "Keyboard curve edit updates the copy phrase",
+      "passed": true
+    },
+    {
+      "name": "All 43 exhibits carry 1–3 valid feeling labels",
+      "passed": true
+    },
+    {
+      "name": "Feeling filters intersect: Elastic + heavy includes spring and rubber",
+      "passed": true
+    },
+    {
+      "name": "Empty feeling intersection is explained and can be cleared",
+      "passed": true
+    },
+    {
+      "name": "Feeling directory can show all 43 exhibits",
+      "passed": true
+    },
+    {
+      "name": "Feeling result opens the right demonstration",
+      "passed": true
+    },
+    {
+      "name": "Exhibit label links back to the selected feeling",
+      "passed": true
+    },
+    {
+      "name": "Actual mouse drag changes the bezier control point",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 768px",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 1024px",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion settles timing immediately",
+      "passed": true
+    },
+    {
+      "name": "Reduced-motion submit returns to an enabled button",
+      "passed": true
+    },
+    {
+      "name": "DPR 3: WebGL canvases are capped at 1.5x and render",
+      "passed": true
+    },
+    {
+      "name": "Leaving Shader stops all WebGL drawing",
+      "passed": true
+    },
+    {
+      "name": "WebGL-unavailable fallback is explicit and stays playable",
+      "passed": true
+    },
+    {
+      "name": "Phone distortion: live GPU at DPR 1",
+      "passed": true
+    },
+    {
+      "name": "Phone dissolve: live GPU at DPR 1",
+      "passed": true
+    },
+    {
+      "name": "Phone gradient: live GPU at DPR 1",
+      "passed": true
+    },
+    {
+      "name": "Phone particles: live GPU at DPR 1",
+      "passed": true
+    },
+    {
+      "name": "All thirteen adjustable exhibits retain A/B parameters through phrases",
+      "passed": true
+    },
+    {
+      "name": "Gesture A/B rubber: identical demo input reveals different parameters",
+      "passed": true
+    },
+    {
+      "name": "Gesture A/B swipe: identical demo input reveals different parameters",
+      "passed": true
+    },
+    {
+      "name": "Gesture A/B pull: identical demo input reveals different parameters",
+      "passed": true
+    },
+    {
+      "name": "Quoted A/B markers and unpaired literal quotes survive comparison round-trip",
+      "passed": true
+    },
+    {
+      "name": "A/B invalid snapshot is atomic",
+      "passed": true
+    },
+    {
+      "name": "All forty-three exports parse as standalone HTML with inline scripts",
+      "passed": true
+    },
+    {
+      "name": "Spring physics freezes exactly while paused",
+      "passed": true
+    },
+    {
+      "name": "One frame advances spring while keeping playback paused",
+      "passed": true
+    },
+    {
+      "name": "Explosion canvas freezes at a visible phase",
+      "passed": true
+    },
+    {
+      "name": "Explosion particles move exactly one frame",
+      "passed": true
+    },
+    {
+      "name": "Native browser animations freeze on the same clock",
+      "passed": true
+    },
+    {
+      "name": "One frame advances native browser animations",
+      "passed": true
+    },
+    {
+      "name": "CSS animations and pseudo elements freeze exactly",
+      "passed": true
+    },
+    {
+      "name": "One frame advances all glitch CSS layers",
+      "passed": true
+    },
+    {
+      "name": "CSS pause is exact across thirty playback boundary races",
+      "passed": true
+    },
+    {
+      "name": "Global start flash also freezes and steps with the shared clock",
+      "passed": true
+    },
+    {
+      "name": "Guide typewriter also freezes while playback is paused",
+      "passed": true
+    },
+    {
+      "name": "Guide typewriter advances on the authored clock",
+      "passed": true
+    },
+    {
+      "name": "No uncaught JavaScript errors",
+      "passed": true
+    }
+  ]
+}

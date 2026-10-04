@@ -1,0 +1,225 @@
+{
+  "date": "2026-10-04T09:16:13.338Z",
+  "standaloneCount": 43,
+  "results": [
+    {
+      "key": "push",
+      "bytes": 9024,
+      "passed": true
+    },
+    {
+      "key": "ripple",
+      "bytes": 9005,
+      "passed": true
+    },
+    {
+      "key": "wipe",
+      "bytes": 9026,
+      "passed": true
+    },
+    {
+      "key": "roll",
+      "bytes": 9031,
+      "passed": true
+    },
+    {
+      "key": "hold",
+      "bytes": 9052,
+      "passed": true
+    },
+    {
+      "key": "burst",
+      "bytes": 9070,
+      "passed": true
+    },
+    {
+      "key": "glitch",
+      "bytes": 9010,
+      "passed": true
+    },
+    {
+      "key": "jelly",
+      "bytes": 9056,
+      "passed": true
+    },
+    {
+      "key": "shake",
+      "bytes": 9030,
+      "passed": true
+    },
+    {
+      "key": "magnetic",
+      "bytes": 6947,
+      "passed": true
+    },
+    {
+      "key": "trail",
+      "bytes": 6959,
+      "passed": true
+    },
+    {
+      "key": "spotlight",
+      "bytes": 6969,
+      "passed": true
+    },
+    {
+      "key": "split",
+      "bytes": 5765,
+      "passed": true
+    },
+    {
+      "key": "scramble",
+      "bytes": 5729,
+      "passed": true
+    },
+    {
+      "key": "tilt",
+      "bytes": 9048,
+      "passed": true
+    },
+    {
+      "key": "toggle",
+      "bytes": 9033,
+      "passed": true
+    },
+    {
+      "key": "submit",
+      "bytes": 9058,
+      "passed": true
+    },
+    {
+      "key": "custom",
+      "bytes": 6962,
+      "passed": true
+    },
+    {
+      "key": "ink",
+      "bytes": 6950,
+      "passed": true
+    },
+    {
+      "key": "wave",
+      "bytes": 12693,
+      "passed": true
+    },
+    {
+      "key": "mask",
+      "bytes": 5681,
+      "passed": true
+    },
+    {
+      "key": "typewriter",
+      "bytes": 5663,
+      "passed": true
+    },
+    {
+      "key": "parallax",
+      "bytes": 5413,
+      "passed": true
+    },
+    {
+      "key": "pinned",
+      "bytes": 5448,
+      "passed": true
+    },
+    {
+      "key": "horizontal",
+      "bytes": 5451,
+      "passed": true
+    },
+    {
+      "key": "reveal",
+      "bytes": 5463,
+      "passed": true
+    },
+    {
+      "key": "velocity",
+      "bytes": 5482,
+      "passed": true
+    },
+    {
+      "key": "flip",
+      "bytes": 6032,
+      "passed": true
+    },
+    {
+      "key": "shared",
+      "bytes": 6063,
+      "passed": true
+    },
+    {
+      "key": "curtain",
+      "bytes": 6046,
+      "passed": true
+    },
+    {
+      "key": "native",
+      "bytes": 6066,
+      "passed": true
+    },
+    {
+      "key": "distortion",
+      "bytes": 8423,
+      "passed": true
+    },
+    {
+      "key": "dissolve",
+      "bytes": 8430,
+      "passed": true
+    },
+    {
+      "key": "gradient",
+      "bytes": 8421,
+      "passed": true
+    },
+    {
+      "key": "particles",
+      "bytes": 8440,
+      "passed": true
+    },
+    {
+      "key": "easing",
+      "bytes": 5833,
+      "passed": true
+    },
+    {
+      "key": "spring",
+      "bytes": 5790,
+      "passed": true
+    },
+    {
+      "key": "duration",
+      "bytes": 5766,
+      "passed": true
+    },
+    {
+      "key": "stagger",
+      "bytes": 5837,
+      "passed": true
+    },
+    {
+      "key": "inertia",
+      "bytes": 8265,
+      "passed": true
+    },
+    {
+      "key": "rubber",
+      "bytes": 8273,
+      "passed": true
+    },
+    {
+      "key": "swipe",
+      "bytes": 8259,
+      "passed": true
+    },
+    {
+      "key": "pull",
+      "bytes": 8293,
+      "passed": true
+    }
+  ],
+  "abExport": true,
+  "abShareReload": true,
+  "reducedExports": 4,
+  "errors": []
+}

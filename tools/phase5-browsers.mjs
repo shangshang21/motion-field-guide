@@ -26,6 +26,7 @@ for(const name of (process.env.QA_BROWSERS||'webkit,firefox').split(',')){
   const record=(name,value)=>{assert.ok(value,name);report.checks.push({name,passed:true});};
   record('First greeting visible',await page.locator('#first-visit').isVisible());
   await page.locator('.welcome-skip').click();await page.reload();record('Greeting remembered after reload',await page.locator('#first-visit').isHidden());
+  await page.evaluate(()=>document.fonts.ready);await page.waitForFunction(()=>document.querySelector('.t2').getAnimations().every(a=>a.playState==='finished'));
   await page.screenshot({path:`${out}/${name}-${mobile?'mobile':'desktop'}-hero.png`});
   // A real user click unlocks the audio context before all the demonstrations.
   await page.locator('#start').click();await page.waitForTimeout(1800);
@@ -53,6 +54,7 @@ for(const name of (process.env.QA_BROWSERS||'webkit,firefox').split(',')){
   await page.locator('[data-k=spring] .ab-toggle').click();await page.waitForTimeout(300);
   record('A/B renders two live replicas',await page.locator('[data-k=spring] .ab-replica').count()===2);
   await page.locator('[data-k=spring] .ab-close').click();
+  await page.locator('[data-k=spring] .card-actions button').nth(1).focus();await page.keyboard.press('Enter');await page.locator('.code-modal').waitFor({state:'visible'});await page.keyboard.press('Escape');await page.locator('.code-modal').waitFor({state:'hidden'});record('Escape closes code dialog while tools are open',true);
   await page.locator('[data-k=spring] .tools-toggle').focus();await page.keyboard.press('Escape');
   record('Escape closes tools and restores focus',await page.locator('[data-k=spring] > .card-tools').isHidden()&&await page.locator('[data-k=spring] .tools-toggle').evaluate(el=>el===document.activeElement));
   // Drag a gesture using native pointer input, then operate it by keyboard.

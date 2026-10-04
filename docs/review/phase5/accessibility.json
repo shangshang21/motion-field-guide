@@ -1,0 +1,138 @@
+[
+  {
+    "mobile": false,
+    "checks": [
+      {
+        "name": "43 stages have a readable individual description",
+        "passed": true
+      },
+      {
+        "name": "Every image declares alt text",
+        "passed": true
+      },
+      {
+        "name": "Buttons remain in the keyboard tab order",
+        "passed": true
+      },
+      {
+        "name": "Arrow keys select and focus the next speed option",
+        "passed": true
+      },
+      {
+        "name": "Enter opens tools",
+        "passed": true
+      },
+      {
+        "name": "Keyboard focus has a visible outline",
+        "passed": true
+      },
+      {
+        "name": "Copied state retains its visible accessible name",
+        "passed": true
+      },
+      {
+        "name": "Escape closes the code dialog",
+        "passed": true
+      },
+      {
+        "name": "Curve handle updates its ARIA value from keyboard input",
+        "passed": true
+      }
+    ],
+    "scans": [
+      {
+        "state": "first-visit",
+        "violations": []
+      },
+      {
+        "state": "all-halls-idle",
+        "violations": []
+      },
+      {
+        "state": "expanded-tools-and-playback",
+        "violations": []
+      },
+      {
+        "state": "copied-state-and-guide",
+        "violations": []
+      },
+      {
+        "state": "code-dialog",
+        "violations": []
+      }
+    ],
+    "violations": []
+  },
+  {
+    "mobile": true,
+    "checks": [
+      {
+        "name": "43 stages have a readable individual description",
+        "passed": true
+      },
+      {
+        "name": "Every image declares alt text",
+        "passed": true
+      },
+      {
+        "name": "Buttons remain in the keyboard tab order",
+        "passed": true
+      },
+      {
+        "name": "Arrow keys select and focus the next speed option",
+        "passed": true
+      },
+      {
+        "name": "Enter opens tools",
+        "passed": true
+      },
+      {
+        "name": "Keyboard focus has a visible outline",
+        "passed": true
+      },
+      {
+        "name": "Copied state retains its visible accessible name",
+        "passed": true
+      },
+      {
+        "name": "Escape closes the code dialog",
+        "passed": true
+      },
+      {
+        "name": "Escape closes the mobile guide dialog",
+        "passed": true
+      },
+      {
+        "name": "Curve handle updates its ARIA value from keyboard input",
+        "passed": true
+      }
+    ],
+    "scans": [
+      {
+        "state": "first-visit",
+        "violations": []
+      },
+      {
+        "state": "all-halls-idle",
+        "violations": []
+      },
+      {
+        "state": "expanded-tools-and-playback",
+        "violations": []
+      },
+      {
+        "state": "copied-state-and-guide",
+        "violations": []
+      },
+      {
+        "state": "code-dialog",
+        "violations": []
+      },
+      {
+        "state": "guide-dialog",
+        "violations": []
+      }
+    ],
+    "violations": []
+  }
+]

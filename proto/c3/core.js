@@ -141,7 +141,7 @@ export function setSpeed(v, silent = false) {
   SPD = v; setClockSpeed(v); document.documentElement.style.setProperty('--spd', v);
   $('#spdVal').textContent = v.toFixed(2) + 'x';
   $('#hudSpd').textContent = $('#dockSpd').textContent = v.toFixed(2) + 'x';
-  $('#speed-toggle').setAttribute('aria-label', `调整全局速度，当前 ${v.toFixed(2)} 倍`);
+  $('#speed-toggle').setAttribute('aria-label', `${v.toFixed(2)}x，调整全局速度`);
   $$('.segs button').forEach(b => {
     const nearest = SPEEDS.reduce((a,n) => Math.abs(n-v)<Math.abs(a-v)?n:a);
     const selected = Number(b.dataset.speed) === nearest;

@@ -2,6 +2,9 @@
 const greeting=document.querySelector('#first-visit');
 const seenKey='motion-field-guide.welcomed';
 let timer;
+const desktop=matchMedia('(min-width:961px)'),home=document.querySelector('.hero .left');
+function dock(){(desktop.matches?document.body:home).append(greeting);}
+dock();desktop.addEventListener('change',dock);
 function finish(){greeting.hidden=true;clearTimeout(timer);try{localStorage.setItem(seenKey,'yes');}catch{}document.documentElement.classList.remove('first-visit');}
 greeting.hidden=!document.documentElement.classList.contains('first-visit');
 if(!greeting.hidden){

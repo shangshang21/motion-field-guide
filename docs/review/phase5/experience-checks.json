@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-04T09:11:57.831Z",
+  "checks": [
+    {
+      "name": "First greeting is visible, in the hero flow and has four short sentences",
+      "passed": true
+    },
+    {
+      "name": "Greeting disappears within 30 seconds and is remembered",
+      "passed": true
+    },
+    {
+      "name": "Returning visitors are not greeted again",
+      "passed": true
+    },
+    {
+      "name": "All 43 cards expose two footer buttons and keep other tools closed",
+      "passed": true
+    },
+    {
+      "name": "Enter opens the card tools",
+      "passed": true
+    },
+    {
+      "name": "Escape closes the tools and returns focus",
+      "passed": true
+    },
+    {
+      "name": "Inline guide follows the card and never overlays its demonstration",
+      "passed": true
+    },
+    {
+      "name": "The default copy button carries the actual current parameters",
+      "passed": true
+    },
+    {
+      "name": "All 43 stages have individual screen-reader instructions",
+      "passed": true
+    },
+    {
+      "name": "Storage-disabled browser can still read and skip the greeting",
+      "passed": true
+    },
+    {
+      "name": "No uncaught errors in the first-visit and keyboard flows",
+      "passed": true
+    }
+  ]
+}

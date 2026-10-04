@@ -1,6 +1,6 @@
 import {getExhibit} from './core.js';
 const mobile=matchMedia('(max-width:760px), (pointer:coarse)'),dialog=document.querySelector('#dialog');let key=null;
-const note=document.createElement('dialog');note.className='guide-note';note.innerHTML='<header><b>导览员讲解</b><button aria-label="关闭讲解">✕</button></header><p></p><button class="note-done">继续体验 ↗</button>';document.body.append(note);note.querySelectorAll('button').forEach(b=>b.onclick=()=>note.close());
+const note=document.createElement('dialog');note.className='guide-note';note.setAttribute('aria-labelledby','guide-note-title');note.innerHTML='<header><b id="guide-note-title">导览员讲解</b><button aria-label="关闭讲解">✕</button></header><p></p><button class="note-done">继续体验 ↗</button>';document.body.append(note);note.querySelectorAll('button').forEach(b=>b.onclick=()=>note.close());
 const read=document.createElement('button');read.id='dRead';read.textContent='讲解 ↗';read.className='dialog-read';dialog.querySelector('.who .x').before(read);
 read.onclick=()=>{note.querySelector('header b').textContent=getExhibit(key)?.name||'欢迎来到动效图鉴';note.querySelector('p').textContent=getExhibit(key)?.say||document.querySelector('#dTxt').textContent;note.showModal();};
 addEventListener('exhibit-say',e=>key=e.detail.key);

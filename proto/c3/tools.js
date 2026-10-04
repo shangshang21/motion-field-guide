@@ -14,10 +14,10 @@ export function cardTools(root){
  toolbar.innerHTML=`<button class="card-copy" aria-label="复制${entry.name}的口令" title="复制当前手感的口令">口令 ↗</button><button class="tools-toggle" aria-expanded="false" aria-controls="tools-${key}" aria-label="展开${entry.name}的工具">工具 <span aria-hidden="true">···</span></button>`;
  footer.append(name,toolbar);footer.after(panel);
  toolbar.querySelector('.tools-toggle').onclick=()=>{if(!panel.hidden){close(root);return;}close(openCard);openCard=root;panel.hidden=false;toolbar.querySelector('.tools-toggle').setAttribute('aria-expanded','true');};
- toolbar.querySelector('.card-copy').onclick=async e=>{const button=e.currentTarget;try{await loadModule(entry.module);const text=phrase(key);try{await navigator.clipboard.writeText(text);}catch{const input=document.createElement('textarea');input.value=text;input.style.cssText='position:fixed;opacity:0';document.body.append(input);input.select();document.execCommand('copy');input.remove();}button.textContent='已复制 ✓';setTimeout(()=>button.textContent='口令 ↗',1600);}catch{button.textContent='再试一次';}};
+ toolbar.querySelector('.card-copy').onclick=async e=>{const button=e.currentTarget;const label=text=>{button.textContent=text;button.setAttribute('aria-label',`${text}，复制${entry.name}的口令`);};try{await loadModule(entry.module);const text=phrase(key);try{await navigator.clipboard.writeText(text);}catch{const input=document.createElement('textarea');input.value=text;input.style.cssText='position:fixed;opacity:0';document.body.append(input);input.select();document.execCommand('copy');input.remove();}label('已复制 ✓');setTimeout(()=>label('口令 ↗'),1600);}catch{label('再试一次');}};
  for(const selector of ['.demo-tools','.lab-tools','.type-actions','.exhibit-feelings','.card-actions','.ab-tools']){const node=root.querySelector(selector);if(node)panel.append(node);}
  return panel;
 }
 for(const entry of catalog){const root=document.querySelector(`.card[data-k="${entry.key}"]`);if(root)cardTools(root);}
 document.addEventListener('pointerdown',e=>{if(openCard&&!openCard.contains(e.target))close(openCard);},{passive:true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&openCard){e.preventDefault();close(openCard,true);}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&openCard&&!document.querySelector('dialog[open]')){e.preventDefault();close(openCard,true);}});
